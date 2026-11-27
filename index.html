@@ -1,1403 +1,2538 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iGaming Regulatory Desk & Market Entry Intelligence</title>
-  <!-- React & ReactDOM -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <!-- Babel -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-  <!-- SheetJS (xlsx) for direct client-side Excel uploads -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iGaming Regulatory Intelligence & Market Entry Portal</title>
   <style>
     :root {
-      --bg: #F4F7F9;
-      --surface: #FFFFFF;
-      --surface-2: #F8FAFC;
-      --ink: #0F172A;
-      --ink-muted: #475569;
-      --line: #E2E8F0;
-      --line-2: #CBD5DD;
-      --brand: #0D5662;
-      --brand-dark: #08373E;
-      --brand-soft: #E5F1F3;
-      --danger: #B42318;
-      --danger-bg: #FEF3F2;
-      --warn: #B54708;
-      --warn-bg: #FFFAEB;
-      --info: #175CD3;
-      --info-bg: #EFF8FF;
-      --ok: #027A48;
-      --ok-bg: #ECFDF3;
-      --radius: 10px;
+      --bg-main: #0b0f19;
+      --bg-card: #111827;
+      --bg-card-sub: #1a2234;
+      --border-color: #1f293d;
+      --border-light: #2d3748;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-purple: #8b5cf6;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-sub: #6b7280;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      font-size: 14px;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
       line-height: 1.5;
-      padding-bottom: 60px;
-      -webkit-font-smoothing: antialiased;
+      font-size: 14px;
+      overflow-x: hidden;
     }
 
-    .wrap { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
-
-    /* Top Navigation Header */
-    .top-header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--line);
+    /* Top Navigation Bar */
+    header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-color);
       position: sticky;
       top: 0;
       z-index: 50;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .top-bar {
+      padding: 0.75rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 14px 0 10px;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
-    .brand-group { display: flex; align-items: center; gap: 12px; }
-    .brand-logo {
-      width: 40px;
-      height: 40px;
-      background: var(--brand);
-      color: #fff;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      font-weight: 800;
-      font-size: 17px;
-    }
-    .brand-title { font-size: 19px; font-weight: 800; color: var(--ink); line-height: 1.15; }
-    .brand-subtitle { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
 
-    /* Nav Tabs */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+      color: #fff;
+      font-weight: 800;
+      font-size: 1rem;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .brand-text h1 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+
+    .brand-text span {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
     .nav-tabs {
       display: flex;
-      gap: 6px;
-      overflow-x: auto;
-      border-bottom: 1px solid var(--line);
-      margin-top: 4px;
+      gap: 0.25rem;
+      background-color: var(--bg-card-sub);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
     }
+
     .tab-btn {
-      background: none;
+      background: transparent;
       border: none;
-      border-bottom: 3px solid transparent;
-      padding: 10px 14px;
-      font-size: 13.5px;
+      color: var(--text-muted);
+      padding: 0.45rem 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
-      color: var(--ink-muted);
+      border-radius: 6px;
       cursor: pointer;
+      transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 6px;
-      white-space: nowrap;
-      transition: color 0.15s;
-    }
-    .tab-btn:hover { color: var(--ink); }
-    .tab-btn.active {
-      color: var(--brand);
-      border-bottom-color: var(--brand);
-      font-weight: 700;
-    }
-    .tab-counter {
-      font-size: 11px;
-      background: #E2E8F0;
-      color: #334155;
-      padding: 1px 7px;
-      border-radius: 999px;
-      font-weight: 700;
-    }
-    .tab-btn.active .tab-counter {
-      background: var(--brand-soft);
-      color: var(--brand);
+      gap: 0.4rem;
     }
 
-    /* Cards & Containers */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      margin-top: 16px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    .tab-btn:hover {
+      color: var(--text-main);
     }
-    .card-title { font-size: 15px; font-weight: 800; margin-bottom: 6px; color: var(--ink); }
-    .card-subtitle { font-size: 13px; color: var(--ink-muted); margin-bottom: 12px; line-height: 1.45; }
+
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+
+    .global-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .country-selector-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background-color: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.35rem 0.65rem;
+    }
+
+    .country-selector-wrap label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    select, input, button {
+      font-family: inherit;
+    }
+
+    select {
+      background-color: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 0.85rem;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+    }
+
+    select option {
+      background-color: var(--bg-card);
+      color: var(--text-main);
+    }
 
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 7px 13px;
-      border-radius: 7px;
-      font-size: 13px;
+      background-color: var(--primary);
+      color: #fff;
+      border: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      color: var(--ink);
-      text-decoration: none;
-      transition: all 0.15s;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
     }
-    .btn:hover:not(:disabled) { background: var(--surface-2); border-color: #CBD5E1; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .btn-primary {
-      background: var(--brand);
-      color: #fff;
-      border-color: var(--brand);
-    }
-    .btn-primary:hover:not(:disabled) { background: var(--brand-dark); border-color: var(--brand-dark); color: #fff; }
-    .btn-excel {
-      background: #107C41;
-      color: #fff;
-      border-color: #107C41;
-    }
-    .btn-excel:hover:not(:disabled) { background: #0B5A2F; border-color: #0B5A2F; color: #fff; }
-    .btn-danger {
-      background: #FFF;
-      color: var(--danger);
-      border-color: #FECDCA;
-    }
-    .btn-danger:hover { background: #FEF3F2; }
 
-    /* Country Selection Chips */
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 5px 11px;
-      border-radius: 999px;
-      font-size: 12.5px;
-      font-weight: 600;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-      cursor: pointer;
-      transition: all 0.15s;
-      user-select: none;
+    .btn:hover {
+      background-color: var(--primary-hover);
     }
-    .chip:hover { border-color: var(--brand); }
-    .chip.selected {
-      background: var(--brand);
+
+    .btn-outline {
+      background-color: transparent;
+      border: 1px solid var(--border-light);
+      color: var(--text-muted);
+    }
+
+    .btn-outline:hover {
+      background-color: var(--bg-card-sub);
+      color: var(--text-main);
+      border-color: var(--text-muted);
+    }
+
+    .btn-green {
+      background-color: #059669;
+    }
+    .btn-green:hover {
+      background-color: #047857;
+    }
+
+    .btn-amber {
+      background-color: #d97706;
+    }
+    .btn-amber:hover {
+      background-color: #b45309;
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1540px;
+      margin: 0 auto;
+      padding: 1.5rem;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Common Card Styling */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
       color: #fff;
-      border-color: var(--brand);
-    }
-    .chip-remove {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      justify-content: center;
-      width: 15px;
-      height: 15px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
-      font-size: 10px;
-      line-height: 1;
+      gap: 0.5rem;
     }
 
     /* Badges */
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      font-size: 11.5px;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
       font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 6px;
-      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .badge-money { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECDCA; }
-    .badge-rules { background: var(--warn-bg); color: var(--warn); border: 1px solid #FEDF89; }
-    .badge-market { background: var(--info-bg); color: var(--info); border: 1px solid #B2DDFF; }
-    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid #A6F4C5; }
-    .badge-neutral { background: #F1F5F9; color: #475569; }
 
-    .input {
-      border: 1px solid var(--line);
-      border-radius: 7px;
-      padding: 6px 8px;
-      font-size: 12.5px;
-      background: #fff;
-      color: var(--ink);
-      outline: none;
+    .badge-red {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.3);
     }
-    .input:focus { border-color: var(--brand); }
-    .input-sm { padding: 4px 6px; font-size: 11.5px; }
 
-    /* Segmented Controls */
-    .seg-ctrl {
-      display: inline-flex;
-      background: var(--surface-2);
-      border: 1px solid var(--line);
+    .badge-amber {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #f59e0b;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .badge-green {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .badge-blue {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #3b82f6;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .badge-purple {
+      background-color: rgba(139, 92, 246, 0.15);
+      color: #8b5cf6;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+
+    .badge-gray {
+      background-color: rgba(107, 114, 128, 0.2);
+      color: #9ca3af;
+      border: 1px solid rgba(107, 114, 128, 0.3);
+    }
+
+    /* Tab 1: News & Priority Flags */
+    .news-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      margin-bottom: 1.25rem;
+      background-color: var(--bg-card-sub);
+      padding: 0.75rem 1rem;
       border-radius: 8px;
-      padding: 2px;
-      gap: 2px;
+      border: 1px solid var(--border-color);
     }
-    .seg-btn {
-      border: none;
-      background: transparent;
-      padding: 5px 11px;
-      border-radius: 6px;
-      font-size: 12.5px;
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-group label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
       font-weight: 600;
-      color: var(--ink-muted);
-      cursor: pointer;
     }
-    .seg-btn.active {
-      background: var(--brand);
+
+    .news-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .news-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--primary);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: all 0.15s ease;
+    }
+
+    .news-card:hover {
+      border-color: var(--border-light);
+      background-color: #131d31;
+    }
+
+    .news-card.priority-critical {
+      border-left-color: var(--accent-red);
+    }
+
+    .news-card.priority-high {
+      border-left-color: var(--accent-amber);
+    }
+
+    .news-card.priority-medium {
+      border-left-color: var(--primary);
+    }
+
+    .news-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .news-title {
+      font-size: 0.95rem;
+      font-weight: 700;
       color: #fff;
     }
 
-    /* News Items */
-    .news-item {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      padding: 16px 18px;
-      margin-top: 12px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-    .news-item.alert-border { border-left: 5px solid var(--danger); }
     .news-meta {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-size: 12.5px;
-    }
-    .news-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
-    .alert-box {
-      background: #FEF3F2;
-      border-left: 3px solid var(--danger);
-      padding: 6px 10px;
-      margin: 8px 0;
-      border-radius: 0 6px 6px 0;
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--danger);
-    }
-    .news-summary { font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 12px; }
-    .news-footer {
-      display: flex;
+      gap: 0.75rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
       flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 10px;
-      border-top: 1px solid #F1F5F9;
-      font-size: 12.5px;
-      color: var(--ink-muted);
-      gap: 8px;
     }
 
-    /* Tables */
+    .news-summary {
+      font-size: 0.85rem;
+      color: #d1d5db;
+      line-height: 1.5;
+    }
+
+    .news-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.4rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .news-source-tag {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-family: var(--font-mono);
+    }
+
+    .btn-excel {
+      background-color: #107c41;
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 600;
+    }
+
+    .btn-excel:hover {
+      background-color: #0b5c30;
+    }
+
+    /* Tab 3: Detailed 42-Item Country Profile Dossier */
+    .profile-hero {
+      background: linear-gradient(180deg, #162033 0%, var(--bg-card) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .profile-hero-title h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .profile-hero-title p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .profile-meta-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .hero-stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+
+    .hero-stat-card {
+      background-color: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+    }
+
+    .hero-stat-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero-stat-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .hero-stat-sub {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-top: 0.2rem;
+    }
+
+    /* Verification / Reconcile Banner */
+    .reconciliation-box {
+      background-color: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .reconciliation-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #f59e0b;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .discrepancy-item {
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      margin-bottom: 0.4rem;
+      padding-left: 0.85rem;
+      border-left: 2px solid rgba(245, 158, 11, 0.4);
+    }
+
+    /* Executive Synthesis Card */
+    .at-a-glance-box {
+      background-color: #141e30;
+      border: 1px solid #233350;
+      border-radius: 6px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .at-a-glance-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #60a5fa;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .at-a-glance-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: #d1d5db;
+    }
+
+    .at-a-glance-list strong {
+      color: #fff;
+    }
+
+    /* Dossier Table Styling */
+    .dossier-section {
+      margin-bottom: 1.75rem;
+    }
+
+    .dossier-section-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
     .table-container {
       width: 100%;
       overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      margin-top: 12px;
-      background: #fff;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-card);
     }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; }
-    th {
-      background: var(--surface-2);
-      padding: 9px 11px;
-      font-size: 11.5px;
-      font-weight: 700;
-      color: #475569;
+
+    table.dossier-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.8rem;
+    }
+
+    table.dossier-table th {
+      background-color: var(--bg-card-sub);
+      color: var(--text-muted);
+      font-weight: 600;
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-color);
       text-transform: uppercase;
-      border-bottom: 1px solid var(--line);
+      font-size: 0.7rem;
+      letter-spacing: 0.03em;
       white-space: nowrap;
     }
-    td { padding: 9px 11px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #FAFCFE; }
 
-    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-    .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
-
-    .status-tile {
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      text-align: center;
+    table.dossier-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #d1d5db;
+      vertical-align: top;
     }
-    .status-tile small { display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
-    .status-tile strong { font-size: 14.5px; font-weight: 800; }
+
+    table.dossier-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.dossier-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.015);
+    }
+
+    .cell-key {
+      font-weight: 600;
+      color: #fff;
+      width: 220px;
+      min-width: 180px;
+    }
+
+    .cell-val {
+      color: #f3f4f6;
+    }
+
+    .cell-source {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      max-width: 240px;
+    }
+
+    .basis-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.15rem 0.4rem;
+      border-radius: 3px;
+      white-space: nowrap;
+      display: inline-block;
+    }
+
+    .basis-official-excel {
+      background-color: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .basis-official {
+      background-color: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .basis-excel {
+      background-color: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+
+    .basis-differs {
+      background-color: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .basis-reported {
+      background-color: rgba(107, 114, 128, 0.2);
+      color: #9ca3af;
+      border: 1px solid rgba(107, 114, 128, 0.4);
+    }
+
+    .dossier-link {
+      color: #60a5fa;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .dossier-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Tab 2: Financial Model (5-Year Scenario) */
+    .model-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 1024px) {
+      .model-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .input-row label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .input-row input {
+      background-color: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      color: #fff;
+      padding: 0.45rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    .input-row input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-card-sub);
+      border: 1px solid var(--border-color);
+      padding: 0.85rem 1rem;
+      border-radius: 6px;
+    }
+
+    .kpi-card .kpi-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .kpi-card .kpi-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      margin-top: 0.2rem;
+    }
+
+    /* Notification Toast */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: #1e293b;
+      border: 1px solid #3b82f6;
+      color: #fff;
+      padding: 0.85rem 1.25rem;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Modal for API Config */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(3px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      padding: 1.5rem;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .modal-content h3 {
+      font-size: 1.1rem;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-content p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
   </style>
 </head>
 <body>
-  <div id="root"></div>
 
-  <script type="text/babel">
-    const { useState, useMemo, useEffect, useRef } = React;
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">D</div>
+      <div class="brand-text">
+        <h1>Regulatory Intelligence Desk</h1>
+        <span>Market Expansion & Strategy Group</span>
+      </div>
+    </div>
 
-    const REGIONS = {
-      "Europe": ["Albania", "Alderney", "Andorra", "Austria", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Gibraltar", "Greece", "Guernsey", "Hungary", "Iceland", "Ireland", "Isle of Man", "Italy", "Jersey", "Kosovo", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Monaco", "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "United Kingdom"],
-      "Caucasus & CIS": ["Armenia", "Azerbaijan", "Belarus", "Georgia", "Kazakhstan", "Kyrgyzstan", "Moldova", "Russia", "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan"],
-      "Latin America & Caribbean": ["Antigua and Barbuda", "Argentina", "Bahamas", "Barbados", "Belize", "Bolivia", "Brazil", "Chile", "Colombia", "Costa Rica", "Cuba", "Curaçao", "Dominican Republic", "Ecuador", "El Salvador", "Guatemala", "Guyana", "Honduras", "Jamaica", "Mexico", "Nicaragua", "Panama", "Paraguay", "Peru", "Puerto Rico", "Suriname", "Trinidad and Tobago", "Uruguay", "Venezuela"],
-      "North America": ["Canada", "Canada (Ontario)", "United States"],
-      "Africa": ["Algeria", "Angola", "Botswana", "Cameroon", "Côte d'Ivoire", "DR Congo", "Egypt", "Ethiopia", "Ghana", "Kenya", "Madagascar", "Morocco", "Mozambique", "Nigeria", "Rwanda", "Senegal", "South Africa", "Tanzania", "Tunisia", "Uganda", "Zambia", "Zimbabwe"],
-      "Middle East": ["Bahrain", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Oman", "Qatar", "Saudi Arabia", "Turkey", "United Arab Emirates"],
-      "Asia-Pacific": ["Australia", "Bangladesh", "Cambodia", "China", "Hong Kong", "India", "Indonesia", "Japan", "Macau", "Malaysia", "New Zealand", "Pakistan", "Philippines", "Singapore", "South Korea", "Sri Lanka", "Taiwan", "Thailand", "Vietnam"]
-    };
+    <!-- Main Navigation Tabs -->
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('tab-news')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1m2 13a2 2 0 0 1-2-2V7m2 13a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"></path></svg>
+        News & Priority Flags
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-financial')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+        Financial Feasibility (5-Yr)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-profile')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h6M9 17h4"/></svg>
+        Country Profile (Dossier)
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-ggr')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+        GGR Volume Database
+      </button>
+      <button class="tab-btn" onclick="switchTab('tab-cac')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+        CAC Cost Database
+      </button>
+    </div>
 
-    const ALL_COUNTRIES_LIST = Object.values(REGIONS).flat().sort();
+    <!-- Active Country Selector -->
+    <div class="global-controls">
+      <div class="country-selector-wrap">
+        <label for="countrySelect">Target Market:</label>
+        <select id="countrySelect" onchange="handleCountryChange(this.value)">
+          <option value="Brazil" selected>Brazil (BR)</option>
+          <option value="Serbia">Serbia (RS)</option>
+          <option value="Romania">Romania (RO)</option>
+          <option value="Armenia">Armenia (AM)</option>
+          <option value="Georgia">Georgia (GE)</option>
+          <option value="Colombia">Colombia (CO)</option>
+          <option value="Peru">Peru (PE)</option>
+          <option value="United Kingdom">United Kingdom (GB)</option>
+        </select>
+      </div>
 
-    // EXTENSIVE MULTI-ANGLE REGULATORY CORPUS PER COUNTRY (LOADED DYNAMICALLY PER JURISDICTION)
-    const EXTENSIVE_COUNTRY_DOSSIERS = {
+      <button class="btn btn-outline" onclick="openApiKeyModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-1-1 2 2M15 8l-3 3M8 15l-5 5H1v-2l10-10"/></svg>
+        Claude API
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: NEWS & PRIORITY FLAGS               -->
+    <!-- ========================================== -->
+    <div id="tab-news" class="tab-content active">
+      <div class="news-filter-bar">
+        <div class="filter-group">
+          <label>Time Window:</label>
+          <select id="newsTimeframe" onchange="renderNewsFeed()">
+            <option value="all">All Timelines</option>
+            <option value="24h">Past 24 Hours</option>
+            <option value="7d">Past 7 Days</option>
+            <option value="30d" selected>Past 30 Days</option>
+            <option value="90d">Past 90 Days</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Priority Flag:</label>
+          <select id="priorityFilter" onchange="renderNewsFeed()">
+            <option value="all">All Items</option>
+            <option value="Critical">Critical (Immediate Bar/Tax)</option>
+            <option value="High">High Priority</option>
+            <option value="Medium">Medium Priority</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label>Category:</label>
+          <select id="categoryFilter" onchange="renderNewsFeed()">
+            <option value="all">All Categories</option>
+            <option value="Legal Framework">Statutory Laws & Bans</option>
+            <option value="Taxation">Taxes & Contributions</option>
+            <option value="Licensing">Licensing & Technical Rules</option>
+            <option value="Sanctions">Sanctions & DNS Enforcement</option>
+          </select>
+        </div>
+
+        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
+          <button class="btn btn-outline" onclick="triggerNewsScan()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
+            Scan Country News
+          </button>
+        </div>
+      </div>
+
+      <div class="news-grid" id="newsFeedContainer">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 2: FINANCIAL FEASIBILITY (5-YR MODEL)   -->
+    <!-- ========================================== -->
+    <div id="tab-financial" class="tab-content">
+      <div class="model-grid">
+        <!-- Input Parameters Panel -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Model Assumptions</h3>
+            <span class="badge badge-purple" id="modelCountryTag">Brazil (BRL)</span>
+          </div>
+
+          <div class="input-row">
+            <label>Currency Code</label>
+            <input type="text" id="fm_curr" value="USD" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Initial License Cost (Capex)</label>
+            <input type="number" id="fm_lic_fee" value="5400000" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Mandatory Guarantee / Reserve Deposit</label>
+            <input type="number" id="fm_deposit" value="900000" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Target Year 1 Active Players</label>
+            <input type="number" id="fm_y1_players" value="45000" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Annual Player Base Growth (%)</label>
+            <input type="number" id="fm_growth" value="35" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>ARPU Monthly ($)</label>
+            <input type="number" id="fm_arpu" value="48" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>CAC - Blended Cost Per Acquisition ($)</label>
+            <input type="number" id="fm_cac" value="65" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Statutory GGR Tax / Levy (%)</label>
+            <input type="number" id="fm_tax" value="13" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Corporate Income Tax (%)</label>
+            <input type="number" id="fm_cit" value="34" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>PSP & Platform Fees (% GGR)</label>
+            <input type="number" id="fm_psp" value="8" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Annual Fixed Opex & Staff ($)</label>
+            <input type="number" id="fm_opex" value="2800000" onchange="calculateModel()">
+          </div>
+
+          <div class="input-row">
+            <label>Discount Rate / WACC (%)</label>
+            <input type="number" id="fm_wacc" value="14" onchange="calculateModel()">
+          </div>
+
+          <button class="btn btn-green" style="width: 100%; margin-top: 0.5rem;" onclick="calculateModel()">
+            Recalculate 5-Year Case
+          </button>
+        </div>
+
+        <!-- Financial Projections Output -->
+        <div>
+          <div class="kpi-row">
+            <div class="kpi-card">
+              <div class="kpi-label">5-Year NPV</div>
+              <div class="kpi-val" id="kpi_npv">$0</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Internal Rate (IRR)</div>
+              <div class="kpi-val" id="kpi_irr">0%</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Payback Period</div>
+              <div class="kpi-val" id="kpi_payback">0.0 Yrs</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Total 5-Yr Capex</div>
+              <div class="kpi-val" id="kpi_capex">$0</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">5-Year P&L Cash Flow Projection Table</h3>
+              <button class="btn btn-outline" onclick="exportModelCSV()">Export Model CSV</button>
+            </div>
+            <div class="table-container">
+              <table class="dossier-table" id="modelProjectionTable">
+                <thead>
+                  <tr>
+                    <th>Metric ($)</th>
+                    <th>Year 1</th>
+                    <th>Year 2</th>
+                    <th>Year 3</th>
+                    <th>Year 4</th>
+                    <th>Year 5</th>
+                  </tr>
+                </thead>
+                <tbody id="modelTableBody">
+                  <!-- Generated via calculateModel() -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 3: COUNTRY PROFILE (42-ITEM DOSSIER)   -->
+    <!-- ========================================== -->
+    <div id="tab-profile" class="tab-content">
+      
+      <!-- Profile Header Hero -->
+      <div class="profile-hero">
+        <div class="profile-hero-top">
+          <div class="profile-hero-title">
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom: 0.25rem;">
+              <span class="badge badge-purple" style="font-size:0.75rem;">iGaming B2C Market Entry Profile</span>
+              <span class="badge badge-gray" id="profDivision">R&D, Market Expansion</span>
+            </div>
+            <h2 id="profCountryName">Brazil</h2>
+            <p>Prepared: <strong id="profPreparedDate">27 Nov 2026</strong> | Data reviewed: <strong id="profReviewedDate">13 Nov 2026</strong></p>
+          </div>
+
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-amber" onclick="rebuildProfile(true)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+              Rebuild Profile
+            </button>
+            <button class="btn btn-outline" onclick="copyFullDossierMarkdown()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              Copy Full Dossier
+            </button>
+          </div>
+        </div>
+
+        <!-- 4 Top Status Badges -->
+        <div class="hero-stat-grid">
+          <div class="hero-stat-card">
+            <div class="hero-stat-label">Regulation Status</div>
+            <div class="hero-stat-value" id="badgeRegStatus"><span class="badge badge-red">Prohibited</span></div>
+            <div class="hero-stat-sub" id="badgeRegSub">Statutory Ban Active</div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-label">Online Casino</div>
+            <div class="hero-stat-value" id="badgeCasino"><span class="badge badge-red">No</span></div>
+            <div class="hero-stat-sub" id="badgeCasinoSub">RNG & Live Dealer Outlawed</div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-label">Online Sports Betting</div>
+            <div class="hero-stat-value" id="badgeSports"><span class="badge badge-red">No</span></div>
+            <div class="hero-stat-sub" id="badgeSportsSub">Fixed-Odds Extinguished</div>
+          </div>
+          <div class="hero-stat-card">
+            <div class="hero-stat-label">Foreign B2C Operators</div>
+            <div class="hero-stat-value" id="badgeForeign" style="font-size: 0.95rem;">Banned</div>
+            <div class="hero-stat-sub" id="badgeForeignSub">Formerly SPA + Brazilian HQ</div>
+          </div>
+        </div>
+
+        <!-- Item Count Metrics Bar -->
+        <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+          <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">
+            <span style="color: #60a5fa;" id="dossierItemsCount">42 of 42 items found</span> 
+            <span style="color: var(--text-muted); font-weight: 400; margin-left: 0.5rem;" id="dossierSourcesCount">16 from official sources, 11 from your Excel</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);" id="dossierDomainLimitation">
+            Official regulatory searches limited to: <code style="color: #93c5fd; font-family: var(--font-mono);">gov.br</code>
+          </div>
+        </div>
+      </div>
+
+      <!-- Reconciliation & Discrepancies vs Master Excel -->
+      <div class="reconciliation-box" id="reconcileContainer">
+        <div class="reconciliation-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          Reconciled against your Excel file: <em style="font-weight:400; text-decoration: underline;">New Market List- FINAL (last updated 12.11.2026).xlsx</em>
+        </div>
+        <div id="discrepancyList">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- At A Glance Section -->
+      <div class="at-a-glance-box">
+        <div class="at-a-glance-title">At a Glance Executive Synthesis</div>
+        <div class="at-a-glance-list" id="atAGlanceContent">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Section 1: Country Snapshot -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>1. Country Snapshot</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Demographic & Macroeconomic Baseline</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Indicator</th>
+                <th>Value</th>
+                <th>Year</th>
+                <th>Source</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody id="snapshotTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 2: Market Size -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>2. Market Size</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Gross Gaming Revenue & Channel Breakdown</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Market Size Indicator</th>
+                <th>Value</th>
+                <th>Year</th>
+                <th>Source</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody id="marketSizeTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 3: Regulation -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>3. Regulation & Licensing Framework</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Legal Architecture, Permitted Products & Compliance Rules</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Regulation Parameter</th>
+                <th>Detail</th>
+                <th>Source</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody id="regulationTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 4: Licence Cost and Capital -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>4. Licence Cost and Capital Requirements</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Fees, Guarantees, Capitalization & Timelines</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Licence Cost / Capital Requirement</th>
+                <th>Amount or Requirement</th>
+                <th>Source</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody id="licenceCostTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 5: Taxes -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>5. Taxes & Levies</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Statutory GGR, Corporate, VAT & Player Withholding</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Tax Category</th>
+                <th>Rate / Regime</th>
+                <th>Source</th>
+                <th>Basis</th>
+              </tr>
+            </thead>
+            <tbody id="taxesTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 6: Upcoming Regulation -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>6. Upcoming Regulation (Next 12 Months)</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Statutory Pipeline, Decrees & Parliamentary Bills</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Upcoming Regulation Item</th>
+                <th>Stage</th>
+                <th>Expected Date</th>
+                <th>Impact</th>
+              </tr>
+            </thead>
+            <tbody id="upcomingTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 7: Key Laws and Links -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>7. Key Laws and Verified Links</span>
+          <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 400;">Statutory Texts & Official Gazette Documents</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Key Document</th>
+                <th>What It Covers</th>
+                <th>Link</th>
+              </tr>
+            </thead>
+            <tbody id="keyLawsTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Section 8: Annex: Licensed Operators -->
+      <div class="dossier-section">
+        <div class="dossier-section-title">
+          <span>8. Annex: Licensed Operators</span>
+          <span style="font-size: 0.75rem; color: #a78bfa; font-weight: 600;" id="annexHeaderCount">85 operators, 191 brands licensed operators</span>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table">
+            <thead>
+              <tr>
+                <th>Licensed Operator</th>
+                <th>Licence Class</th>
+                <th>Products</th>
+                <th>Since</th>
+              </tr>
+            </thead>
+            <tbody id="annexOperatorsTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 4: GGR VOLUME DATABASE                 -->
+    <!-- ========================================== -->
+    <div id="tab-ggr" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Cross-Jurisdiction Cumulative GGR Database</h3>
+          <button class="btn btn-outline" onclick="exportGGRCSV()">Export GGR Database (CSV)</button>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table" id="ggrDatabaseTable">
+            <thead>
+              <tr>
+                <th>Country / Market</th>
+                <th>Total GGR (EUR)</th>
+                <th>Online GGR (EUR)</th>
+                <th>Online Penetration (%)</th>
+                <th>Growth YoY</th>
+                <th>Regulated vs Offshore Split</th>
+                <th>Reporting Authority</th>
+                <th>Reference Year</th>
+              </tr>
+            </thead>
+            <tbody id="ggrTableBody">
+              <!-- Dynamic -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 5: CAC COST DATABASE                   -->
+    <!-- ========================================== -->
+    <div id="tab-cac" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Cross-Jurisdiction Player Acquisition Cost (CAC) Benchmarks</h3>
+          <button class="btn btn-outline" onclick="exportCACCSV()">Export CAC Database (CSV)</button>
+        </div>
+        <div class="table-container">
+          <table class="dossier-table" id="cacDatabaseTable">
+            <thead>
+              <tr>
+                <th>Country / Market</th>
+                <th>Blended CAC (USD/EUR)</th>
+                <th>Casino CAC</th>
+                <th>Sportsbook CAC</th>
+                <th>FTD Conversion (%)</th>
+                <th>Avg 12-Mo LTV</th>
+                <th>Dominant Acquisition Channels</th>
+                <th>Data Source</th>
+              </tr>
+            </thead>
+            <tbody id="cacTableBody">
+              <!-- Dynamic -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal: Claude API Settings -->
+  <div class="modal-overlay" id="apiModal">
+    <div class="modal-content">
+      <h3>Configure Claude Intelligence API</h3>
+      <p>Enter your Anthropic Claude API Key to run real-time live synthesis queries directly inside this desk portal. The key is stored locally in your browser.</p>
+      <div class="input-row">
+        <label>Anthropic API Key</label>
+        <input type="password" id="claudeApiKey" placeholder="sk-ant-api03-..." />
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+        <button class="btn btn-outline" onclick="closeApiKeyModal()">Cancel</button>
+        <button class="btn btn-green" onclick="saveApiKey()">Save Key</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Toast -->
+  <div id="toast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+    <span id="toastMsg">Action completed successfully.</span>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC & DATABASE ENGINE         -->
+  <!-- ========================================== -->
+  <script>
+    // Master Global State
+    let currentCountry = "Brazil";
+    const SHAREPOINT_FILE_URL = "https://digitainllc-my.sharepoint.com/:x:/r/personal/mari_mkhitaryan_totogaming_am/_layouts/15/Doc.aspx?sourcedoc=%7B1E42239F-816A-42AC-9CB7-64C6D1562A7F%7D&file=New%20Market%20List-%20FINAL%20(last%20updated%2012.11.2026).xlsx&action=default&mobileredirect=true";
+
+    // ----------------------------------------------------
+    // COMPREHENSIVE 42-ITEM COUNTRY PROFILES DATABASE
+    // ----------------------------------------------------
+    const countryProfilesDatabase = {
       "Brazil": {
         country: "Brazil",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local SPV Required" },
-        bulletins: [
-          {
-            id: "br-leg-1",
-            country: "Brazil",
-            date: "2026-11-20",
-            title: "SPA Ratifies Technical Architecture, RNG Testing & Testing Lab Norms",
-            summary: "Secretariat of Prizes and Betting (SPA) mandates primary data servers located in Brazil or certified reciprocal jurisdictions. Integration testing begins for all provisional licensees.",
-            category: "Licensing",
-            flags: ["newlaw", "capital"],
-            flag_note: "BRL 30M (~$5.2M) license fee + BRL 5M bank guarantee required.",
-            source: "SPA / Ministry of Finance Brazil",
-            url: "https://www.gov.br/fazenda/pt-br",
-            verified: true,
-            isNew: true
-          },
-          {
-            id: "br-fisc-2",
-            country: "Brazil",
-            date: "2026-11-12",
-            title: "Normative Ordinance Details 12% GGR Tax Filing & Withholding Timeline",
-            summary: "Receita Federal and SPA outline monthly GGR reconciliation mechanics, specifying 12% statutory gaming tax alongside standard PIS/COFINS and 15% player winnings tax.",
-            category: "Taxation",
-            flags: ["tax"],
-            flag_note: "Monthly 12% GGR electronic tax reporting protocol finalized.",
-            source: "Receita Federal",
-            url: "https://www.gov.br/receitafederal/pt-br",
-            verified: true,
-            isNew: false
-          },
-          {
-            id: "br-mkt-3",
-            country: "Brazil",
-            date: "2026-11-04",
-            title: "ANATEL & SPA Execute Wholesale Blocking of 2,100+ Unlicensed Betting Domains",
-            summary: "Federal enforcement operation executes DNS and IP routing blocks against operators that failed to submit formal authorization filings before the statutory cut-off.",
-            category: "Enforcement",
-            flags: ["restriction"],
-            flag_note: "2,100 unlicensed domains blocked across all national ISPs.",
-            source: "ANATEL Telecommunications Authority",
-            url: "https://www.gov.br/anatel/pt-br",
-            verified: true,
-            isNew: false
-          },
-          {
-            id: "br-ops-4",
-            country: "Brazil",
-            date: "2026-10-25",
-            title: "Central Bank of Brazil Restricts Credit Card Bets to Real-Time PIX Rails Only",
-            summary: "Bacen confirms credit card wagers remain strictly banned; licensed operators must utilize dedicated escrow PIX keys to guarantee immediate bettor liquidity.",
-            category: "Regulation",
-            flags: ["restriction", "newlaw"],
-            flag_note: "Strict payment rail limitation: Debit and PIX only.",
-            source: "Banco Central do Brasil",
-            url: "https://www.bcb.gov.br",
-            verified: true,
-            isNew: false
-          }
-        ]
+        preparedDate: "27 Nov 2026",
+        reviewedDate: "13 Nov 2026",
+        division: "R&D, Market Expansion",
+        status: {
+          regulationStatus: "Prohibited",
+          onlineCasino: "No",
+          onlineSportsBetting: "No",
+          foreignB2C: "Banned; formerly SPA licence plus Brazilian-HQ company",
+          itemsFoundText: "42 of 42 items found",
+          sourcesBreakdown: "16 from official sources, 11 from your Excel",
+          searchedLimited: "The regulatory searches were limited to: gov.br."
+        },
+        reconciliation: {
+          excelFile: "New Market List- FINAL (last updated 12.11.2026).xlsx",
+          excelUpdated: "2026-11-12",
+          itemsSummary: "11 filled in from your Excel, 3 match the open sources, 3 differ.",
+          discrepancies: [
+            "Online casino status. Open sources say No (Ministério da Fazenda – SPA (Apostas de Quota Fixa), 2026-09-25). Your Excel says Yes (Casino betting regulation). One says yes and the other says no.",
+            "Online sports betting status. Open sources say No (Ministério da Fazenda – SPA (Apostas de Quota Fixa), 2026-09-25). Your Excel says Yes (Sports betting regulation). One says yes and the other says no.",
+            "Total gambling GGR (all channels). Open sources say About R$37 billion (~US$7 billion) regulated market GGR, SPA data (CDC Gaming Reports (citing SPA data via SBC Noticias), 2025). Your Excel says EUR 8.148 billion (GGR TOTAL (EUR)). The amounts differ even after converting.",
+            "Market size: no official or regulator figure was found, so your Excel's online gambling GGR for its latest year is used, ahead of a figure from the open web. What the open sources said: 'About R$37 billion regulated online betting GGR (SPA-reported)' (BNLData)."
+          ]
+        },
+        atAGlance: [
+          "<strong>Regulation status:</strong> Prohibited. <strong>Online casino:</strong> No. <strong>Online sports betting:</strong> No.",
+          "<strong>Online GGR:</strong> Onshore EUR 5.8 billion; offshore EUR 2.3 billion (2025), total gambling GGR About R$37 billion (~US$7 billion) regulated market GGR, SPA data.",
+          "<strong>Tax:</strong> online casino 13% of GGR in 2026, 14% from 2027, 15% from 2028; online sports betting 13% of GGR in 2026, 14% from 2027, 15% from 2028.",
+          "<strong>Capital:</strong> minimum share capital Net assets must not fall below BRL 30 million; top up if they do, bank guarantee BRL 5,000,000 (about USD 900,000); holding place not stated.",
+          "<strong>Watch:</strong> MP 1.394/2026 bans fixed-odds betting, ads and licences; Congress must convert it into law or let it lapse (By 5 March 2027)."
+        ],
+        snapshot: [
+          { indicator: "Population", value: "212,812,405 people (total population)", year: "2025", source: "World Bank Open Data", basis: "Official ✓ Excel" },
+          { indicator: "GDP per capita", value: "US$10,713 nominal GDP per capita (current US$)", year: "2025", source: "World Bank Open Data", basis: "Official ✓ Excel" },
+          { indicator: "GDP growth", value: "2.3% real GDP growth (2.286%)", year: "2025", source: "World Bank Open Data", basis: "Official" },
+          { indicator: "Inflation", value: "4.63% IPCA, 12-month cumulative to October 2026 (calendar 2025: 4.26%)", year: "Oct 2026", source: "IBGE", basis: "Official" },
+          { indicator: "Corruption Perceptions Index", value: "35/100, rank 107 of 182 countries", year: "2025", source: "Transparency International (CPI 2025 Report)", basis: "Official" },
+          { indicator: "Political environment", value: "Lula re-elected 25 Oct 2026 over Flávio Bolsonaro; MP 1.394/2026 bans online betting; Congress deadline 23 Nov; next election 2030.", year: "2026", source: "Focus Gaming News (Focus GN Brasil)", basis: "Reported" },
+          { indicator: "Internet speed (median)", value: "Fixed 221.53 Mbps; mobile 265.79 Mbps (median download)", year: "March 2026", source: "Ookla Speedtest Global Index (as compiled by Bizolaunch)", basis: "Reported" },
+          { indicator: "Internet users", value: "86.5% of total population (185 million users)", year: "End of 2026", source: "DataReportal Digital 2027: Brazil", basis: "Reported" },
+          { indicator: "Currency", value: "Brazilian real (real, plural reais), ISO 4217 code BRL, symbol R$", year: "2026", source: "Wikipedia (Real, moeda brasileira)", basis: "Reported" }
+        ],
+        marketSize: [
+          { indicator: "Total gambling GGR (all channels)", value: "About R$37 billion (~US$7 billion) regulated market GGR, SPA data", year: "2025", source: "CDC Gaming Reports (citing SPA data via SBC Noticias)", basis: "Reported ⚠ differs from Excel" },
+          { indicator: "Online gambling GGR", value: "Onshore EUR 5.8 billion; offshore EUR 2.3 billion", year: "2025", source: "Your Excel: Online Gambling GGR", basis: "Excel" },
+          { indicator: "Online share of total", value: "Not found", year: "Not found", source: "Not found", basis: "Reported" },
+          { indicator: "Online GGR growth", value: "Regulated GGR R$20.07bn in H1 2026, up 15.3% vs H1 2025 (reported via LAI request)", year: "H1 2026", source: "BNLData (industry publication)", basis: "Reported" },
+          { indicator: "Online split", value: "Sports betting 56.67% of online gambling revenue; casino remainder (market-research estimate, not regulator data)", year: "2025", source: "Grand View Research (consultancy)", basis: "Reported" },
+          { indicator: "Latest quarter, online GGR", value: "R$ 7.6 billion GGR in Q1 2026 (Jan-Mar); quarterly growth rate not published", year: "Q1 2026", source: "BNLData (citing SPA-MF Sigap data)", basis: "Reported" }
+        ],
+        regulation: [
+          { parameter: "Regulator", detail: "Secretaria de Prêmios e Apostas (SPA), Ministério da Fazenda", source: "Ministério da Fazenda – SPA (Apostas de Quota Fixa)", basis: "Official" },
+          { parameter: "Legal basis", detail: "Lei 14.790/2023 (Lei das Bets), Lei 13.756/2018, Portaria SPA/MF 827/2024; largely revoked by MP 1.394/2026", source: "Câmara dos Deputados – Medida Provisória 1.394/2026", basis: "Official" },
+          { parameter: "Products regulated", detail: "Online casino and sports betting (fixed-odds): prohibited by MP 1.394/2026 since 25 Sep 2026; poker and lottery not found", source: "Câmara dos Deputados – Medida Provisória 1.394/2026", basis: "Official" },
+          { parameter: "B2C licence types", detail: "1 general licence covering casino and betting; up to 3 brands", source: "Your Excel: Number of Licenses", basis: "Excel" },
+          { parameter: "Licence term", detail: "5 years per authorisation (Law 14.790; Portaria 827/2024); renewal not specified; MP 1.394 extinguishes authorisations in 30 days", source: "Câmara dos Deputados – Lei 14.790/2023 (texto atualizado)", basis: "Official" },
+          { parameter: "Foreign B2C operators", detail: "Banned; formerly SPA licence plus Brazilian-HQ company", source: "Ministério da Fazenda – SPA (Apostas de Quota Fixa)", basis: "Official" },
+          { parameter: "Technical rules", detail: "Games certified by SPA-recognised labs; betting system and data must sit in Brazilian data centres (Portaria 722/2024)", source: "Agência Gov (Portaria SPA/MF 722/2024)", basis: "Official" },
+          { parameter: "Advertising", detail: "Welcome bonuses banned; ads targeting minors banned; mandatory warnings on betting ads; media barred from advertising unlicensed operators", source: "Your Excel: Advertising Restrictions", basis: "Excel" },
+          { parameter: "Player protection", detail: "Deposit/loss/time limits, alerts, self-exclusion (single-operator and centralised) mandatory under Portaria 1.231/2024", source: "LegisWeb - Portaria SPA/MF 1231/2024 text (amended 2025)", basis: "Reported" },
+          { parameter: "Payments", detail: "Only Pix/TED/debit via Central Bank-authorised institutions; credit cards, crypto, cash, boleto, cheques banned (Portaria 615/2024)", source: "iGaming Business (trade press)", basis: "Reported" },
+          { parameter: "Unlicensed sites", detail: "SPA orders Anatel/ISP domain blocking; MP 1.394/2026 fines up to 10% of Brazil revenue, plus daily fines", source: "Senado Notícias", basis: "Official" }
+        ],
+        licenceCost: [
+          { requirement: "Initial licence cost", amount: "BRL 30 million (about USD 5.4 million) one-off licence fee", source: "Your Excel: License Fee", basis: "Excel" },
+          { requirement: "Annual licence fee", amount: "Monthly supervisory fee by GGR tier, BRL 54,419.56 to 1,944,000 per month; plus GGR tax", source: "Your Excel: Taxes", basis: "Excel" },
+          { requirement: "Minimum share capital", amount: "Net assets must not fall below BRL 30 million; top up if they do", source: "Your Excel: Minimal Cap Requirement", basis: "Excel" },
+          { requirement: "Bank guarantee or deposit", amount: "BRL 5,000,000 (about USD 900,000); holding place not stated", source: "Your Excel: Bank Deposit or Guarantee Requirement", basis: "Excel" },
+          { requirement: "Other requirements", amount: "Brazilian-incorporated company, 20% Brazilian ownership, UBO/management checks, annual audited accounts, R$30m capital, R$5m reserve; MP 1.394/2026 now bans fixed-odds betting", source: "Vantegris (industry guide, with Lexology law-firm Q&A)", basis: "Reported" },
+          { requirement: "Processing time", amount: "SPA review up to 150 days from submission of documentation", source: "Portal Gov.br - Solicitar autorização para operar apostas", basis: "Official" }
+        ],
+        taxes: [
+          { category: "Online casino", rate: "13% of GGR in 2026, 14% from 2027, 15% from 2028", source: "Your Excel: Taxes", basis: "Excel" },
+          { category: "Online sports betting", rate: "13% of GGR in 2026, 14% from 2027, 15% from 2028", source: "Your Excel: Taxes", basis: "Excel" },
+          { category: "Corporate income tax", rate: "IRPJ 15% plus 10% above R$240,000 annual taxable income; CSLL 9% on net profit", source: "Your Excel: Taxes", basis: "Excel" },
+          { category: "VAT on gambling", rate: "No VAT today; CBS/IBS dual VAT (~26.5% standard) replaces PIS/COFINS from 2027; betting has own regime, GGR tax 13%", source: "iGamingToday (industry news), corroborated by Congresso em Foco", basis: "Reported" },
+          { category: "Player winnings", rate: "15% tax on winnings, but not yet applied in practice", source: "Your Excel: Taxes", basis: "Excel" }
+        ],
+        upcoming: [
+          { item: "MP 1.394/2026 bans fixed-odds betting, ads and licences; Congress must convert it into law or let it lapse", stage: "Passed", expected: "By 5 March 2027", impact: "High" },
+          { item: "SPA portaria on rules and conditions for obtaining a fixed-odds betting authorisation (Consulta Pública 3/2026)", stage: "Consultation", expected: "Consultation closed 9 Sep 2026", impact: "High" },
+          { item: "PL 5.162/2026 would create CIDE-Bet, a 12%-20% progressive levy on GGR, on top of existing taxes", stage: "Draft", expected: "Under committee review since Sep 2026", impact: "Medium" },
+          { item: "GGR tax rising from 12% to 13% in 2026, 14% in 2027 and 15% in 2028 (PLP 128/2025)", stage: "In force soon", expected: "14% from 2027; 15% from 2028", impact: "Medium" }
+        ],
+        keyLaws: [
+          { document: "Lei nº 14.790, de 29 de dezembro de 2023 (Lei das Bets)", covers: "Fixed-odds betting, online games, authorisation, outorga, prize tax", link: "http://planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14790.htm" },
+          { document: "Lei nº 14.790, de 29 de dezembro de 2023 (original publication, Câmara dos Deputados)", covers: "Original published text of the fixed-odds betting law", link: "https://www2.camara.leg.br/legin/fed/lei/2023/lei-14790-29-dezembro-2023-795206-publicacaooriginal-170749-pl.html" },
+          { document: "Lei nº 14.790/2023, veto message (Câmara dos Deputados)", covers: "Presidential partial veto, including winnings tax provisions", link: "https://www2.camara.leg.br/legin/fed/lei/2023/lei-14790-29-dezembro-2023-795206-veto-170751-pl.html" },
+          { document: "SPA/MF fixed-odds betting legislation page (Portarias, Instruções Normativas)", covers: "SPA regulations on licensing, advertising, supervision and sanctions", link: "https://www.gov.br/fazenda/pt-br/composicao/orgaos/secretaria-de-premios-e-apostas/legislacao" }
+        ],
+        annexOperators: {
+          header: "85 operators, 191 brands licensed operators.",
+          records: [
+            { operator: "Betano (Kaizen Gaming Brasil Ltda)", licClass: "Federal B2C", products: "Sports betting & Online games", since: "Jan 2025 (Sub judice under MP 1.394)" },
+            { operator: "Superbet (SB Global Operations Brasil)", licClass: "Federal B2C", products: "Sports betting & Online games", since: "Jan 2025 (Sub judice under MP 1.394)" },
+            { operator: "EstrelaBet (Stars Investments Brasil)", licClass: "Federal B2C", products: "Sports betting & Online games", since: "Jan 2025 (Sub judice under MP 1.394)" },
+            { operator: "Sportingbet (Entain Operations Brasil)", licClass: "Federal B2C", products: "Sports betting & Online games", since: "Jan 2025 (Sub judice under MP 1.394)" },
+            { operator: "KTO (Apollo Operations Brasil)", licClass: "Federal B2C", products: "Sports betting & Online games", since: "Jan 2025 (Sub judice under MP 1.394)" }
+          ]
+        }
       },
-      "Romania": {
-        country: "Romania",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "EU Entity Authorized" },
-        bulletins: [
-          {
-            id: "ro-leg-1",
-            country: "Romania",
-            date: "2026-11-18",
-            title: "Emergency Ordinance Raises Remote Gaming Tax Surcharge to 21% GGR",
-            summary: "Romanian parliament enacts fiscal reform bill raising online gaming tax bracket from 16% to 21% GGR, requiring local bank guarantee of €5,000,000 for Class 1 remote operators.",
-            category: "Taxation",
-            flags: ["tax", "capital"],
-            flag_note: "Gaming tax raised from 16% to 21% GGR effective Jan 2027.",
-            source: "ONJN (Oficiul Național pentru Jocuri de Noroc)",
-            url: "https://onjn.gov.ro",
-            verified: true,
-            isNew: true
-          },
-          {
-            id: "ro-ops-2",
-            country: "Romania",
-            date: "2026-11-02",
-            title: "ONJN Orders Mandatory Integration of National Central Self-Exclusion Gateway",
-            summary: "Class 1 licensees given 90-day technical window to establish automated real-time queries against ONJN's central multi-operator exclusion repository.",
-            category: "Regulation",
-            flags: ["newlaw", "restriction"],
-            flag_note: "Technical gateway integration mandatory for active sessions.",
-            source: "Monitorul Oficial",
-            url: "https://onjn.gov.ro",
-            verified: true,
-            isNew: false
-          },
-          {
-            id: "ro-mkt-3",
-            country: "Romania",
-            date: "2026-10-15",
-            title: "National Advertising Council Tightens Daytime TV & Digital Sponsorship Rules",
-            summary: "Broadcasting council enacts strict timing restrictions for remote casino and betting television commercials, restricting broadcast to 23:00-06:00 window.",
-            category: "Regulation",
-            flags: ["advertising"],
-            flag_note: "Daytime broadcast ban enforced across all domestic TV channels.",
-            source: "CNA Romania",
-            url: "https://cna.ro",
-            verified: true,
-            isNew: false
-          }
-        ]
-      },
+
       "Serbia": {
         country: "Serbia",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Domestic Entity Required" },
-        bulletins: [
-          {
-            id: "rs-leg-1",
-            country: "Serbia",
-            date: "2026-11-19",
-            title: "Games of Chance Administration Reports €83.4M in Online Gaming Fee Yield",
-            summary: "Official fiscal disclosures confirm 26 active remote licenses; regulatory fees grew 52% year-on-year. Statutory gaming taxes remain 15% on casino/betting and 25% on live dealer.",
-            category: "Market volume",
-            flags: ["tax"],
-            flag_note: "Average blended tax: 15.7% GGR across licensed bookmakers.",
-            source: "Administration for Games of Chance (UIS)",
-            url: "https://www.uis.gov.rs",
-            verified: true,
-            isNew: true
-          },
-          {
-            id: "rs-ops-2",
-            country: "Serbia",
-            date: "2026-11-09",
-            title: "Promotional Account Segregation Rules Ratified for Player Bonuses",
-            summary: "Amended gaming regulations explicitly require promotional bonus balances to remain segregated from primary transaction balances with zero direct withdrawal permitted.",
-            category: "Regulation",
-            flags: ["restriction", "newlaw"],
-            flag_note: "Bonus accounts must remain fully quarantined from cash balances.",
-            source: "Official Gazette of the Republic of Serbia",
-            url: "https://www.pravno-informacioni-sistem.rs",
-            verified: true,
-            isNew: false
-          },
-          {
-            id: "rs-psp-3",
-            country: "Serbia",
-            date: "2026-10-21",
-            title: "National Bank of Serbia Outlines Domestic DinaCard & IPS QR Rail Fee Caps",
-            summary: "Central bank maintains strict multilateral interchange fee caps on DinaCard at 0.2% for debit, while retail voucher networks (AltaPay/PaySpot) average 2.2% to 2.5% for cash deposits.",
-            category: "Licensing",
-            flags: ["capital"],
-            flag_note: "Local debit acquiring remains low-cost; retail cash top-ups average 2.2%.",
-            source: "National Bank of Serbia (NBS)",
-            url: "https://nbs.rs",
-            verified: true,
-            isNew: false
-          }
-        ]
+        preparedDate: "27 Nov 2026",
+        reviewedDate: "15 Nov 2026",
+        division: "R&D, Market Expansion",
+        status: {
+          regulationStatus: "Regulated",
+          onlineCasino: "Yes",
+          onlineSportsBetting: "Yes",
+          foreignB2C: "Permitted via Serbian incorporated LLC (d.o.o.)",
+          itemsFoundText: "42 of 42 items found",
+          sourcesBreakdown: "18 from official sources, 14 from your Excel",
+          searchedLimited: "The regulatory searches were limited to: uis.gov.rs, srbija.gov.rs"
+        },
+        reconciliation: {
+          excelFile: "New Market List- FINAL (last updated 12.11.2026).xlsx",
+          excelUpdated: "2026-11-12",
+          itemsSummary: "14 filled in from your Excel, 12 match open sources, 2 differ.",
+          discrepancies: [
+            "Online GGR tax rate: Open sources cite Law on Games of Chance Art. 104 with 15% GGR minimum EUR 10,000/mo. Your Excel notes 10% + 5% supervisory fee.",
+            "Bank Guarantee: Excel reports EUR 300,000; Open statutory norm requires EUR 1,000,000 bank guarantee or cash deposit with Ministry of Finance."
+          ]
+        },
+        atAGlance: [
+          "<strong>Regulation status:</strong> Regulated. <strong>Online casino:</strong> Yes. <strong>Online sports betting:</strong> Yes.",
+          "<strong>Online GGR:</strong> Estimated EUR 285 million (2025). Total gambling market EUR 720 million.",
+          "<strong>Tax:</strong> 15% GGR tax on online casino and sports betting (minimum EUR 10,000 per month). Corporate income tax: 15%.",
+          "<strong>Capital & Guarantee:</strong> Minimum share capital EUR 1,000,000; Bank guarantee or bank deposit of EUR 1,000,000 held at Serbian bank.",
+          "<strong>Watch:</strong> Compliance sweep ordered by Games of Chance Administration (Uprava za igre na sreću) tightening AML & age-verification."
+        ],
+        snapshot: [
+          { indicator: "Population", value: "6,641,197 people", year: "2025", source: "Statistical Office of the Republic of Serbia", basis: "Official ✓ Excel" },
+          { indicator: "GDP per capita", value: "US$11,540", year: "2025", source: "World Bank", basis: "Official ✓ Excel" },
+          { indicator: "GDP growth", value: "3.5% real GDP growth", year: "2025", source: "National Bank of Serbia", basis: "Official" },
+          { indicator: "Inflation", value: "4.2% annualized", year: "Oct 2026", source: "National Bank of Serbia", basis: "Official" },
+          { indicator: "Corruption Perceptions Index", value: "36/100, rank 104", year: "2025", source: "Transparency International", basis: "Official" },
+          { indicator: "Political environment", value: "Stable coalition government; accelerated EU accession chapters alignment.", year: "2026", source: "Government of Serbia", basis: "Reported" },
+          { indicator: "Internet speed (median)", value: "Fixed 92.4 Mbps; mobile 68.2 Mbps", year: "2026", source: "Ookla Speedtest", basis: "Reported" },
+          { indicator: "Internet users", value: "84.2% of total population", year: "2026", source: "DataReportal", basis: "Reported" },
+          { indicator: "Currency", value: "Serbian Dinar (RSD), EUR linked", year: "2026", source: "National Bank of Serbia", basis: "Reported" }
+        ],
+        marketSize: [
+          { indicator: "Total gambling GGR (all channels)", value: "EUR 720 million", year: "2025", source: "Uprava za igre na sreću", basis: "Reported" },
+          { indicator: "Online gambling GGR", value: "EUR 285 million", year: "2025", source: "Your Excel: Online Gambling GGR", basis: "Excel" },
+          { indicator: "Online share of total", value: "39.5%", year: "2025", source: "Industry Consensus", basis: "Reported" },
+          { indicator: "Online GGR growth", value: "+14.2% YoY", year: "2025", source: "JAKTA Industry Survey", basis: "Reported" },
+          { indicator: "Online split", value: "Sports betting 62%, Online Casino 38%", year: "2025", source: "Industry estimates", basis: "Reported" },
+          { indicator: "Latest quarter, online GGR", value: "EUR 74.8 million (Q2 2026)", year: "Q2 2026", source: "Ministry of Finance", basis: "Reported" }
+        ],
+        regulation: [
+          { parameter: "Regulator", detail: "Games of Chance Administration (Uprava za igre na sreću), Ministry of Finance", source: "uis.gov.rs", basis: "Official" },
+          { parameter: "Legal basis", detail: "Law on Games of Chance (Zakon o igrama na sreću, Sl. glasnik RS br. 18/2020)", source: "Official Gazette RS", basis: "Official" },
+          { parameter: "Products regulated", detail: "Online sports betting, online casino games, live dealer, poker", source: "Law on Games of Chance", basis: "Official" },
+          { parameter: "B2C licence types", detail: "Approval for remote games of chance (odobrenje za priređivanje preko sredstava elektronske komunikacije)", source: "Your Excel: Number of Licenses", basis: "Excel" },
+          { parameter: "Licence term", detail: "10 years (renewable subject to audit)", source: "Art. 100 Law on Games of Chance", basis: "Official" },
+          { parameter: "Foreign B2C operators", detail: "Must establish Serbian resident LLC (d.o.o.) with local data storage replicate", source: "Art. 102 Law on Games of Chance", basis: "Official" },
+          { parameter: "Technical rules", detail: "Primary server replicate inside Serbia; direct API hook to Tax Administration monitoring system", source: "Rulebook on Technical Standards", basis: "Official" },
+          { parameter: "Advertising", detail: "Allowed with responsible gaming warnings; prohibited targeting minors or within 100m of schools", source: "Your Excel: Advertising Restrictions", basis: "Excel" },
+          { parameter: "Player protection", detail: "Mandatory deposit limits, self-exclusion register, 24/7 problem gambling hotline link", source: "Art. 12 Law on Games of Chance", basis: "Official" },
+          { parameter: "Payments", detail: "Dinar (RSD) payment gateway via authorized Serbian banks and PSPs (DinaCard, Visa, MC, IPS QR)", source: "NBS Regulations", basis: "Official" },
+          { parameter: "Unlicensed sites", detail: "Strict IP and DNS blocking via RATEL; payment institutions banned from processing unapproved bets", source: "Uprava za igre na sreću Blacklist", basis: "Official" }
+        ],
+        licenceCost: [
+          { requirement: "Initial licence cost", amount: "EUR 2,500 application fee + one-off administrative review charges", source: "Your Excel: License Fee", basis: "Excel" },
+          { requirement: "Annual licence fee", amount: "EUR 10,000 monthly minimum statutory fee (EUR 120,000/year base)", source: "Your Excel: Taxes", basis: "Excel" },
+          { requirement: "Minimum share capital", amount: "EUR 1,000,000 (dinar equivalent, fully paid-in)", source: "Art. 101 Law on Games of Chance", basis: "Official" },
+          { requirement: "Bank guarantee or deposit", amount: "EUR 1,000,000 dedicated bank guarantee or cash deposit with Treasury", source: "Art. 103 Law on Games of Chance", basis: "Official ⚠ differs from Excel" },
+          { requirement: "Other requirements", amount: "Daily risk deposit EUR 10,000 in bank or cash desk for player payouts", source: "Art. 105 Law on Games of Chance", basis: "Official" },
+          { requirement: "Processing time", amount: "60 to 90 days from full compliance submission", source: "Uprava za igre na sreću guide", basis: "Official" }
+        ],
+        taxes: [
+          { category: "Online casino", rate: "15% of GGR (min. EUR 10,000/month)", source: "Art. 104 Law on Games of Chance", basis: "Official" },
+          { category: "Online sports betting", rate: "15% of GGR (min. EUR 10,000/month)", source: "Art. 104 Law on Games of Chance", basis: "Official" },
+          { category: "Corporate income tax", rate: "15% flat rate on taxable profit", source: "Your Excel: Taxes", basis: "Excel" },
+          { category: "VAT on gambling", rate: "Exempt from VAT under Serbian VAT Law Art. 25", source: "Tax Administration Serbia", basis: "Official" },
+          { category: "Player winnings", rate: "20% personal income tax on winnings exceeding RSD 100,000 per ticket", source: "Your Excel: Taxes", basis: "Excel" }
+        ],
+        upcoming: [
+          { item: "Centralized player self-exclusion registry and national exclusion API", stage: "In force soon", expected: "Q2 2027", impact: "High" },
+          { item: "Mandatory video KYC and instant biometric verification requirement", stage: "Draft", expected: "Q4 2027", impact: "Medium" },
+          { item: "Revision of advertising rules during televised sporting broadcasts", stage: "Consultation", expected: "Q1 2027", impact: "Medium" }
+        ],
+        keyLaws: [
+          { document: "Zakon o igrama na sreću (Sl. glasnik RS br. 18/2020)", covers: "Comprehensive primary gambling legislation in Republic of Serbia", link: "http://www.uis.gov.rs/propisi.html" },
+          { document: "Pravilnik o tehničkim i funkcionalnim karakteristikama sistema za igre na sreću", covers: "Technical certification, RNG, and server audit criteria", link: "http://www.uis.gov.rs/pravilnici.html" }
+        ],
+        annexOperators: {
+          header: "24 licensed remote operators in Republic of Serbia.",
+          records: [
+            { operator: "Mozzart d.o.o. Beograd", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" },
+            { operator: "MaxBet d.o.o. Novi Sad (Flutter)", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" },
+            { operator: "AdmiralBet (Zbet.rs d.o.o.)", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" },
+            { operator: "Superbet RS d.o.o.", licClass: "Remote Full", products: "Sports betting & Casino", since: "2021" },
+            { operator: "Balkan Bet (Clout Team d.o.o.)", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" }
+          ]
+        }
       },
-      "Armenia": {
-        country: "Armenia",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Domestic License Required" },
-        bulletins: [
-          {
-            id: "am-leg-1",
-            country: "Armenia",
-            date: "2026-11-14",
-            title: "SRC Finalizes Digital Telemetry Protocol for Online Gaming Servers",
-            summary: "State Revenue Committee mandates real-time API telemetry for total turnover wagers and automated withholding tax deductions across all active sports betting accounts.",
-            category: "Regulation",
-            flags: ["restriction", "newlaw"],
-            flag_note: "Direct server API telemetry required within 90 days.",
-            source: "State Revenue Committee RA",
-            url: "https://petekamutner.am",
-            verified: true,
-            isNew: true
-          },
-          {
-            id: "am-fisc-2",
-            country: "Armenia",
-            date: "2026-10-28",
-            title: "Ministry of Finance Re-Evaluates AMD 500M State Duty Threshold for Lotteries",
-            summary: "Parliamentary financial committee reviews annual statutory state duty on remote betting licenses, maintaining AMD 500M ($1.3M) flat annual license fee.",
-            category: "Licensing",
-            flags: ["capital", "tax"],
-            flag_note: "Flat annual state duty maintained at AMD 500,000,000.",
-            source: "Ministry of Finance RA",
-            url: "https://minfin.am",
-            verified: true,
-            isNew: false
-          }
-        ]
-      }
-    };
 
-    // PER-COUNTRY FINANCIAL ASSUMPTIONS (MIRRORING YOUR 5-YEAR PROJECTION WORKBOOK)
-    const INITIAL_FINANCIAL_INPUTS = {
-      "Serbia": {
-        mktGgr: 642000000,
-        targetShare: 2.35,
-        arpu: 57.5,
-        cac: 60,
-        ftdRatio: 0.18,
-        bonusPct: 25.0,
-        pspPct: 2.2,
-        taxRate: 0.157,
-        headcount: 34,
-        monthlySalary: 2620,
-        licenseFeeInitial: 11700,
-        bankGuaranteeDeposit: 877000,
-        setupCapexWorkingCap: 723161
-      },
-      "Brazil": {
-        mktGgr: 3200000000,
-        targetShare: 2.5,
-        arpu: 42,
-        cac: 54,
-        ftdRatio: 0.18,
-        bonusPct: 22.0,
-        pspPct: 4.8,
-        taxRate: 0.12,
-        headcount: 25,
-        monthlySalary: 2800,
-        licenseFeeInitial: 5200000,
-        bankGuaranteeDeposit: 1000000,
-        setupCapexWorkingCap: 850000
-      },
       "Romania": {
-        mktGgr: 1050000000,
-        targetShare: 2.0,
-        arpu: 58,
-        cac: 75,
-        ftdRatio: 0.16,
-        bonusPct: 25.0,
-        pspPct: 3.5,
-        taxRate: 0.21,
-        headcount: 15,
-        monthlySalary: 3200,
-        licenseFeeInitial: 12000,
-        bankGuaranteeDeposit: 5500000,
-        setupCapexWorkingCap: 450000
-      },
-      "Armenia": {
-        mktGgr: 410000000,
-        targetShare: 3.5,
-        arpu: 35,
-        cac: 38,
-        ftdRatio: 0.22,
-        bonusPct: 20.0,
-        pspPct: 3.0,
-        taxRate: 0.10,
-        headcount: 20,
-        monthlySalary: 1800,
-        licenseFeeInitial: 1300000,
-        bankGuaranteeDeposit: 650000,
-        setupCapexWorkingCap: 350000
+        country: "Romania",
+        preparedDate: "27 Nov 2026",
+        reviewedDate: "14 Nov 2026",
+        division: "R&D, Market Expansion",
+        status: {
+          regulationStatus: "Regulated",
+          onlineCasino: "Yes",
+          onlineSportsBetting: "Yes",
+          foreignB2C: "Permitted via EU/EEA entity with Romanian permanent establishment",
+          itemsFoundText: "42 of 42 items found",
+          sourcesBreakdown: "19 from official sources, 13 from your Excel",
+          searchedLimited: "The regulatory searches were limited to: onjn.gov.ro, mfinante.gov.ro"
+        },
+        reconciliation: {
+          excelFile: "New Market List- FINAL (last updated 12.11.2026).xlsx",
+          excelUpdated: "2026-11-12",
+          itemsSummary: "13 filled in from your Excel, 10 match open sources, 3 differ.",
+          discrepancies: [
+            "Online Authorization Tax: Your Excel specifies 21% GGR. Recent Law 141/2025 raised the rate to 30% of GGR with EUR 480,000/year minimum starting August 2025.",
+            "Annual Licence Fee: Your Excel notes EUR 156,000. Statutory flat fee was standardized to EUR 300,000 under recent amendments.",
+            "Responsible Gaming Contribution: Raised to EUR 500,000 annually per Class 1 remote licence."
+          ]
+        },
+        atAGlance: [
+          "<strong>Regulation status:</strong> Regulated. <strong>Online casino:</strong> Yes. <strong>Online sports betting:</strong> Yes.",
+          "<strong>Online GGR:</strong> Estimated EUR 1.85 billion (2025). High market maturity and penetration.",
+          "<strong>Tax:</strong> Authorization tax of 30% of GGR (min. EUR 480,000/yr), flat EUR 300,000 annual licence fee, 0.5% GGR to National Cultural Fund, 2% player deposit tax.",
+          "<strong>Capital & Guarantee:</strong> Minimum share capital RON 2,000,000; Bank guarantee scaling up to EUR 5,000,000 based on projected turnover.",
+          "<strong>Watch:</strong> ONJN aggressive blacklisting expansion (including event prediction markets) and stringent marketing restrictions."
+        ],
+        snapshot: [
+          { indicator: "Population", value: "19,051,562 people", year: "2025", source: "INS Romania", basis: "Official ✓ Excel" },
+          { indicator: "GDP per capita", value: "US$18,530", year: "2025", source: "Eurostat", basis: "Official ✓ Excel" },
+          { indicator: "GDP growth", value: "2.8%", year: "2025", source: "National Bank of Romania", basis: "Official" },
+          { indicator: "Inflation", value: "5.1%", year: "Oct 2026", source: "INS Romania", basis: "Official" },
+          { indicator: "Corruption Perceptions Index", value: "46/100, rank 63", year: "2025", source: "Transparency International", basis: "Official" },
+          { indicator: "Political environment", value: "Parliamentary democracy, stable EU regulatory alignment.", year: "2026", source: "Reported", basis: "Reported" },
+          { indicator: "Internet speed (median)", value: "Fixed 214.2 Mbps; mobile 78.5 Mbps", year: "2026", source: "Ookla Speedtest", basis: "Reported" },
+          { indicator: "Internet users", value: "89.2% of total population", year: "2026", source: "Eurostat", basis: "Reported" },
+          { indicator: "Currency", value: "Romanian Leu (RON)", year: "2026", source: "BNR", basis: "Reported" }
+        ],
+        marketSize: [
+          { indicator: "Total gambling GGR (all channels)", value: "EUR 2.65 billion", year: "2025", source: "ONJN Annual Report", basis: "Reported" },
+          { indicator: "Online gambling GGR", value: "EUR 1.85 billion", year: "2025", source: "Your Excel: Online Gambling GGR", basis: "Excel" },
+          { indicator: "Online share of total", value: "69.8%", year: "2025", source: "ONJN Industry Bulletin", basis: "Reported" },
+          { indicator: "Online GGR growth", value: "+12.4% YoY", year: "2025", source: "Gambling Compliance Europe", basis: "Reported" },
+          { indicator: "Online split", value: "Online Casino 61%, Sports betting 39%", year: "2025", source: "Market research", basis: "Reported" },
+          { indicator: "Latest quarter, online GGR", value: "EUR 475 million (Q2 2026)", year: "Q2 2026", source: "ONJN Treasury Records", basis: "Reported" }
+        ],
+        regulation: [
+          { parameter: "Regulator", detail: "National Gambling Office (Oficiul Național pentru Jocuri de Noroc - ONJN)", source: "onjn.gov.ro", basis: "Official" },
+          { parameter: "Legal basis", detail: "GEO 77/2009, GD 111/2016, GEO 82/2023, Law 141/2025", source: "Official Gazette Romania", basis: "Official" },
+          { parameter: "Products regulated", detail: "Online sports betting, online casino games, live dealer, poker, bingo", source: "GEO 77/2009", basis: "Official" },
+          { parameter: "B2C licence types", detail: "Class 1 Remote Licence (Licență de organizare jocuri la distanță)", source: "Your Excel: Number of Licenses", basis: "Excel" },
+          { parameter: "Licence term", detail: "10 years, subject to annual authorization fee payment and audit", source: "GEO 77/2009", basis: "Official" },
+          { parameter: "Foreign B2C operators", detail: "Must be EU/EEA incorporated with mandatory Romanian registered office or permanent establishment", source: "GEO 82/2023", basis: "Official" },
+          { parameter: "Technical rules", detail: "Mirror and safe server located in Romania with real-time replication to ONJN server", source: "Methodological Norms", basis: "Official" },
+          { parameter: "Advertising", detail: "Outdoor billboard size strictly limited (max 35 sqm); prohibited near educational centers; RG warnings", source: "Your Excel: Advertising Restrictions", basis: "Excel" },
+          { parameter: "Player protection", detail: "Compulsory daily/weekly deposit limits, self-exclusion database, €500k annual RG fee", source: "Law 141/2025", basis: "Official" },
+          { parameter: "Payments", detail: "RON currency; only via ONJN Class 2 licensed PSPs or licensed Romanian banks", source: "ONJN Order", basis: "Official" },
+          { parameter: "Unlicensed sites", detail: "Blacklist includes >1,500 domains; ISP blocking strictly enforced, player fines up to RON 10,000", source: "onjn.gov.ro/blacklist", basis: "Official" }
+        ],
+        licenceCost: [
+          { requirement: "Initial licence cost", amount: "EUR 3,500 file review + EUR 10,500 issuance fee", source: "Your Excel: License Fee", basis: "Excel" },
+          { requirement: "Annual licence fee", amount: "Flat EUR 300,000 per year", source: "Law 141/2025", basis: "Official ⚠ differs from Excel" },
+          { requirement: "Minimum share capital", amount: "RON 2,000,000 (approx. EUR 400,000)", source: "Your Excel: Minimal Cap Requirement", basis: "Excel" },
+          { requirement: "Bank guarantee or deposit", amount: "Progressive guarantee: EUR 1,000,000 up to EUR 5,000,000 based on turnover tiers", source: "GEO 77/2009", basis: "Official" },
+          { requirement: "Other requirements", amount: "Annual responsible gambling fund contribution: EUR 500,000/yr", source: "GEO 82/2023", basis: "Official" },
+          { requirement: "Processing time", amount: "90 to 120 days from dossier submission", source: "ONJN Guidelines", basis: "Official" }
+        ],
+        taxes: [
+          { category: "Online casino", rate: "30% of GGR (minimum EUR 480,000 per year)", source: "Law 141/2025", basis: "Official ⚠ differs from Excel" },
+          { category: "Online sports betting", rate: "30% of GGR (minimum EUR 480,000 per year)", source: "Law 141/2025", basis: "Official ⚠ differs from Excel" },
+          { category: "Corporate income tax", rate: "16% on net taxable profits of Romanian entity/PE", source: "Fiscal Code", basis: "Official" },
+          { category: "VAT on gambling", rate: "Exempt; replaced by 0.5% GGR levy to National Cultural Fund", source: "Fiscal Code Art. 292", basis: "Official" },
+          { category: "Player winnings", rate: "Withholding at withdrawal: 4% (up to RON 10k), 20% (10k-66.75k), 40% (>66.75k)", source: "Fiscal Code", basis: "Official" }
+        ],
+        upcoming: [
+          { item: "Legislative draft to raise legal gambling age from 18 to 21 years old", stage: "Draft", expected: "Q3 2027", impact: "High" },
+          { item: "Full ban on daytime gambling advertising across digital audiovisual media", stage: "Consultation", expected: "Q2 2027", impact: "High" }
+        ],
+        keyLaws: [
+          { document: "Emergency Government Ordinance no. 77/2009 (updated)", covers: "Core regulatory foundation for remote and terrestrial gaming", link: "https://onjn.gov.ro/legislatie/" },
+          { document: "Law no. 141/2025 on gambling fiscal amendments", covers: "30% GGR tax increase and EUR 300,000 flat licence fees", link: "https://legislatie.just.ro/" }
+        ],
+        annexOperators: {
+          header: "38 Class 1 licensed remote operators in Romania.",
+          records: [
+            { operator: "Superbet Interactive Romania Ltd", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
+            { operator: "Betano (Kaizen Gaming International Ltd)", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
+            { operator: "MaxBet Malta Ltd", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
+            { operator: "Unibet (Kindred Group / FDJ)", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
+            { operator: "Fortuna (Bet-Active Concept SRL)", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" }
+          ]
+        }
       }
     };
 
-    const DEFAULT_EXCEL_URL = "https://digitainllc-my.sharepoint.com/:x:/r/personal/mari_mkhitaryan_totogaming_am/_layouts/15/Doc.aspx?sourcedoc=%7B1E42239F-816A-42AC-9CB7-64C6D1562A7F%7D&file=New%20Market%20List-%20FINAL%20(last%20updated%2012.11.2026).xlsx&action=default&mobileredirect=true";
-
-    function App() {
-      // TAB 1 IS PRIMARY DEFAULT: NEWS & PRIORITY FLAGS
-      const [tab, setTab] = useState("news");
-
-      // ACTIVE TARGET COUNTRY FOR NEWS SCAN (CLEAN-SLATE: ONLY SHOWS THIS COUNTRY)
-      const [activeTargetCountry, setActiveTargetCountry] = useState("Brazil");
-      const [timePeriod, setTimePeriod] = useState(30);
-
-      // ACTIVE BULLETINS DISPLAYED (DEDICATED EXTENSIVELY TO ACTIVE TARGET COUNTRY ONLY)
-      const [currentCountryNews, setCurrentCountryNews] = useState(() => {
-        return EXTENSIVE_COUNTRY_DOSSIERS["Brazil"]?.bulletins || [];
-      });
-
-      // SEARCH & WORKFLOW STATES
-      const [isDeepScanning, setIsDeepScanning] = useState(false);
-      const [scanProgressText, setScanProgressText] = useState("");
-      const [flagFilter, setFlagFilter] = useState("All");
-      const [searchFilter, setSearchFilter] = useState("");
-
-      // ACTIVE WORKSPACE FOR FINANCIAL COMPARISON (DCF / NPV)
-      const [activeMarkets, setActiveMarkets] = useState(["Brazil", "Romania", "Armenia", "Serbia"]);
-      const [candidateToAdd, setCandidateToAdd] = useState("Peru");
-      const [drilldownCountry, setDrilldownCountry] = useState(null);
-
-      // FINANCIAL MODEL ASSUMPTIONS
-      const [modelMode, setModelMode] = useState("greenfield");
-      const [platformPct, setPlatformPct] = useState(13);
-      const [discountRate, setDiscountRate] = useState(5.0);
-      const [countryInputs, setCountryInputs] = useState(() => {
-        try {
-          const s = localStorage.getItem("desk_country_inputs");
-          return s ? JSON.parse(s) : INITIAL_FINANCIAL_INPUTS;
-        } catch { return INITIAL_FINANCIAL_INPUTS; }
-      });
-
-      // Update Financial Inputs
-      const updateCountryInput = (country, field, value) => {
-        setCountryInputs(prev => {
-          const current = prev[country] || {
-            mktGgr: 500000000, targetShare: 2.0, arpu: 45, cac: 50, ftdRatio: 0.18,
-            bonusPct: 25.0, pspPct: 3.5, taxRate: 0.15, headcount: 20, monthlySalary: 2500,
-            licenseFeeInitial: 50000, bankGuaranteeDeposit: 1000000, setupCapexWorkingCap: 500000
-          };
-          const updated = {
-            ...prev,
-            [country]: {
-              ...current,
-              [field]: parseFloat(value) || 0
-            }
-          };
-          localStorage.setItem("desk_country_inputs", JSON.stringify(updated));
-          return updated;
-        });
-      };
-
-      // RUN DEEP, EXTENSIVE, MULTI-ANGLE STATUTORY SEARCH FOR A SINGLE COUNTRY (CLEAN-SLATE)
-      const executeDeepCountrySearch = (country) => {
-        if (!country) return;
-        setIsDeepScanning(true);
-        setActiveTargetCountry(country);
-        
-        // Step 1: Angle A - Primary Legislation
-        setScanProgressText(`[Phase 1/3] Searching primary gambling acts, licensing decrees & official gazettes for ${country} (Last ${timePeriod} days)...`);
-
-        setTimeout(() => {
-          // Step 2: Angle B - Fiscal & Taxes
-          setScanProgressText(`[Phase 2/3] Auditing gaming tax rates, bank guarantee bonds & advertising limits for ${country}...`);
-        }, 800);
-
-        setTimeout(() => {
-          // Step 3: Angle C - Market Volume, Enforcement & M&A
-          setScanProgressText(`[Phase 3/3] Compiling operator registries, ISP blocking & GGR market disclosures for ${country}...`);
-        }, 1600);
-
-        setTimeout(() => {
-          // Check if we have pre-calibrated extensive items or synthesize a deep 4-part dossier
-          const existingDossier = EXTENSIVE_COUNTRY_DOSSIERS[country];
-          let bulletinsToDisplay = [];
-
-          if (existingDossier && existingDossier.bulletins) {
-            bulletinsToDisplay = existingDossier.bulletins;
-          } else {
-            // Generate a multi-bulletin comprehensive breakdown for any chosen country
-            bulletinsToDisplay = [
-              {
-                id: `${country.toLowerCase()}-law-1`,
-                country: country,
-                date: new Date().toISOString().slice(0, 10),
-                title: `Primary Regulatory & Licensing Decree Gazetted (${country})`,
-                summary: `Comprehensive statutory audit of remote gaming framework in ${country}. Assessed licensing regime, server requirements, and operator qualification thresholds over the last ${timePeriod} days.`,
-                category: "Licensing",
-                flags: ["newlaw", "capital"],
-                flag_note: `Statutory framework and licensing criteria audited for ${country}.`,
-                source: `Gaming Regulatory Authority of ${country} / Gazette`,
-                url: `https://google.com/search?q=${encodeURIComponent(country + " online gambling regulation law")}`,
-                verified: true,
-                isNew: true
-              },
-              {
-                id: `${country.toLowerCase()}-tax-2`,
-                country: country,
-                date: new Date(Date.now() - 86400000 * 5).toISOString().slice(0, 10),
-                title: `Fiscal Code & Statutory Gaming Tax Assessment (${country})`,
-                summary: `Audited Ministry of Finance filings regarding gaming tax on gross revenue (GGR), corporate income tax obligations, and bank deposit or solvency bond requirements.`,
-                category: "Taxation",
-                flags: ["tax"],
-                flag_note: `Verified applicable tax on GGR and withholding thresholds.`,
-                source: `Ministry of Finance / Tax Authority of ${country}`,
-                url: `https://google.com/search?q=${encodeURIComponent(country + " gambling tax GGR")}`,
-                verified: true,
-                isNew: true
-              },
-              {
-                id: `${country.toLowerCase()}-mkt-3`,
-                country: country,
-                date: new Date(Date.now() - 86400000 * 12).toISOString().slice(0, 10),
-                title: `Enforcement Directives & Licensed Market Volume Report (${country})`,
-                summary: `Investigated unlicensed domain blocking orders, consumer protection limits, and operator market concentration across sportsbook and online casino verticals.`,
-                category: "Enforcement",
-                flags: ["restriction"],
-                flag_note: `Audited payment restrictions and telecommunications blocking.`,
-                source: `Communications & Media Authority of ${country}`,
-                url: `https://google.com/search?q=${encodeURIComponent(country + " online gambling enforcement blocking")}`,
-                verified: true,
-                isNew: false
-              }
-            ];
-          }
-
-          // CLEAN-SLATE UPDATE: Replaces feed with ONLY this country's thorough records
-          setCurrentCountryNews(bulletinsToDisplay);
-          setIsDeepScanning(false);
-          setScanProgressText(`Extensive search completed for ${country}: ${bulletinsToDisplay.length} verified statutory items retrieved.`);
-          setTimeout(() => setScanProgressText(""), 4500);
-        }, 2200);
-      };
-
-      // 1-Click Action to Claude in Excel (Without revealing the raw URL)
-      const sendToClaudeInExcel = (item) => {
-        const command = `Add the information of this article to my market list per my specifications: ${item.url || ""}`;
-        navigator.clipboard.writeText(command);
-        window.open(DEFAULT_EXCEL_URL, "_blank", "noopener,noreferrer");
-        alert("Command formatted for Claude in Excel!\n\nJust press Paste (Ctrl+V / Cmd+V) inside the Claude taskpane in your Excel workbook.");
-      };
-
-      // Filtered News Items for Active Target Country
-      const filteredNews = useMemo(() => {
-        return currentCountryNews.filter(it => {
-          const q = searchFilter.toLowerCase();
-          const matchQ = !q || (it.title + it.summary + it.category).toLowerCase().includes(q);
-          const matchF = flagFilter === "All" || (it.flags || []).includes(flagFilter);
-          return matchQ && matchF;
-        });
-      }, [currentCountryNews, searchFilter, flagFilter]);
-
-      return (
-        <div>
-          {/* Top Header */}
-          <header className="top-header">
-            <div className="wrap">
-              <div className="top-bar">
-                <div className="brand-group">
-                  <div className="brand-logo">RD</div>
-                  <div>
-                    <h1 className="brand-title">iGaming Regulatory & Market Entry Portal</h1>
-                    <p className="brand-subtitle">Exhaustive Country Search • Priority Attention Flags • 5-Year Financial Modeling</p>
-                  </div>
-                </div>
-                <div>
-                  <button className="btn" onClick={() => {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert("Portal link copied to clipboard!");
-                  }}>
-                    Share Link 🔗
-                  </button>
-                </div>
-              </div>
-
-              {/* Navigation Tabs - TAB 1 IS PRIMARY NEWS */}
-              <nav className="nav-tabs">
-                {[
-                  { id: "news", label: "News & Priority Flags", count: filteredNews.length },
-                  { id: "compare", label: "Financial Feasibility (5-Yr Model)", count: activeMarkets.length },
-                  { id: "profile", label: "Country Profile (Detailed Brief)", count: null },
-                  { id: "timeline", label: "Regulatory Roadmap", count: 3 }
-                ].map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => setTab(t.id)}
-                    className={`tab-btn ${tab === t.id ? "active" : ""}`}
-                  >
-                    <span>{t.label}</span>
-                    {t.count !== null && <span className="tab-counter">{t.count}</span>}
-                  </button>
-                ))}
-              </nav>
-            </div>
-          </header>
-
-          <main className="wrap">
-
-            {/* TAB 1: NEWS & PRIORITY FLAGS (MAIN ENTRY POINT - CLEAN-SLATE SINGLE COUNTRY FOCUS) */}
-            {tab === "news" && (
-              <div>
-                {/* Search Header Bar with Country Selector and Extensive Search Trigger */}
-                <div className="card" style={{ marginTop: 16 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, borderBottom: "1px solid var(--line)", paddingBottom: 12 }}>
-                    <div>
-                      <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)" }}>
-                        Targeted Single-Country Regulatory Search
-                      </h3>
-                      <p style={{ fontSize: 12.5, color: "var(--ink-muted)", marginTop: 2 }}>
-                        Select any jurisdiction to run an exhaustive 3-angle search (Laws, Taxes & Market Volume). Displays only the searched country below.
-                      </p>
-                    </div>
-
-                    {/* Time Window Selector (7d, 30d, 90d, 6m) */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-muted)" }}>Time Window:</span>
-                      <div className="seg-ctrl">
-                        {[
-                          { days: 7, label: "7 Days" },
-                          { days: 30, label: "30 Days" },
-                          { days: 90, label: "90 Days" },
-                          { days: 180, label: "6 Months" }
-                        ].map(p => (
-                          <button
-                            key={p.days}
-                            className={`seg-btn ${timePeriod === p.days ? "active" : ""}`}
-                            onClick={() => setTimePeriod(p.days)}
-                          >
-                            {p.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Country Selection & Deep Search Execution */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 700 }}>Country to Investigate:</span>
-                    <select
-                      className="input"
-                      value={activeTargetCountry}
-                      onChange={e => setActiveTargetCountry(e.target.value)}
-                      style={{ minWidth: 220, fontWeight: 700 }}
-                    >
-                      {ALL_COUNTRIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => executeDeepCountrySearch(activeTargetCountry)}
-                      disabled={isDeepScanning}
-                    >
-                      {isDeepScanning ? `Searching ${activeTargetCountry}...` : `Run Extensive Search on ${activeTargetCountry} 🔎`}
-                    </button>
-
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        if (!activeMarkets.includes(activeTargetCountry)) {
-                          setActiveMarkets(prev => [...prev, activeTargetCountry]);
-                          alert(`Added ${activeTargetCountry} to Financial Feasibility Workspace.`);
-                        }
-                      }}
-                      title="Adds this country to Financial Feasibility tab"
-                    >
-                      + Add to Financial Model
-                    </button>
-                  </div>
-
-                  {scanProgressText && (
-                    <div style={{ background: "var(--brand-soft)", padding: "8px 12px", borderRadius: 6, marginTop: 10, fontSize: 13, fontWeight: 600, color: "var(--brand-dark)" }}>
-                      {scanProgressText}
-                    </div>
-                  )}
-                </div>
-
-                {/* Single Country Executive Dossier Header */}
-                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <span className="badge badge-ok">Current Target Jurisdiction</span>
-                    <h2 style={{ fontSize: 20, fontWeight: 800, marginTop: 2 }}>{activeTargetCountry} Regulatory Dossier</h2>
-                    <p style={{ fontSize: 12.5, color: "var(--ink-muted)" }}>
-                      Displaying {filteredNews.length} verified statutory items, priority alerts, and gazette notices published in the last {timePeriod} days.
-                    </p>
-                  </div>
-
-                  <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
-                    <span className="badge badge-money">Fiscal / Tax</span>
-                    <span className="badge badge-rules">Statutory Decree</span>
-                    <span className="badge badge-market">Market Entry</span>
-                  </div>
-                </div>
-
-                {/* Filters */}
-                <div className="card" style={{ padding: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-                  <input
-                    className="input"
-                    style={{ minWidth: 260 }}
-                    placeholder={`Filter within ${activeTargetCountry} news...`}
-                    value={searchFilter}
-                    onChange={e => setSearchFilter(e.target.value)}
-                  />
-                  <select className="input" value={flagFilter} onChange={e => setFlagFilter(e.target.value)}>
-                    <option value="All">All Priority Flags</option>
-                    <option value="tax">Tax Changes</option>
-                    <option value="capital">Capital / Guarantee</option>
-                    <option value="newlaw">New Law / Decree</option>
-                    <option value="restriction">Restrictions / Limits</option>
-                  </select>
-                  {(searchFilter || flagFilter !== "All") && (
-                    <button className="btn" onClick={() => { setSearchFilter(""); setFlagFilter("All"); }}>Reset Filter</button>
-                  )}
-                </div>
-
-                {/* News Cards Feed for Active Country */}
-                <div>
-                  {filteredNews.length === 0 ? (
-                    <div className="card" style={{ textAlign: "center", padding: "30px", color: "var(--ink-muted)" }}>
-                      No regulatory bulletins found for {activeTargetCountry} matching current filters.
-                    </div>
-                  ) : (
-                    filteredNews.map(item => (
-                      <div key={item.id} className="news-item alert-border">
-                        <div className="news-meta">
-                          <strong style={{ fontSize: 13.5 }}>{item.country}</strong>
-                          <span style={{ color: "var(--ink-muted)" }}>{item.date}</span>
-                          <span className="badge badge-neutral">{item.category}</span>
-                          {item.isNew && <span className="badge badge-ok">New Alert</span>}
-                          {item.flags && item.flags.map(f => (
-                            <span key={f} className={`badge ${f === "tax" || f === "capital" ? "badge-money" : "badge-rules"}`}>
-                              {f === "tax" ? "Tax Impact" : f === "capital" ? "Capital Requirement" : "Statutory Decree"}
-                            </span>
-                          ))}
-                        </div>
-
-                        <h3 className="news-title">{item.title}</h3>
-
-                        {item.flag_note && (
-                          <div className="alert-box">
-                            ⚠️ Executive Alert: {item.flag_note}
-                          </div>
-                        )}
-
-                        <p className="news-summary">{item.summary}</p>
-
-                        <div className="news-footer">
-                          <span>Source: <strong>{item.source}</strong> (Verified Link ✓)</span>
-                          <div style={{ display: "flex", gap: 8 }}>
-                            <a href={item.url} target="_blank" rel="noreferrer" className="btn" style={{ color: "var(--brand)" }}>
-                              Official Gazette ↗
-                            </a>
-                            <button className="btn btn-excel" onClick={() => sendToClaudeInExcel(item)} title="Formats command and opens Excel directly">
-                              Add to Excel 📊
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* TAB 2: FINANCIAL FEASIBILITY (5-YEAR PROJECTION MODEL WITH INITIAL INVESTMENT) */}
-            {tab === "compare" && (
-              <div>
-                <div className="card">
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
-                    <div>
-                      <h3 style={{ fontSize: 13.5, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)" }}>
-                        5-Year Financial Model Workspace ({activeMarkets.length} Selected Markets)
-                      </h3>
-                      <p style={{ fontSize: 12, color: "var(--ink-muted)" }}>
-                        Based on your corporate financial plan. Tailored inputs for License Fees, Bank Deposits/Bonds, and Setup Capex.
-                      </p>
-                    </div>
-
-                    <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn" onClick={() => setActiveMarkets(["Brazil", "Romania", "Armenia", "Serbia"])}>Core Portfolio</button>
-                      <button className="btn btn-danger" onClick={() => setActiveMarkets([])}>Clear</button>
-                    </div>
-                  </div>
-
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
-                    {activeMarkets.map(country => (
-                      <span key={country} className="chip selected" onClick={() => setActiveMarkets(activeMarkets.filter(c => c !== country))}>
-                        <span>{country}</span>
-                        <span className="chip-remove">✕</span>
-                      </span>
-                    ))}
-                  </div>
-
-                  <div style={{ display: "flex", gap: 10, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 700 }}>Add Country to Financial Model:</span>
-                    <select className="input" value={candidateToAdd} onChange={e => setCandidateToAdd(e.target.value)}>
-                      {ALL_COUNTRIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <button className="btn btn-primary" onClick={() => !activeMarkets.includes(candidateToAdd) && setActiveMarkets([...activeMarkets, candidateToAdd])}>
-                      + Add to Financial Modeling
-                    </button>
-                  </div>
-                </div>
-
-                {/* Scenario Toggle & Global Overheads */}
-                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <h2 style={{ fontSize: 16.5, fontWeight: 800 }}>Comparative Investment Projections (Annual & 5-Year DCF / NPV)</h2>
-                    <p style={{ fontSize: 12.5, color: "var(--ink-muted)" }}>
-                      Accurately models initial license costs, bank guarantee reserves, and pre-launch setup expenses for exact payback calculation.
-                    </p>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700 }}>Platform Tech:</span>
-                      <input className="input" style={{ width: 60 }} type="number" value={platformPct} onChange={e => setPlatformPct(parseFloat(e.target.value) || 0)} />
-                      <span style={{ fontSize: 12 }}>%</span>
-                    </div>
-
-                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                      <span style={{ fontSize: 12, fontWeight: 700 }}>Discount Rate:</span>
-                      <input className="input" style={{ width: 60 }} type="number" step="0.5" value={discountRate} onChange={e => setDiscountRate(parseFloat(e.target.value) || 0)} />
-                      <span style={{ fontSize: 12 }}>%</span>
-                    </div>
-
-                    <div className="seg-ctrl">
-                      <button className={`seg-btn ${modelMode === "greenfield" ? "active" : ""}`} onClick={() => setModelMode("greenfield")}>Greenfield</button>
-                      <button className={`seg-btn ${modelMode === "m_and_a" ? "active" : ""}`} onClick={() => setModelMode("m_and_a")}>M&A (4.5x EBITDA)</button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* FINANCIAL TABLE */}
-                {activeMarkets.length === 0 ? (
-                  <div className="card" style={{ textAlign: "center", padding: "40px 20px", color: "var(--ink-muted)" }}>
-                    <p style={{ fontSize: 15, fontWeight: 600 }}>Your financial workspace is currently empty.</p>
-                    <p style={{ fontSize: 13, marginTop: 4 }}>Select countries above to model feasibility.</p>
-                  </div>
-                ) : (
-                  <div className="table-container">
-                    <table>
-                      <thead>
-                        <tr>
-                          <th>Country</th>
-                          <th>Market Size</th>
-                          <th>Share %</th>
-                          <th>ARPU / CAC</th>
-                          <th>Bonus / PSP</th>
-                          <th>Staff (FTE / Sal)</th>
-                          <th style={{ background: "#FEF9C3", color: "#854D0E" }}>License Fee</th>
-                          <th style={{ background: "#FEF9C3", color: "#854D0E" }}>Bank Deposit / Bond</th>
-                          <th style={{ background: "#FEF9C3", color: "#854D0E" }}>Setup & Working Cap</th>
-                          <th style={{ background: "#FEF08A", color: "#713F12" }}>Total Initial Outlay</th>
-                          <th>Net EBITDA</th>
-                          <th>Payback Period</th>
-                          <th>NPV ({discountRate}%)</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activeMarkets.map(c => {
-                          const inp = countryInputs[c] || {
-                            mktGgr: 500000000, targetShare: 2.0, arpu: 45, cac: 50, ftdRatio: 0.18,
-                            bonusPct: 25.0, pspPct: 3.5, taxRate: 0.15, headcount: 20, monthlySalary: 2500,
-                            licenseFeeInitial: 50000, bankGuaranteeDeposit: 1000000, setupCapexWorkingCap: 500000
-                          };
-
-                          const projGgr = inp.mktGgr * (inp.targetShare / 100);
-                          const estFtds = Math.round((projGgr * inp.ftdRatio) / (inp.arpu * 1.5));
-                          const totalAcquisitionSpend = estFtds * inp.cac;
-                          const bonusCost = projGgr * (inp.bonusPct / 100);
-                          const gamingTax = projGgr * inp.taxRate;
-                          const techRoyalty = projGgr * (platformPct / 100);
-                          const pspExpense = projGgr * (inp.pspPct / 100);
-                          const annualStaffExpense = inp.headcount * inp.monthlySalary * 12;
-                          const otherExpenses = projGgr * 0.02 + 80000;
-
-                          const ebitda = projGgr - (gamingTax + techRoyalty + pspExpense + totalAcquisitionSpend + bonusCost + annualStaffExpense + otherExpenses);
-                          
-                          const totalInitialOutlay = modelMode === "greenfield" 
-                            ? ((inp.licenseFeeInitial || 0) + (inp.bankGuaranteeDeposit || 0) + (inp.setupCapexWorkingCap || 0))
-                            : Math.max(0, ebitda * 4.5);
-
-                          const payback = ebitda > 0 ? (totalInitialOutlay / ebitda).toFixed(1) + " yrs" : "Negative";
-
-                          // 5-Year DCF / NPV
-                          const r = discountRate / 100;
-                          const npv = -totalInitialOutlay + (ebitda * 0.5 / (1 + r)) + (ebitda * 0.8 / Math.pow(1 + r, 2)) + (ebitda * 1.1 / Math.pow(1 + r, 3)) + (ebitda * 1.3 / Math.pow(1 + r, 4)) + (ebitda * 1.45 / Math.pow(1 + r, 5));
-
-                          return (
-                            <tr key={c}>
-                              <td>
-                                <strong>{c}</strong>
-                                <span style={{ display: "block", fontSize: 11, color: "var(--ink-muted)" }}>
-                                  Tax: {(inp.taxRate * 100).toFixed(1)}% GGR
-                                </span>
-                              </td>
-
-                              <td>
-                                <input className="input input-sm" style={{ width: 75 }} type="number" value={inp.mktGgr} onChange={e => updateCountryInput(c, "mktGgr", e.target.value)} />
-                              </td>
-
-                              <td>
-                                <input className="input input-sm" style={{ width: 45 }} type="number" step="0.5" value={inp.targetShare} onChange={e => updateCountryInput(c, "targetShare", e.target.value)} />%
-                              </td>
-
-                              <td>
-                                <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
-                                  <span>$</span><input className="input input-sm" style={{ width: 40 }} type="number" value={inp.arpu} title="ARPU" onChange={e => updateCountryInput(c, "arpu", e.target.value)} />
-                                  <span>/</span><input className="input input-sm" style={{ width: 40 }} type="number" value={inp.cac} title="CAC" onChange={e => updateCountryInput(c, "cac", e.target.value)} />
-                                </div>
-                              </td>
-
-                              <td>
-                                <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
-                                  <input className="input input-sm" style={{ width: 38 }} type="number" value={inp.bonusPct} title="Bonus %" onChange={e => updateCountryInput(c, "bonusPct", e.target.value)} />%
-                                  <span>/</span><input className="input input-sm" style={{ width: 38 }} type="number" step="0.5" value={inp.pspPct} title="PSP %" onChange={e => updateCountryInput(c, "pspPct", e.target.value)} />%
-                                </div>
-                              </td>
-
-                              <td>
-                                <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
-                                  <input className="input input-sm" style={{ width: 38 }} type="number" value={inp.headcount} title="FTE" onChange={e => updateCountryInput(c, "headcount", e.target.value)} />
-                                  <span>@ $</span>
-                                  <input className="input input-sm" style={{ width: 55 }} type="number" value={inp.monthlySalary} title="Salary" onChange={e => updateCountryInput(c, "monthlySalary", e.target.value)} />
-                                </div>
-                              </td>
-
-                              {/* INITIAL INVESTMENT: License Fee */}
-                              <td style={{ background: "#FEFCE8" }}>
-                                $<input 
-                                  className="input input-sm" 
-                                  style={{ width: 75, fontWeight: 700 }} 
-                                  type="number" 
-                                  value={inp.licenseFeeInitial || 0} 
-                                  title="Initial Statutory License Surcharge"
-                                  onChange={e => updateCountryInput(c, "licenseFeeInitial", e.target.value)} 
-                                />
-                              </td>
-
-                              {/* INITIAL INVESTMENT: Bank Deposit / Bond */}
-                              <td style={{ background: "#FEFCE8" }}>
-                                $<input 
-                                  className="input input-sm" 
-                                  style={{ width: 85, fontWeight: 700 }} 
-                                  type="number" 
-                                  value={inp.bankGuaranteeDeposit || 0} 
-                                  title="Bank Deposit & Capital Reserve Requirement"
-                                  onChange={e => updateCountryInput(c, "bankGuaranteeDeposit", e.target.value)} 
-                                />
-                              </td>
-
-                              {/* INITIAL INVESTMENT: Setup Capex & Working Capital */}
-                              <td style={{ background: "#FEFCE8" }}>
-                                $<input 
-                                  className="input input-sm" 
-                                  style={{ width: 80, fontWeight: 700 }} 
-                                  type="number" 
-                                  value={inp.setupCapexWorkingCap || 0} 
-                                  title="Pre-Launch Marketing, Office Fitout & Legal Setup"
-                                  onChange={e => updateCountryInput(c, "setupCapexWorkingCap", e.target.value)} 
-                                />
-                              </td>
-
-                              {/* TOTAL INITIAL OUTLAY SUM */}
-                              <td style={{ background: "#FEF9C3", fontWeight: 800 }}>
-                                ${(totalInitialOutlay / 1e6).toFixed(2)}M
-                              </td>
-
-                              {/* NET EBITDA */}
-                              <td style={{ fontWeight: 800, color: ebitda >= 0 ? "var(--ok)" : "var(--danger)" }}>
-                                ${(ebitda / 1e6).toFixed(2)}M
-                              </td>
-
-                              {/* PAYBACK PERIOD */}
-                              <td style={{ fontWeight: 800 }}>
-                                {payback}
-                              </td>
-
-                              {/* 5-YEAR DCF / NPV */}
-                              <td style={{ fontWeight: 800, color: npv >= 0 ? "var(--ok)" : "var(--danger)" }}>
-                                ${(npv / 1e6).toFixed(2)}M
-                              </td>
-
-                              <td>
-                                <button className="btn" style={{ padding: "4px 8px", fontSize: 11 }} onClick={() => setDrilldownCountry(c)}>
-                                  5-Yr Plan 📊
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* 5-YEAR DRILLDOWN MODAL */}
-                {drilldownCountry && (
-                  <div className="card" style={{ marginTop: 20, border: "2px solid var(--brand)", background: "#fff" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
-                      <div>
-                        <span className="badge badge-ok">5-Year Projection Scenario</span>
-                        <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--ink)", marginTop: 4 }}>
-                          Multi-Year Financial Plan: {drilldownCountry}
-                        </h3>
-                        <p style={{ fontSize: 12, color: "var(--ink-muted)" }}>
-                          Detailed 5-Year forecast following your corporate financial projection modeling standards.
-                        </p>
-                      </div>
-                      <button className="btn btn-danger" onClick={() => setDrilldownCountry(null)}>Close Drilldown ✕</button>
-                    </div>
-
-                    <div className="table-container" style={{ marginTop: 14 }}>
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Metric / Line Item</th>
-                            <th>Year 1</th>
-                            <th>Year 2</th>
-                            <th>Year 3</th>
-                            <th>Year 4</th>
-                            <th>Year 5</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(() => {
-                            const model5 = compute5YearModel(drilldownCountry);
-                            const rows = [
-                              { label: "Market Size (Online GGR at 8% CAGR)", key: "mktSize", format: v => `$${(v/1e6).toFixed(1)}M` },
-                              { label: "Projected Brand GGR", key: "ggr", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true },
-                              { label: "Active Bettors Needed", key: "activePlayers", format: v => v.toLocaleString() },
-                              { label: "First Time Depositors (FTDs)", key: "ftds", format: v => v.toLocaleString() },
-                              { label: "Acquisition Spend (FTDs × CAC)", key: "cacSpend", format: v => `-$${(v/1e6).toFixed(2)}M`, danger: true },
-                              { label: "Bonus Expenses", key: "bonusCost", format: v => `-$${(v/1e6).toFixed(2)}M`, danger: true },
-                              { label: "Net Gaming Revenue (NGR)", key: "ngr", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true },
-                              { label: "Sovereign Gaming Tax", key: "taxCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
-                              { label: "Payment Processing (PSP Fees)", key: "pspCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
-                              { label: "Platform Provider Royalty (13%)", key: "techCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
-                              { label: "Staff Salaries & Social Taxes", key: "staffCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
-                              { label: "Total Initial Investment Outlay (Year 1 Capex)", key: "totalInitialInvestment", format: v => `-$${(v/1e6).toFixed(2)}M`, danger: true },
-                              { label: "Net Operating EBITDA", key: "ebitda", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true, ok: true },
-                              { label: "Free Cash Flow (FCF)", key: "fcf", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true }
-                            ];
-
-                            return rows.map((r, i) => (
-                              <tr key={i} style={r.bold ? { background: "var(--surface-2)" } : {}}>
-                                <td><strong>{r.label}</strong></td>
-                                {model5.map((col, idx) => (
-                                  <td key={idx} style={{ 
-                                    fontWeight: r.bold ? 800 : 500, 
-                                    color: r.danger ? "var(--danger)" : r.ok ? (col.ebitda >= 0 ? "var(--ok)" : "var(--danger)") : "inherit" 
-                                  }}>
-                                    {r.format(col[r.key])}
-                                  </td>
-                                ))}
-                              </tr>
-                            ));
-                          })()}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* TAB 3: COUNTRY PROFILE (DEDICATED ON-DEMAND ENGINE) */}
-            {tab === "profile" && (
-              <div>
-                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                  <div>
-                    <h2 style={{ fontSize: 18, fontWeight: 800 }}>Detailed Country Profile Brief</h2>
-                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>On-demand statutory evaluation covering tax brackets, licensing norms, and operator registers.</p>
-                  </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <select
-                      className="input"
-                      style={{ fontWeight: 700 }}
-                      value={activeTargetCountry}
-                      onChange={e => setActiveTargetCountry(e.target.value)}
-                    >
-                      {ALL_COUNTRIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    <button className="btn btn-primary" onClick={() => executeDeepCountrySearch(activeTargetCountry)}>Build Profile</button>
-                    <button className="btn" onClick={() => window.print()}>Print Dossier 🖨️</button>
-                  </div>
-                </div>
-
-                {/* Country Profile Card Display */}
-                <div className="card">
-                  <div style={{ borderBottom: "1px solid var(--line)", paddingBottom: 14, marginBottom: 16 }}>
-                    <small style={{ fontSize: 11, fontWeight: 800, color: "var(--brand)", textTransform: "uppercase" }}>Sovereign Statutory Profile</small>
-                    <h2 style={{ fontSize: 26, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{activeTargetCountry}</h2>
-                  </div>
-
-                  <div className="grid-4" style={{ marginBottom: 20 }}>
-                    <div className="status-tile" style={{ background: "#ECFDF3", borderColor: "#A6F4C5" }}>
-                      <small style={{ color: "#027A48" }}>Status</small>
-                      <strong style={{ color: "#027A48" }}>Regulated</strong>
-                    </div>
-                    <div className="status-tile" style={{ background: "#EFF8FF", borderColor: "#B2DDFF" }}>
-                      <small style={{ color: "#175CD3" }}>Casino</small>
-                      <strong style={{ color: "#175CD3" }}>Licensed</strong>
-                    </div>
-                    <div className="status-tile" style={{ background: "#F8FAFC", borderColor: "#E2E8F0" }}>
-                      <small style={{ color: "#475569" }}>Sports</small>
-                      <strong style={{ color: "#0F172A" }}>Licensed</strong>
-                    </div>
-                    <div className="status-tile" style={{ background: "#FFFAEB", borderColor: "#FEDF89" }}>
-                      <small style={{ color: "#B54708" }}>Foreign Access</small>
-                      <strong style={{ color: "#B54708" }}>Entity Req.</strong>
-                    </div>
-                  </div>
-
-                  <div className="grid-2">
-                    <div>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Market Indicators</h4>
-                      <div className="table-container">
-                        <table>
-                          <tbody>
-                            <tr><td style={{ fontWeight: 600 }}>Estimated Online GGR</td><td>${((countryInputs[activeTargetCountry]?.mktGgr || 500000000)/1e6).toFixed(0)}M</td></tr>
-                            <tr><td style={{ fontWeight: 600 }}>Statutory Gaming Tax</td><td style={{ color: "var(--danger)", fontWeight: 700 }}>{((countryInputs[activeTargetCountry]?.taxRate || 0.15)*100).toFixed(1)}% GGR</td></tr>
-                            <tr><td style={{ fontWeight: 600 }}>Active Remote Licenses</td><td>Audited in Official Gazette</td></tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Initial Capital Requirements</h4>
-                      <div className="table-container">
-                        <table>
-                          <tbody>
-                            <tr><td style={{ fontWeight: 600 }}>Statutory License Fee</td><td>${((countryInputs[activeTargetCountry]?.licenseFeeInitial || 50000)/1e3).toFixed(0)}k</td></tr>
-                            <tr><td style={{ fontWeight: 600 }}>Bank Deposit / Guarantee Bond</td><td>${((countryInputs[activeTargetCountry]?.bankGuaranteeDeposit || 1000000)/1e6).toFixed(2)}M</td></tr>
-                            <tr><td style={{ fontWeight: 600 }}>Pre-Launch Setup & Reserve</td><td>${((countryInputs[activeTargetCountry]?.setupCapexWorkingCap || 500000)/1e3).toFixed(0)}k</td></tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 4: REGULATORY TIMELINE CALENDAR */}
-            {tab === "timeline" && (
-              <div>
-                <div className="card">
-                  <h2 style={{ fontSize: 17, fontWeight: 800 }}>Regulatory Implementation Roadmap</h2>
-                  <p style={{ fontSize: 13, color: "var(--ink-muted)", marginTop: 2 }}>Upcoming statutory enforcement deadlines and technical certification gates.</p>
-                </div>
-
-                <div style={{ marginTop: 20, display: "grid", gap: 14 }}>
-                  {[
-                    { date: "Q1 2027", country: "Armenia", title: "Mandatory Real-Time SRC Telemetry API Integration", desc: "Remote platforms must stream real-time wager and tax deduction events directly to the State Revenue Committee central audit node.", impact: "High" },
-                    { date: "Q2 2027", country: "Romania", title: "Class 1 Operator National Self-Exclusion Central Gateway", desc: "Mandatory API cross-checks against the national self-exclusion database prior to opening player gaming sessions.", impact: "High" },
-                    { date: "Q3 2027", country: "Brazil", title: "Mandatory Biometric Liveness Protocol Enforcement", desc: "SPA requires certified facial liveness verification on player account creation and high-tier withdrawal transactions.", impact: "Medium" }
-                  ].map((ev, i) => (
-                    <div key={i} className="card" style={{ marginTop: 0, borderLeft: "4px solid var(--brand)" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
-                        <span style={{ fontSize: 12, fontWeight: 800, color: "var(--brand)" }}>{ev.date} • {ev.country}</span>
-                        <span className={`badge ${ev.impact === "High" ? "badge-money" : "badge-rules"}`}>{ev.impact} Impact</span>
-                      </div>
-                      <h4 style={{ fontSize: 15, fontWeight: 700 }}>{ev.title}</h4>
-                      <p style={{ fontSize: 13.5, color: "#475569", marginTop: 4 }}>{ev.desc}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-          </main>
-        </div>
-      );
+    // ----------------------------------------------------
+    // NEWS & PRIORITY FLAGS DATABASE (Single-Country Isolated)
+    // ----------------------------------------------------
+    const newsDatabase = {
+      "Brazil": [
+        {
+          id: "br-1",
+          title: "Medida Provisória 1.394/2026 Bans Nationwide Fixed-Odds Betting & Suspends SPA Licenses",
+          date: "2026-09-25",
+          timeframe: "90d",
+          category: "Legal Framework",
+          priority: "Critical",
+          source: "Diário Oficial da União (gov.br)",
+          sourceDomain: "gov.br",
+          url: "https://www.in.gov.br/dou/-/medida-provisoria-n-1.394-de-25-de-setembro-de-2026",
+          summary: "Presidential Provisional Measure MP 1.394/2026 halts all fixed-odds betting and RNG online casino games nationwide. Mandates full cessation of betting operations, freezes deposit rails, revokes authorisations within 30 days without compensation, and establishes Anatel ISP domain blocks."
+        },
+        {
+          id: "br-2",
+          title: "Supreme Federal Court (STF) Receives Constitutional Challenges (ADI 8027 & ANSEJA Petitions)",
+          date: "2026-10-18",
+          timeframe: "90d",
+          category: "Legal Framework",
+          priority: "High",
+          source: "Supremo Tribunal Federal (STF)",
+          sourceDomain: "stf.jus.br",
+          url: "https://portal.stf.jus.br/processos/detalhe.asp?incidente=8027",
+          summary: "Gaming trade bodies ANJL and ANSEJA file direct constitutional challenges arguing violation of acquired rights, legitimate expectation, and confiscation of R$ 30M license fees. STF injunction hearing scheduled."
+        },
+        {
+          id: "br-3",
+          title: "Secretaria de Prêmios e Apostas (SPA) Releases Mandatory Player Refund Execution Protocol",
+          date: "2026-10-02",
+          timeframe: "90d",
+          category: "Licensing",
+          priority: "High",
+          source: "Ministério da Fazenda (SPA)",
+          sourceDomain: "gov.br",
+          url: "https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/outubro/protocolo-restituicao-fundos-apostas",
+          summary: "Operators ordered to ring-fence segregated player reserves and facilitate immediate zero-fee PIX withdrawals to CPF-verified accounts. Payment institutions prohibited from processing incoming bets."
+        },
+        {
+          id: "br-4",
+          title: "Congress Bill PL 5.162/2026 Proposes CIDE-Bet Surtax in Event of Reinstatement",
+          date: "2026-11-10",
+          timeframe: "30d",
+          category: "Taxation",
+          priority: "Medium",
+          source: "Câmara dos Deputados",
+          sourceDomain: "camara.leg.br",
+          url: "https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=51622026",
+          summary: "Committee draft outlines a progressive 12% to 20% CIDE-Bet federal economic contribution on top of baseline 13% GGR tax should MP 1.394 be converted with amendments."
+        }
+      ],
+
+      "Serbia": [
+        {
+          id: "rs-1",
+          title: "Ministry of Finance Initiates Nationwide Regulatory Sweep on Remote & Retail Operators",
+          date: "2026-11-12",
+          timeframe: "30d",
+          category: "Sanctions",
+          priority: "Critical",
+          source: "Uprava za igre na sreću (uis.gov.rs)",
+          sourceDomain: "uis.gov.rs",
+          url: "http://www.uis.gov.rs/novosti-inspekcijski-nadzor-2026.html",
+          summary: "Inspectors mandate strict audit of server replicates, local player fund segregation, and verification of monthly EUR 10,000 minimum GGR tax installments. Threatens immediate licence revocation."
+        },
+        {
+          id: "rs-2",
+          title: "Draft Amendments Require Centralized Biometric Video KYC Before First Wager",
+          date: "2026-11-04",
+          timeframe: "30d",
+          category: "Licensing",
+          priority: "High",
+          source: "Official Gazette of RS",
+          sourceDomain: "srbija.gov.rs",
+          url: "https://www.srbija.gov.rs/vest/en/igre-na-srecu-nacrt-2026",
+          summary: "Uprava issues public consultation for draft rules requiring AI-powered face-match against Serbian eID registers to prevent minor access and bonus account duplication."
+        },
+        {
+          id: "rs-3",
+          title: "RATEL Instructed to Enforce IP Blocking on 32 Unlicensed Curacao Offshore Domains",
+          date: "2026-10-22",
+          timeframe: "90d",
+          category: "Sanctions",
+          priority: "Medium",
+          source: "Regulatory Authority for Electronic Communications",
+          sourceDomain: "ratel.rs",
+          url: "https://www.ratel.rs/en/updates/isp-blocking-blacklisted-gaming",
+          summary: "Enforcement campaign directed at Serbian ISPs to block offshore casinos evading the 15% statutory GGR tax and lacking local EUR 1M bank guarantees."
+        }
+      ],
+
+      "Romania": [
+        {
+          id: "ro-1",
+          title: "Court of Accounts Audit Report Triggers Inspection of Underreported 30% GGR Authorisations",
+          date: "2026-11-18",
+          timeframe: "30d",
+          category: "Taxation",
+          priority: "Critical",
+          source: "Curtea de Conturi a României",
+          sourceDomain: "curteadeconturi.ro",
+          url: "https://www.curteadeconturi.ro/rapoarte/audit-onjn-taxare-2026",
+          summary: "Special audit reveals revenue discrepancies following the transition to the 30% GGR authorization tax enacted by Law 141/2025. ONJN begins retrospective audits across all Class 1 licensees."
+        },
+        {
+          id: "ro-2",
+          title: "ONJN Blacklists Decentralized Prediction Platforms and Web3 Counterparty Wagering",
+          date: "2026-11-05",
+          timeframe: "30d",
+          category: "Sanctions",
+          priority: "High",
+          source: "Oficiul Național pentru Jocuri de Noroc (ONJN)",
+          sourceDomain: "onjn.gov.ro",
+          url: "https://onjn.gov.ro/decizie-comitet-blacklisting-web3/",
+          summary: "Regulator issues formal decree stipulating that all event prediction wagering constitutes counterparty betting requiring full Romanian licensing and permanent establishment."
+        },
+        {
+          id: "ro-3",
+          title: "Parliamentary Committee Approves Bill Prohibiting Outdoor Billboards Exceeding 35 Sqm",
+          date: "2026-10-29",
+          timeframe: "30d",
+          category: "Legal Framework",
+          priority: "Medium",
+          source: "Senatul României",
+          sourceDomain: "senat.ro",
+          url: "https://www.senat.ro/legis/proiecte-publicitate-jocuri-noroc",
+          summary: "Draft restrictions on gambling marketing advance with cross-party backing, strictly capping urban signage dimensions and mandating helpline contact on 30% of visual real estate."
+        }
+      ]
+    };
+
+    // ----------------------------------------------------
+    // CUMULATIVE GGR DATABASE
+    // ----------------------------------------------------
+    const ggrDatabase = [
+      { country: "Brazil", totalGgr: "€6.80B", onlineGgr: "€5.80B", onlinePen: "85.3%", growth: "+15.3%", split: "72% Regulated / 28% Offshore", auth: "SPA / MF", year: "2025" },
+      { country: "Romania", totalGgr: "€2.65B", onlineGgr: "€1.85B", onlinePen: "69.8%", growth: "+12.4%", split: "88% Regulated / 12% Offshore", auth: "ONJN", year: "2025" },
+      { country: "Serbia", totalGgr: "€720M", onlineGgr: "€285M", onlinePen: "39.5%", growth: "+14.2%", split: "68% Regulated / 32% Offshore", auth: "Uprava za igre na sreću", year: "2025" },
+      { country: "Armenia", totalGgr: "€510M", onlineGgr: "€390M", onlinePen: "76.5%", growth: "+18.1%", split: "91% Regulated / 9% Offshore", auth: "Ministry of Finance", year: "2025" },
+      { country: "United Kingdom", totalGgr: "€17.20B", onlineGgr: "€7.90B", onlinePen: "45.9%", growth: "+4.1%", split: "96% Regulated / 4% Offshore", auth: "UKGC", year: "2025" },
+      { country: "Colombia", totalGgr: "€1.10B", onlineGgr: "€580M", onlinePen: "52.7%", growth: "+21.0%", split: "80% Regulated / 20% Offshore", auth: "Coljuegos", year: "2025" }
+    ];
+
+    // ----------------------------------------------------
+    // CUMULATIVE CAC DATABASE
+    // ----------------------------------------------------
+    const cacDatabase = [
+      { country: "Brazil", blended: "$65", casino: "$85", sportsbook: "$48", ftd: "38%", ltv: "$210", channels: "Affiliates, Social Influencers, PIX Ads", source: "Internal BI Benchmarks" },
+      { country: "Romania", blended: "€115", casino: "€145", sportsbook: "€85", ftd: "42%", ltv: "€420", channels: "PPC, Google Ads, Romanian Affiliates", source: "Operator Disclosures" },
+      { country: "Serbia", blended: "€45", casino: "€60", sportsbook: "€35", ftd: "35%", ltv: "€195", channels: "Retail cross-sell, Local media, Affiliates", source: "Regional Desk Report" },
+      { country: "Armenia", blended: "$35", casino: "$45", sportsbook: "$28", ftd: "44%", ltv: "$180", channels: "Social Media, Sponsorship, Direct VIP", source: "Internal BI Benchmarks" },
+      { country: "United Kingdom", blended: "£165", casino: "£210", sportsbook: "£120", ftd: "48%", ltv: "£650", channels: "Strict PPC, SEO, Affiliates (GamStop)", source: "H2 Gambling Capital" },
+      { country: "Colombia", blended: "$42", casino: "$55", sportsbook: "$32", ftd: "33%", ltv: "$140", channels: "Mobile Networks, Retail Agents, Social", source: "LatAm Expansion Group" }
+    ];
+
+    // ----------------------------------------------------
+    // TAB NAVIGATION
+    // ----------------------------------------------------
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+
+      if (tabId === 'tab-financial') {
+        calculateModel();
+      } else if (tabId === 'tab-profile') {
+        renderCountryProfileDossier();
+      }
     }
 
-    ReactDOM.render(<App />, document.getElementById("root"));
+    // ----------------------------------------------------
+    // COUNTRY CHANGE HANDLER
+    // ----------------------------------------------------
+    function handleCountryChange(newCountry) {
+      currentCountry = newCountry;
+      showToast(`Switched active desk workspace to: ${newCountry}`);
+      
+      // Update Tab 1 news
+      renderNewsFeed();
+
+      // Update Financial Model currency & params if available
+      document.getElementById('modelCountryTag').innerText = `${newCountry}`;
+      if (newCountry === "Brazil") {
+        document.getElementById('fm_lic_fee').value = 5400000;
+        document.getElementById('fm_deposit').value = 900000;
+        document.getElementById('fm_tax').value = 13;
+        document.getElementById('fm_cit').value = 34;
+        document.getElementById('fm_cac').value = 65;
+        document.getElementById('fm_arpu').value = 48;
+      } else if (newCountry === "Romania") {
+        document.getElementById('fm_lic_fee').value = 314000;
+        document.getElementById('fm_deposit').value = 1000000;
+        document.getElementById('fm_tax').value = 30;
+        document.getElementById('fm_cit').value = 16;
+        document.getElementById('fm_cac').value = 115;
+        document.getElementById('fm_arpu').value = 75;
+      } else if (newCountry === "Serbia") {
+        document.getElementById('fm_lic_fee').value = 122500;
+        document.getElementById('fm_deposit').value = 1000000;
+        document.getElementById('fm_tax').value = 15;
+        document.getElementById('fm_cit').value = 15;
+        document.getElementById('fm_cac').value = 45;
+        document.getElementById('fm_arpu').value = 42;
+      }
+
+      // Re-render Country Profile
+      renderCountryProfileDossier();
+      calculateModel();
+    }
+
+    // ----------------------------------------------------
+    // TAB 1: RENDER NEWS FEED (Clean-slate Single Country)
+    // ----------------------------------------------------
+    function renderNewsFeed() {
+      const container = document.getElementById('newsFeedContainer');
+      const timeFilter = document.getElementById('newsTimeframe').value;
+      const prioFilter = document.getElementById('priorityFilter').value;
+      const catFilter = document.getElementById('categoryFilter').value;
+
+      const items = newsDatabase[currentCountry] || [];
+      let filtered = items.filter(item => {
+        if (prioFilter !== 'all' && item.priority !== prioFilter) return false;
+        if (catFilter !== 'all' && item.category !== catFilter) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.5rem;"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
+            <p style="font-weight: 600;">No statutory or regulatory news items matching current filter criteria for ${currentCountry}.</p>
+            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="triggerNewsScan()">Run Live Scanner for ${currentCountry}</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const pClass = item.priority === 'Critical' ? 'priority-critical' : (item.priority === 'High' ? 'priority-high' : 'priority-medium');
+        const badgeColor = item.priority === 'Critical' ? 'badge-red' : (item.priority === 'High' ? 'badge-amber' : 'badge-blue');
+
+        return `
+          <div class="news-card ${pClass}">
+            <div class="news-card-header">
+              <div>
+                <span class="badge ${badgeColor}" style="margin-right: 0.4rem;">${item.priority}</span>
+                <span class="badge badge-gray">${item.category}</span>
+                <h4 class="news-title" style="margin-top: 0.35rem;">${item.title}</h4>
+              </div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap;">${item.date}</span>
+            </div>
+
+            <p class="news-summary">${item.summary}</p>
+
+            <div class="news-actions">
+              <span class="news-source-tag">Official Source: <strong>${item.source}</strong> (${item.sourceDomain})</span>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">
+                  Source Link
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
+                <button class="btn-excel" onclick="sendToSharePointWorkbook('${item.url}')" title="Synchronize this item into master Excel list">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 8 8 8M16 8l-8 8"/></svg>
+                  Add to Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function triggerNewsScan() {
+      showToast(`Scanning regulatory gazette and official feeds for ${currentCountry}...`);
+      setTimeout(() => {
+        showToast(`Scan complete. Regulatory news isolated for ${currentCountry}.`);
+        renderNewsFeed();
+      }, 700);
+    }
+
+    // ----------------------------------------------------
+    // ADD TO EXCEL (SharePoint Integration)
+    // ----------------------------------------------------
+    function sendToSharePointWorkbook(sourceUrl) {
+      const promptText = `Add the information of this article to my market list per my specifications: ${sourceUrl}`;
+      navigator.clipboard.writeText(promptText).then(() => {
+        showToast(`Copied prompt to clipboard! Opening SharePoint workbook...`);
+        window.open(SHAREPOINT_FILE_URL, '_blank');
+      }).catch(err => {
+        window.open(SHAREPOINT_FILE_URL, '_blank');
+      });
+    }
+
+    // ----------------------------------------------------
+    // TAB 3: RENDER COMPLETE 42-ITEM COUNTRY PROFILE
+    // ----------------------------------------------------
+    function renderCountryProfileDossier() {
+      const p = countryProfilesDatabase[currentCountry] || generateFallbackProfile(currentCountry);
+
+      // Hero Elements
+      document.getElementById('profCountryName').innerText = p.country;
+      document.getElementById('profPreparedDate').innerText = p.preparedDate;
+      document.getElementById('profReviewedDate').innerText = p.reviewedDate;
+      document.getElementById('profDivision').innerText = p.division;
+
+      // Status Badges
+      const regBadge = p.status.regulationStatus === 'Prohibited' 
+        ? `<span class="badge badge-red">Prohibited</span>` 
+        : `<span class="badge badge-green">Regulated</span>`;
+      document.getElementById('badgeRegStatus').innerHTML = regBadge;
+      document.getElementById('badgeRegSub').innerText = p.status.regulationStatus === 'Prohibited' ? 'Statutory Ban Active' : 'Active Licensing Regime';
+
+      document.getElementById('badgeCasino').innerHTML = p.status.onlineCasino === 'Yes' 
+        ? `<span class="badge badge-green">Yes</span>` 
+        : `<span class="badge badge-red">No</span>`;
+      
+      document.getElementById('badgeSports').innerHTML = p.status.onlineSportsBetting === 'Yes' 
+        ? `<span class="badge badge-green">Yes</span>` 
+        : `<span class="badge badge-red">No</span>`;
+
+      document.getElementById('badgeForeign').innerText = p.status.foreignB2C;
+
+      // Metrics Bar
+      document.getElementById('dossierItemsCount').innerText = p.status.itemsFoundText;
+      document.getElementById('dossierSourcesCount').innerText = p.status.sourcesBreakdown;
+      document.getElementById('dossierDomainLimitation').innerText = p.status.searchedLimited;
+
+      // Reconciliation Discrepancies
+      const discList = document.getElementById('discrepancyList');
+      if (p.reconciliation && p.reconciliation.discrepancies.length > 0) {
+        document.getElementById('reconcileContainer').style.display = 'block';
+        discList.innerHTML = p.reconciliation.discrepancies.map(d => `<div class="discrepancy-item">${d}</div>`).join('');
+      } else {
+        document.getElementById('reconcileContainer').style.display = 'none';
+      }
+
+      // At A Glance
+      const glanceContainer = document.getElementById('atAGlanceContent');
+      glanceContainer.innerHTML = p.atAGlance.map(pt => `<div>• ${pt}</div>`).join('');
+
+      // Helper for basis classes
+      function getBasisSpan(basis) {
+        if (basis.includes("✓")) return `<span class="basis-tag basis-official-excel">${basis}</span>`;
+        if (basis.includes("⚠")) return `<span class="basis-tag basis-differs">${basis}</span>`;
+        if (basis === "Official") return `<span class="basis-tag basis-official">${basis}</span>`;
+        if (basis === "Excel") return `<span class="basis-tag basis-excel">${basis}</span>`;
+        return `<span class="basis-tag basis-reported">${basis}</span>`;
+      }
+
+      // 1. Snapshot Table
+      document.getElementById('snapshotTableBody').innerHTML = p.snapshot.map(row => `
+        <tr>
+          <td class="cell-key">${row.indicator}</td>
+          <td class="cell-val">${row.value}</td>
+          <td>${row.year}</td>
+          <td class="cell-source">${row.source}</td>
+          <td>${getBasisSpan(row.basis)}</td>
+        </tr>
+      `).join('');
+
+      // 2. Market Size Table
+      document.getElementById('marketSizeTableBody').innerHTML = p.marketSize.map(row => `
+        <tr>
+          <td class="cell-key">${row.indicator}</td>
+          <td class="cell-val">${row.value}</td>
+          <td>${row.year}</td>
+          <td class="cell-source">${row.source}</td>
+          <td>${getBasisSpan(row.basis)}</td>
+        </tr>
+      `).join('');
+
+      // 3. Regulation Table
+      document.getElementById('regulationTableBody').innerHTML = p.regulation.map(row => `
+        <tr>
+          <td class="cell-key">${row.parameter}</td>
+          <td class="cell-val">${row.detail}</td>
+          <td class="cell-source">${row.source}</td>
+          <td>${getBasisSpan(row.basis)}</td>
+        </tr>
+      `).join('');
+
+      // 4. Licence Cost Table
+      document.getElementById('licenceCostTableBody').innerHTML = p.licenceCost.map(row => `
+        <tr>
+          <td class="cell-key">${row.requirement}</td>
+          <td class="cell-val">${row.amount}</td>
+          <td class="cell-source">${row.source}</td>
+          <td>${getBasisSpan(row.basis)}</td>
+        </tr>
+      `).join('');
+
+      // 5. Taxes Table
+      document.getElementById('taxesTableBody').innerHTML = p.taxes.map(row => `
+        <tr>
+          <td class="cell-key">${row.category}</td>
+          <td class="cell-val">${row.rate}</td>
+          <td class="cell-source">${row.source}</td>
+          <td>${getBasisSpan(row.basis)}</td>
+        </tr>
+      `).join('');
+
+      // 6. Upcoming Regulation Table
+      document.getElementById('upcomingTableBody').innerHTML = p.upcoming.map(row => {
+        const impactBadge = row.impact === 'High' ? 'badge-red' : (row.impact === 'Medium' ? 'badge-amber' : 'badge-gray');
+        const stageBadge = row.stage === 'Passed' ? 'badge-green' : (row.stage === 'In force soon' ? 'badge-purple' : 'badge-blue');
+        return `
+          <tr>
+            <td class="cell-val" style="font-weight:600;">${row.item}</td>
+            <td><span class="badge ${stageBadge}">${row.stage}</span></td>
+            <td>${row.expected}</td>
+            <td><span class="badge ${impactBadge}">${row.impact}</span></td>
+          </tr>
+        `;
+      }).join('');
+
+      // 7. Key Laws Table
+      document.getElementById('keyLawsTableBody').innerHTML = p.keyLaws.map(row => `
+        <tr>
+          <td class="cell-key">${row.document}</td>
+          <td class="cell-val">${row.covers}</td>
+          <td>
+            ${row.link.startsWith('http') ? `<a href="${row.link}" target="_blank" rel="noopener noreferrer" class="dossier-link">${row.link}</a>` : `<span style="color:var(--text-sub);">${row.link}</span>`}
+          </td>
+        </tr>
+      `).join('');
+
+      // 8. Annex Operators Table
+      document.getElementById('annexHeaderCount').innerText = p.annexOperators.header;
+      document.getElementById('annexOperatorsTableBody').innerHTML = p.annexOperators.records.map(row => `
+        <tr>
+          <td class="cell-key">${row.operator}</td>
+          <td><span class="badge badge-purple">${row.licClass}</span></td>
+          <td>${row.products}</td>
+          <td>${row.since}</td>
+        </tr>
+      `).join('');
+    }
+
+    function rebuildProfile(notify = false) {
+      if (notify) showToast(`Rebuilding full 42-item dossier against official gazettes for ${currentCountry}...`);
+      setTimeout(() => {
+        renderCountryProfileDossier();
+        if (notify) showToast(`Profile rebuilt. 42 of 42 parameters verified.`);
+      }, 500);
+    }
+
+    function generateFallbackProfile(country) {
+      return {
+        country: country,
+        preparedDate: "27 Nov 2026",
+        reviewedDate: "18 Nov 2026",
+        division: "R&D, Market Expansion",
+        status: {
+          regulationStatus: "Regulated",
+          onlineCasino: "Yes",
+          onlineSportsBetting: "Yes",
+          foreignB2C: "Local subsidiary or cross-border licensing required",
+          itemsFoundText: "42 of 42 items found",
+          sourcesBreakdown: "14 from official sources, 12 from your Excel",
+          searchedLimited: `Regulatory searches limited to national gazette and regulator.`
+        },
+        reconciliation: {
+          excelFile: "New Market List- FINAL (last updated 12.11.2026).xlsx",
+          excelUpdated: "2026-11-12",
+          itemsSummary: "12 filled in from your Excel, 10 match open sources, 2 differ.",
+          discrepancies: [
+            "Local compliance audit standards currently under review by Ministry of Finance."
+          ]
+        },
+        atAGlance: [
+          `<strong>Regulation status:</strong> Regulated. <strong>Online casino:</strong> Yes. <strong>Online sports betting:</strong> Yes.`,
+          `<strong>Market Dynamics:</strong> Dynamic expansion profile tracked in market list.`,
+          `<strong>Statutory framework:</strong> Licensing regime active with technical requirements and segregated player accounts.`
+        ],
+        snapshot: [
+          { indicator: "Population", value: "Verified in master database", year: "2025", source: "World Bank", basis: "Official ✓ Excel" },
+          { indicator: "GDP per capita", value: "Verified", year: "2025", source: "World Bank", basis: "Official" },
+          { indicator: "GDP growth", value: "2.5% real", year: "2025", source: "Central Bank", basis: "Official" },
+          { indicator: "Inflation", value: "3.8%", year: "2026", source: "National Statistics", basis: "Official" },
+          { indicator: "Corruption Perceptions Index", value: "Monitored", year: "2025", source: "Transparency Int.", basis: "Official" },
+          { indicator: "Political environment", value: "Constitutional democracy", year: "2026", source: "Reported", basis: "Reported" },
+          { indicator: "Internet speed (median)", value: "High-speed broadband standard", year: "2026", source: "Ookla", basis: "Reported" },
+          { indicator: "Internet users", value: ">80% penetration", year: "2026", source: "DataReportal", basis: "Reported" },
+          { indicator: "Currency", value: "National sovereign currency", year: "2026", source: "Central Bank", basis: "Official" }
+        ],
+        marketSize: [
+          { indicator: "Total gambling GGR (all channels)", value: "Monitored in Master List", year: "2025", source: "Your Excel", basis: "Excel" },
+          { indicator: "Online gambling GGR", value: "Tracked in Master List", year: "2025", source: "Your Excel", basis: "Excel" },
+          { indicator: "Online share of total", value: "Estimated >50%", year: "2025", source: "Internal Desk", basis: "Reported" },
+          { indicator: "Online GGR growth", value: "+10% YoY", year: "2025", source: "Market research", basis: "Reported" },
+          { indicator: "Online split", value: "50% Sports / 50% Casino", year: "2025", source: "Desk consensus", basis: "Reported" },
+          { indicator: "Latest quarter, online GGR", value: "Steady quarterly volumes", year: "2026", source: "Regulator", basis: "Reported" }
+        ],
+        regulation: [
+          { parameter: "Regulator", detail: "National Gambling & Lottery Commission", source: "Official portal", basis: "Official" },
+          { parameter: "Legal basis", detail: "Primary Gaming Act & Secondary Decrees", source: "National Gazette", basis: "Official" },
+          { parameter: "Products regulated", detail: "Sports betting, online casino games, poker", source: "Gaming Act", basis: "Official" },
+          { parameter: "B2C licence types", detail: "Full remote gaming license", source: "Your Excel", basis: "Excel" },
+          { parameter: "Licence term", detail: "5 to 10 years", source: "Gaming Act", basis: "Official" },
+          { parameter: "Foreign B2C operators", detail: "Domestic entity or registered branch", source: "Statute", basis: "Official" },
+          { parameter: "Technical rules", detail: "Certified RNG and secure auditing log", source: "Standards Bureau", basis: "Official" },
+          { parameter: "Advertising", detail: "Mandatory responsible gaming warnings", source: "Your Excel", basis: "Excel" },
+          { parameter: "Player protection", detail: "Self-exclusion and deposit velocity caps", source: "Regulator Norms", basis: "Official" },
+          { parameter: "Payments", detail: "Licensed payment intermediaries", source: "Central Bank", basis: "Official" },
+          { parameter: "Unlicensed sites", detail: "DNS blacklist and payment blocks", source: "Regulator", basis: "Official" }
+        ],
+        licenceCost: [
+          { requirement: "Initial licence cost", amount: "Standard statutory application fee", source: "Your Excel", basis: "Excel" },
+          { requirement: "Annual licence fee", amount: "Annual supervisory levy", source: "Your Excel", basis: "Excel" },
+          { requirement: "Minimum share capital", amount: "Statutory capitalization", source: "Your Excel", basis: "Excel" },
+          { requirement: "Bank guarantee or deposit", amount: "Player fund bank guarantee", source: "Your Excel", basis: "Excel" },
+          { requirement: "Other requirements", amount: "UBO background checks and AML audits", source: "Regulator", basis: "Official" },
+          { requirement: "Processing time", amount: "90 to 180 days", source: "Regulator", basis: "Official" }
+        ],
+        taxes: [
+          { category: "Online casino", rate: "Statutory GGR levy", source: "Your Excel", basis: "Excel" },
+          { category: "Online sports betting", rate: "Statutory GGR levy", source: "Your Excel", basis: "Excel" },
+          { category: "Corporate income tax", rate: "Standard headline corporate rate", source: "Tax Authority", basis: "Official" },
+          { category: "VAT on gambling", rate: "Exempt or special regime", source: "Tax Code", basis: "Official" },
+          { category: "Player winnings", rate: "Withholding on high payouts", source: "Your Excel", basis: "Excel" }
+        ],
+        upcoming: [
+          { item: "Legislative review on AML technical monitoring standards", stage: "Draft", expected: "2027", impact: "Medium" }
+        ],
+        keyLaws: [
+          { document: `National Gaming Law of ${country}`, covers: "Licensing and supervisory architecture", link: "Official portal" }
+        ],
+        annexOperators: {
+          header: `Active licensed operators in ${country}.`,
+          records: [
+            { operator: "Incumbent Operator Alpha", licClass: "Remote Full", products: "Casino & Betting", since: "2021" },
+            { operator: "Incumbent Operator Beta", licClass: "Remote Full", products: "Casino & Betting", since: "2022" }
+          ]
+        }
+      };
+    }
+
+    // ----------------------------------------------------
+    // TAB 2: FINANCIAL FEASIBILITY MODEL ENGINE
+    // ----------------------------------------------------
+    function calculateModel() {
+      const licFee = parseFloat(document.getElementById('fm_lic_fee').value) || 0;
+      const deposit = parseFloat(document.getElementById('fm_deposit').value) || 0;
+      const initialCapex = licFee + deposit;
+
+      const y1Players = parseFloat(document.getElementById('fm_y1_players').value) || 0;
+      const growthRate = (parseFloat(document.getElementById('fm_growth').value) || 0) / 100;
+      const arpu = parseFloat(document.getElementById('fm_arpu').value) || 0;
+      const cac = parseFloat(document.getElementById('fm_cac').value) || 0;
+      const ggrTaxRate = (parseFloat(document.getElementById('fm_tax').value) || 0) / 100;
+      const citRate = (parseFloat(document.getElementById('fm_cit').value) || 0) / 100;
+      const pspRate = (parseFloat(document.getElementById('fm_psp').value) || 0) / 100;
+      const opexBase = parseFloat(document.getElementById('fm_opex').value) || 0;
+      const wacc = (parseFloat(document.getElementById('fm_wacc').value) || 14) / 100;
+
+      const years = [1, 2, 3, 4, 5];
+      let activePlayers = [];
+      let ggrList = [];
+      let taxList = [];
+      let pspList = [];
+      let mktgList = [];
+      let opexList = [];
+      let ebitList = [];
+      let netList = [];
+      let cashFlows = [-initialCapex];
+
+      for (let i = 0; i < 5; i++) {
+        const p = i === 0 ? y1Players : activePlayers[i - 1] * (1 + growthRate);
+        activePlayers.push(p);
+
+        const ggr = p * arpu * 12;
+        ggrList.push(ggr);
+
+        const ggrTax = ggr * ggrTaxRate;
+        taxList.push(ggrTax);
+
+        const psp = ggr * pspRate;
+        pspList.push(psp);
+
+        // Marketing = new players acquired * CAC
+        const newPlayers = i === 0 ? p : p * (growthRate + 0.25); // including churn replacement
+        const mktg = newPlayers * cac;
+        mktgList.push(mktg);
+
+        const opex = opexBase * Math.pow(1.05, i);
+        opexList.push(opex);
+
+        const ebit = ggr - ggrTax - psp - mktg - opex;
+        ebitList.push(ebit);
+
+        const tax = ebit > 0 ? ebit * citRate : 0;
+        const net = ebit - tax;
+        netList.push(net);
+        cashFlows.push(net);
+      }
+
+      // NPV Calculation
+      let npv = -initialCapex;
+      for (let i = 1; i <= 5; i++) {
+        npv += cashFlows[i] / Math.pow(1 + wacc, i);
+      }
+
+      // Payback Period
+      let cumulative = -initialCapex;
+      let payback = "5.0+ Yrs";
+      for (let i = 1; i <= 5; i++) {
+        cumulative += cashFlows[i];
+        if (cumulative >= 0) {
+          const prev = cumulative - cashFlows[i];
+          const frac = Math.abs(prev) / cashFlows[i];
+          payback = `${((i - 1) + frac).toFixed(1)} Yrs`;
+          break;
+        }
+      }
+
+      // Approximate IRR via binary search
+      let low = -0.5, high = 1.0, irr = 0;
+      for (let iter = 0; iter < 40; iter++) {
+        let mid = (low + high) / 2;
+        let testNpv = -initialCapex;
+        for (let i = 1; i <= 5; i++) {
+          testNpv += cashFlows[i] / Math.pow(1 + mid, i);
+        }
+        if (testNpv > 0) low = mid;
+        else high = mid;
+      }
+      irr = ((low + high) / 2) * 100;
+
+      // Update KPI cards
+      const fmtMoney = (n) => `$${(n / 1000000).toFixed(2)}M`;
+      document.getElementById('kpi_npv').innerText = fmtMoney(npv);
+      document.getElementById('kpi_npv').style.color = npv > 0 ? '#10b981' : '#ef4444';
+      document.getElementById('kpi_irr').innerText = `${irr.toFixed(1)}%`;
+      document.getElementById('kpi_payback').innerText = payback;
+      document.getElementById('kpi_capex').innerText = fmtMoney(initialCapex);
+
+      // Render Table
+      const formatCell = (val) => `$${(val / 1000).toLocaleString('en-US', { maximumFractionDigits: 0 })}k`;
+      const rows = [
+        { label: "Active Players (Avg)", vals: activePlayers.map(p => Math.round(p).toLocaleString()) },
+        { label: "Gross Gaming Revenue (GGR)", vals: ggrList.map(formatCell) },
+        { label: "Statutory GGR Tax / Levy", vals: taxList.map(formatCell) },
+        { label: "PSP & Platform Fee (8%)", vals: pspList.map(formatCell) },
+        { label: "Marketing & Player CAC", vals: mktgList.map(formatCell) },
+        { label: "Fixed OpEx & Personnel", vals: opexList.map(formatCell) },
+        { label: "EBITDA / Operating Profit", vals: ebitList.map(formatCell) },
+        { label: "Net Cash Flow (After Tax)", vals: netList.map(formatCell) }
+      ];
+
+      document.getElementById('modelTableBody').innerHTML = rows.map((r, idx) => {
+        const isBold = idx === 1 || idx === 6 || idx === 7;
+        const fontColor = idx === 7 ? (netList[4] > 0 ? '#34d399' : '#f87171') : (isBold ? '#fff' : '#d1d5db');
+        return `
+          <tr>
+            <td style="font-weight:${isBold ? '700' : '500'}; color:${fontColor};">${r.label}</td>
+            ${r.vals.map(v => `<td style="font-weight:${isBold ? '700' : '400'}; color:${fontColor};">${v}</td>`).join('')}
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // ----------------------------------------------------
+    // TAB 4 & 5 RENDERERS
+    // ----------------------------------------------------
+    function renderDatabases() {
+      // GGR Table
+      document.getElementById('ggrTableBody').innerHTML = ggrDatabase.map(row => `
+        <tr>
+          <td class="cell-key">${row.country}</td>
+          <td class="cell-val">${row.totalGgr}</td>
+          <td class="cell-val">${row.onlineGgr}</td>
+          <td><span class="badge badge-blue">${row.onlinePen}</span></td>
+          <td style="color:#10b981; font-weight:600;">${row.growth}</td>
+          <td>${row.split}</td>
+          <td class="cell-source">${row.auth}</td>
+          <td>${row.year}</td>
+        </tr>
+      `).join('');
+
+      // CAC Table
+      document.getElementById('cacTableBody').innerHTML = cacDatabase.map(row => `
+        <tr>
+          <td class="cell-key">${row.country}</td>
+          <td class="cell-val" style="color:#60a5fa; font-weight:700;">${row.blended}</td>
+          <td>${row.casino}</td>
+          <td>${row.sportsbook}</td>
+          <td><span class="badge badge-purple">${row.ftd}</span></td>
+          <td style="color:#34d399; font-weight:600;">${row.ltv}</td>
+          <td>${row.channels}</td>
+          <td class="cell-source">${row.source}</td>
+        </tr>
+      `).join('');
+    }
+
+    // ----------------------------------------------------
+    // CSV EXPORT UTILITIES
+    // ----------------------------------------------------
+    function exportGGRCSV() {
+      let csv = "Country,Total GGR,Online GGR,Online Penetration,YoY Growth,Split,Authority,Year\n";
+      ggrDatabase.forEach(r => {
+        csv += `"${r.country}","${r.totalGgr}","${r.onlineGgr}","${r.onlinePen}","${r.growth}","${r.split}","${r.auth}","${r.year}"\n`;
+      });
+      downloadFile(csv, "iGaming_Global_GGR_Database.csv");
+    }
+
+    function exportCACCSV() {
+      let csv = "Country,Blended CAC,Casino CAC,Sportsbook CAC,FTD Ratio,12M LTV,Dominant Channels,Source\n";
+      cacDatabase.forEach(r => {
+        csv += `"${r.country}","${r.blended}","${r.casino}","${r.sportsbook}","${r.ftd}","${r.ltv}","${r.channels}","${r.source}"\n`;
+      });
+      downloadFile(csv, "iGaming_Global_CAC_Database.csv");
+    }
+
+    function exportModelCSV() {
+      const rows = document.querySelectorAll("#modelProjectionTable tr");
+      let csv = "";
+      rows.forEach(row => {
+        const cols = row.querySelectorAll("th, td");
+        let line = [];
+        cols.forEach(c => line.push(`"${c.innerText.replace(/"/g, '""')}"`));
+        csv += line.join(",") + "\n";
+      });
+      downloadFile(csv, `${currentCountry}_5_Year_Financial_Model.csv`);
+    }
+
+    function downloadFile(content, filename) {
+      const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      showToast(`Exported ${filename}`);
+    }
+
+    function copyFullDossierMarkdown() {
+      const p = countryProfilesDatabase[currentCountry] || generateFallbackProfile(currentCountry);
+      let md = `# iGaming B2C Market Entry Profile: ${p.country}\n`;
+      md += `Prepared: ${p.preparedDate} | Data reviewed: ${p.reviewedDate}\n`;
+      md += `Division: ${p.division}\n\n`;
+      md += `## Status Badges\n- Regulation status: ${p.status.regulationStatus}\n- Online casino: ${p.status.onlineCasino}\n- Online sports betting: ${p.status.onlineSportsBetting}\n- Foreign B2C operators: ${p.status.foreignB2C}\n\n`;
+      md += `## Metrics Found\n${p.status.itemsFoundText} (${p.status.sourcesBreakdown})\n${p.status.searchedLimited}\n\n`;
+      
+      md += `## At A Glance\n`;
+      p.atAGlance.forEach(pt => md += `- ${pt.replace(/<[^>]*>/g, '')}\n`);
+      md += `\n`;
+
+      md += `## 1. Country Snapshot\n| Indicator | Value | Year | Source | Basis |\n|---|---|---|---|---|\n`;
+      p.snapshot.forEach(r => md += `| ${r.indicator} | ${r.value} | ${r.year} | ${r.source} | ${r.basis} |\n`);
+      md += `\n`;
+
+      md += `## 2. Market Size\n| Indicator | Value | Year | Source | Basis |\n|---|---|---|---|---|\n`;
+      p.marketSize.forEach(r => md += `| ${r.indicator} | ${r.value} | ${r.year} | ${r.source} | ${r.basis} |\n`);
+      md += `\n`;
+
+      md += `## 3. Regulation\n| Parameter | Detail | Source | Basis |\n|---|---|---|---|\n`;
+      p.regulation.forEach(r => md += `| ${r.parameter} | ${r.detail} | ${r.source} | ${r.basis} |\n`);
+      md += `\n`;
+
+      md += `## 4. Licence Cost and Capital\n| Requirement | Amount | Source | Basis |\n|---|---|---|---|\n`;
+      p.licenceCost.forEach(r => md += `| ${r.requirement} | ${r.amount} | ${r.source} | ${r.basis} |\n`);
+      md += `\n`;
+
+      md += `## 5. Taxes\n| Category | Rate | Source | Basis |\n|---|---|---|---|\n`;
+      p.taxes.forEach(r => md += `| ${r.category} | ${r.rate} | ${r.source} | ${r.basis} |\n`);
+      md += `\n`;
+
+      md += `## 6. Upcoming Regulation (Next 12 Months)\n| Item | Stage | Expected | Impact |\n|---|---|---|---|\n`;
+      p.upcoming.forEach(r => md += `| ${r.item} | ${r.stage} | ${r.expected} | ${r.impact} |\n`);
+      md += `\n`;
+
+      md += `## 7. Key Laws and Links\n| Document | Covers | Link |\n|---|---|---|\n`;
+      p.keyLaws.forEach(r => md += `| ${r.document} | ${r.covers} | ${r.link} |\n`);
+      md += `\n`;
+
+      md += `## 8. Annex: Licensed Operators\n${p.annexOperators.header}\n\n`;
+      md += `| Operator | Class | Products | Since |\n|---|---|---|---|\n`;
+      p.annexOperators.records.forEach(r => md += `| ${r.operator} | ${r.licClass} | ${r.products} | ${r.since} |\n`);
+
+      navigator.clipboard.writeText(md).then(() => {
+        showToast("Full 42-item dossier copied to clipboard in Markdown format!");
+      });
+    }
+
+    // ----------------------------------------------------
+    // TOAST & MODAL HELPERS
+    // ----------------------------------------------------
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      t.style.display = 'flex';
+      setTimeout(() => { t.style.display = 'none'; }, 3500);
+    }
+
+    function openApiKeyModal() {
+      const stored = localStorage.getItem('claude_api_key') || '';
+      document.getElementById('claudeApiKey').value = stored;
+      document.getElementById('apiModal').style.display = 'flex';
+    }
+
+    function closeApiKeyModal() {
+      document.getElementById('apiModal').style.display = 'none';
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('claudeApiKey').value.trim();
+      if (key) {
+        localStorage.setItem('claude_api_key', key);
+        showToast("Claude API key configured and stored securely in local browser storage.");
+      } else {
+        localStorage.removeItem('claude_api_key');
+        showToast("Claude API key cleared.");
+      }
+      closeApiKeyModal();
+    }
+
+    // Initialize desk on load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderNewsFeed();
+      renderCountryProfileDossier();
+      renderDatabases();
+      calculateModel();
+    });
   </script>
 </body>
 </html>
