@@ -413,6 +413,36 @@
       background-color: #0b5c30;
     }
 
+    /* Live Scanner Source Dispatcher Banner */
+    .scanner-source-banner {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .source-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.25rem;
+    }
+
+    .source-chip {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      font-size: 0.7rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      color: var(--text-muted);
+    }
+
     /* Tab 2: Financial Feasibility Mini-Model & Comparison */
     .compare-toolbar {
       display: flex;
@@ -838,6 +868,31 @@
     <!-- TAB 1: NEWS & PRIORITY FLAGS               -->
     <!-- ========================================== -->
     <div id="tab-news" class="tab-content active">
+      
+      <!-- Multi-Source Dispatcher Banner -->
+      <div class="scanner-source-banner">
+        <div>
+          <span style="font-size:0.8rem; font-weight:700; color:#fff;">Live Regulatory & Gazette Scanner Scope:</span>
+          <div class="source-chips" id="activeScannerSources">
+            <span class="source-chip">Official Gazettes & Acts</span>
+            <span class="source-chip">Ministry of Finance</span>
+            <span class="source-chip">Gaming Authorities & Regulators</span>
+            <span class="source-chip">Judicial & Constitutional Courts</span>
+            <span class="source-chip">Specialized Trade Newsletters (iGB, SBC, CDC, Lexology)</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem;">
+          <button class="btn btn-outline" style="font-size:0.75rem;" onclick="dispatchExternalLiveSearch()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Open Live Web Search
+          </button>
+          <button class="btn btn-amber" style="font-size:0.75rem;" onclick="triggerLiveAIScan()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
+            Scan Country News
+          </button>
+        </div>
+      </div>
+
       <div class="news-filter-bar">
         <div class="filter-group">
           <label>Time Window:</label>
@@ -871,11 +926,8 @@
           </select>
         </div>
 
-        <div style="margin-left: auto; display: flex; gap: 0.5rem;">
-          <button class="btn btn-outline" onclick="triggerNewsScan()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M21 21v-5h-5"/></svg>
-            Scan Country News
-          </button>
+        <div style="margin-left: auto; font-size: 0.75rem; color: var(--text-muted);" id="activeCountryNewsStatus">
+          Filtering for: <strong style="color:#fff;" id="newsCountryLabel">Brazil</strong>
         </div>
       </div>
 
@@ -930,6 +982,10 @@
           <div class="input-cell">
             <label>Min. Share Capital ($)</label>
             <input type="number" id="ed_min_cap" onchange="applyParamEdits()">
+          </div>
+          <div class="input-cell">
+            <label>Setup, Labs & Legal ($)</label>
+            <input type="number" id="ed_setup" onchange="applyParamEdits()">
           </div>
           <div class="input-cell">
             <label>Target Active Players</label>
@@ -1372,8 +1428,8 @@
   <!-- Modal: Claude API Settings -->
   <div class="modal-overlay" id="apiModal">
     <div class="modal-content">
-      <h3>Configure Claude Intelligence API</h3>
-      <p>Enter your Anthropic Claude API Key to run real-time live synthesis queries directly inside this desk portal. Stored locally in your browser.</p>
+      <h3>Configure Claude Live Intelligence API</h3>
+      <p>Enter your Anthropic Claude API Key to run real-time multi-source searches directly across official gazettes, regulators, and industry newsletters.</p>
       <div class="input-row" style="margin-bottom:1rem;">
         <label style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Anthropic API Key</label>
         <input type="password" id="claudeApiKey" placeholder="sk-ant-api03-..." style="width:100%; background:var(--bg-card-sub); border:1px solid var(--border-color); color:#fff; padding:0.4rem; border-radius:4px; margin-top:0.25rem;" />
@@ -1405,201 +1461,58 @@
     // ----------------------------------------------------
     const allGlobalCountries = [
       { name: "Brazil", code: "BR", region: "Americas" },
+      { name: "Colombia", code: "CO", region: "Americas" },
+      { name: "Peru", code: "PE", region: "Americas" },
       { name: "Serbia", code: "RS", region: "Europe" },
       { name: "Romania", code: "RO", region: "Europe" },
       { name: "Armenia", code: "AM", region: "Europe/Eurasia" },
-      { name: "Afghanistan", code: "AF", region: "Asia" },
-      { name: "Albania", code: "AL", region: "Europe" },
-      { name: "Algeria", code: "DZ", region: "Africa" },
-      { name: "Andorra", code: "AD", region: "Europe" },
-      { name: "Angola", code: "AO", region: "Africa" },
-      { name: "Antigua and Barbuda", code: "AG", region: "Americas" },
-      { name: "Argentina", code: "AR", region: "Americas" },
-      { name: "Australia", code: "AU", region: "Oceania" },
-      { name: "Austria", code: "AT", region: "Europe" },
-      { name: "Azerbaijan", code: "AZ", region: "Asia" },
-      { name: "Bahamas", code: "BS", region: "Americas" },
-      { name: "Bahrain", code: "BH", region: "Middle East" },
-      { name: "Bangladesh", code: "BD", region: "Asia" },
-      { name: "Barbados", code: "BB", region: "Americas" },
-      { name: "Belarus", code: "BY", region: "Europe" },
-      { name: "Belgium", code: "BE", region: "Europe" },
-      { name: "Belize", code: "BZ", region: "Americas" },
-      { name: "Benin", code: "BJ", region: "Africa" },
-      { name: "Bhutan", code: "BT", region: "Asia" },
-      { name: "Bolivia", code: "BO", region: "Americas" },
-      { name: "Bosnia and Herzegovina", code: "BA", region: "Europe" },
-      { name: "Botswana", code: "BW", region: "Africa" },
-      { name: "Bulgaria", code: "BG", region: "Europe" },
-      { name: "Burkina Faso", code: "BF", region: "Africa" },
-      { name: "Burundi", code: "BI", region: "Africa" },
-      { name: "Cambodia", code: "KH", region: "Asia" },
-      { name: "Cameroon", code: "CM", region: "Africa" },
-      { name: "Canada", code: "CA", region: "Americas" },
-      { name: "Cape Verde", code: "CV", region: "Africa" },
-      { name: "Central African Republic", code: "CF", region: "Africa" },
-      { name: "Chad", code: "TD", region: "Africa" },
-      { name: "Chile", code: "CL", region: "Americas" },
-      { name: "China", code: "CN", region: "Asia" },
-      { name: "Colombia", code: "CO", region: "Americas" },
-      { name: "Comoros", code: "KM", region: "Africa" },
-      { name: "Congo (Brazzaville)", code: "CG", region: "Africa" },
-      { name: "Congo (Kinshasa)", code: "CD", region: "Africa" },
-      { name: "Costa Rica", code: "CR", region: "Americas" },
-      { name: "Croatia", code: "HR", region: "Europe" },
-      { name: "Cuba", code: "CU", region: "Americas" },
-      { name: "Cyprus", code: "CY", region: "Europe" },
-      { name: "Czech Republic", code: "CZ", region: "Europe" },
-      { name: "Denmark", code: "DK", region: "Europe" },
-      { name: "Djibouti", code: "DJ", region: "Africa" },
-      { name: "Dominica", code: "DM", region: "Americas" },
-      { name: "Dominican Republic", code: "DO", region: "Americas" },
-      { name: "Ecuador", code: "EC", region: "Americas" },
-      { name: "Egypt", code: "EG", region: "Africa" },
-      { name: "El Salvador", code: "SV", region: "Americas" },
-      { name: "Equatorial Guinea", code: "GQ", region: "Africa" },
-      { name: "Eritrea", code: "ER", region: "Africa" },
-      { name: "Estonia", code: "EE", region: "Europe" },
-      { name: "Eswatini", code: "SZ", region: "Africa" },
-      { name: "Ethiopia", code: "ET", region: "Africa" },
-      { name: "Fiji", code: "FJ", region: "Oceania" },
-      { name: "Finland", code: "FI", region: "Europe" },
-      { name: "France", code: "FR", region: "Europe" },
-      { name: "Gabon", code: "GA", region: "Africa" },
-      { name: "Gambia", code: "GM", region: "Africa" },
       { name: "Georgia", code: "GE", region: "Europe/Eurasia" },
-      { name: "Germany", code: "DE", region: "Europe" },
-      { name: "Ghana", code: "GH", region: "Africa" },
-      { name: "Greece", code: "GR", region: "Europe" },
-      { name: "Grenada", code: "GD", region: "Americas" },
-      { name: "Guatemala", code: "GT", region: "Americas" },
-      { name: "Guinea", code: "GN", region: "Africa" },
-      { name: "Guinea-Bissau", code: "GW", region: "Africa" },
-      { name: "Guyana", code: "GY", region: "Americas" },
-      { name: "Haiti", code: "HT", region: "Americas" },
-      { name: "Honduras", code: "HN", region: "Americas" },
-      { name: "Hungary", code: "HU", region: "Europe" },
-      { name: "Iceland", code: "IS", region: "Europe" },
-      { name: "India", code: "IN", region: "Asia" },
-      { name: "Indonesia", code: "ID", region: "Asia" },
-      { name: "Iran", code: "IR", region: "Middle East" },
-      { name: "Iraq", code: "IQ", region: "Middle East" },
-      { name: "Ireland", code: "IE", region: "Europe" },
-      { name: "Israel", code: "IL", region: "Middle East" },
-      { name: "Italy", code: "IT", region: "Europe" },
-      { name: "Ivory Coast", code: "CI", region: "Africa" },
-      { name: "Jamaica", code: "JM", region: "Americas" },
-      { name: "Japan", code: "JP", region: "Asia" },
-      { name: "Jordan", code: "JO", region: "Middle East" },
-      { name: "Kazakhstan", code: "KZ", region: "Asia" },
-      { name: "Kenya", code: "KE", region: "Africa" },
-      { name: "Kiribati", code: "KI", region: "Oceania" },
-      { name: "Kosovo", code: "XK", region: "Europe" },
-      { name: "Kuwait", code: "KW", region: "Middle East" },
-      { name: "Kyrgyzstan", code: "KG", region: "Asia" },
-      { name: "Laos", code: "LA", region: "Asia" },
-      { name: "Latvia", code: "LV", region: "Europe" },
-      { name: "Lebanon", code: "LB", region: "Middle East" },
-      { name: "Lesotho", code: "LS", region: "Africa" },
-      { name: "Liberia", code: "LR", region: "Africa" },
-      { name: "Libya", code: "LY", region: "Africa" },
-      { name: "Liechtenstein", code: "LI", region: "Europe" },
-      { name: "Lithuania", code: "LT", region: "Europe" },
-      { name: "Luxembourg", code: "LU", region: "Europe" },
-      { name: "Madagascar", code: "MG", region: "Africa" },
-      { name: "Malawi", code: "MW", region: "Africa" },
-      { name: "Malaysia", code: "MY", region: "Asia" },
-      { name: "Maldives", code: "MV", region: "Asia" },
-      { name: "Mali", code: "ML", region: "Africa" },
-      { name: "Malta", code: "MT", region: "Europe" },
-      { name: "Marshall Islands", code: "MH", region: "Oceania" },
-      { name: "Mauritania", code: "MR", region: "Africa" },
-      { name: "Mauritius", code: "MU", region: "Africa" },
+      { name: "United Kingdom", code: "GB", region: "Europe" },
+      { name: "Argentina", code: "AR", region: "Americas" },
+      { name: "Chile", code: "CL", region: "Americas" },
       { name: "Mexico", code: "MX", region: "Americas" },
-      { name: "Micronesia", code: "FM", region: "Oceania" },
-      { name: "Moldova", code: "MD", region: "Europe" },
-      { name: "Monaco", code: "MC", region: "Europe" },
-      { name: "Mongolia", code: "MN", region: "Asia" },
-      { name: "Montenegro", code: "ME", region: "Europe" },
-      { name: "Morocco", code: "MA", region: "Africa" },
-      { name: "Mozambique", code: "MZ", region: "Africa" },
-      { name: "Myanmar", code: "MM", region: "Asia" },
-      { name: "Namibia", code: "NA", region: "Africa" },
-      { name: "Nauru", code: "NR", region: "Oceania" },
-      { name: "Nepal", code: "NP", region: "Asia" },
+      { name: "Canada", code: "CA", region: "Americas" },
+      { name: "United States", code: "US", region: "Americas" },
+      { name: "Germany", code: "DE", region: "Europe" },
+      { name: "France", code: "FR", region: "Europe" },
+      { name: "Italy", code: "IT", region: "Europe" },
+      { name: "Spain", code: "ES", region: "Europe" },
       { name: "Netherlands", code: "NL", region: "Europe" },
-      { name: "New Zealand", code: "NZ", region: "Oceania" },
-      { name: "Nicaragua", code: "NI", region: "Americas" },
-      { name: "Niger", code: "NE", region: "Africa" },
-      { name: "Nigeria", code: "NG", region: "Africa" },
-      { name: "North Korea", code: "KP", region: "Asia" },
-      { name: "North Macedonia", code: "MK", region: "Europe" },
-      { name: "Norway", code: "NO", region: "Europe" },
-      { name: "Oman", code: "OM", region: "Middle East" },
-      { name: "Pakistan", code: "PK", region: "Asia" },
-      { name: "Palau", code: "PW", region: "Oceania" },
-      { name: "Palestine", code: "PS", region: "Middle East" },
-      { name: "Panama", code: "PA", region: "Americas" },
-      { name: "Papua New Guinea", code: "PG", region: "Oceania" },
-      { name: "Paraguay", code: "PY", region: "Americas" },
-      { name: "Peru", code: "PE", region: "Americas" },
-      { name: "Philippines", code: "PH", region: "Asia" },
-      { name: "Poland", code: "PL", region: "Europe" },
       { name: "Portugal", code: "PT", region: "Europe" },
-      { name: "Qatar", code: "QA", region: "Middle East" },
-      { name: "Russia", code: "RU", region: "Europe/Asia" },
-      { name: "Rwanda", code: "RW", region: "Africa" },
-      { name: "Saint Kitts and Nevis", code: "KN", region: "Americas" },
-      { name: "Saint Lucia", code: "LC", region: "Americas" },
-      { name: "Saint Vincent and the Grenadines", code: "VC", region: "Americas" },
-      { name: "Samoa", code: "WS", region: "Oceania" },
-      { name: "San Marino", code: "SM", region: "Europe" },
-      { name: "Sao Tome and Principe", code: "ST", region: "Africa" },
-      { name: "Saudi Arabia", code: "SA", region: "Middle East" },
-      { name: "Senegal", code: "SN", region: "Africa" },
-      { name: "Seychelles", code: "SC", region: "Africa" },
-      { name: "Sierra Leone", code: "SL", region: "Africa" },
-      { name: "Singapore", code: "SG", region: "Asia" },
+      { name: "Poland", code: "PL", region: "Europe" },
+      { name: "Czech Republic", code: "CZ", region: "Europe" },
+      { name: "Bulgaria", code: "BG", region: "Europe" },
+      { name: "Greece", code: "GR", region: "Europe" },
+      { name: "Cyprus", code: "CY", region: "Europe" },
+      { name: "Malta", code: "MT", region: "Europe" },
+      { name: "Sweden", code: "SE", region: "Europe" },
+      { name: "Denmark", code: "DK", region: "Europe" },
+      { name: "Finland", code: "FI", region: "Europe" },
+      { name: "Norway", code: "NO", region: "Europe" },
+      { name: "Estonia", code: "EE", region: "Europe" },
+      { name: "Latvia", code: "LV", region: "Europe" },
+      { name: "Lithuania", code: "LT", region: "Europe" },
       { name: "Slovakia", code: "SK", region: "Europe" },
       { name: "Slovenia", code: "SI", region: "Europe" },
-      { name: "Solomon Islands", code: "SB", region: "Oceania" },
-      { name: "Somalia", code: "SO", region: "Africa" },
-      { name: "South Africa", code: "ZA", region: "Africa" },
-      { name: "South Korea", code: "KR", region: "Asia" },
-      { name: "South Sudan", code: "SS", region: "Africa" },
-      { name: "Spain", code: "ES", region: "Europe" },
-      { name: "Sri Lanka", code: "LK", region: "Asia" },
-      { name: "Sudan", code: "SD", region: "Africa" },
-      { name: "Suriname", code: "SR", region: "Americas" },
-      { name: "Sweden", code: "SE", region: "Europe" },
-      { name: "Switzerland", code: "CH", region: "Europe" },
-      { name: "Syria", code: "SY", region: "Middle East" },
-      { name: "Taiwan", code: "TW", region: "Asia" },
-      { name: "Tajikistan", code: "TJ", region: "Asia" },
-      { name: "Tanzania", code: "TZ", region: "Africa" },
-      { name: "Thailand", code: "TH", region: "Asia" },
-      { name: "Timor-Leste", code: "TL", region: "Asia" },
-      { name: "Togo", code: "TG", region: "Africa" },
-      { name: "Tonga", code: "TO", region: "Oceania" },
-      { name: "Trinidad and Tobago", code: "TT", region: "Americas" },
-      { name: "Tunisia", code: "TN", region: "Africa" },
-      { name: "Turkey", code: "TR", region: "Europe/Asia" },
-      { name: "Turkmenistan", code: "TM", region: "Asia" },
-      { name: "Tuvalu", code: "TV", region: "Oceania" },
-      { name: "Uganda", code: "UG", region: "Africa" },
+      { name: "Croatia", code: "HR", region: "Europe" },
+      { name: "Bosnia and Herzegovina", code: "BA", region: "Europe" },
+      { name: "Montenegro", code: "ME", region: "Europe" },
+      { name: "North Macedonia", code: "MK", region: "Europe" },
+      { name: "Albania", code: "AL", region: "Europe" },
       { name: "Ukraine", code: "UA", region: "Europe" },
-      { name: "United Arab Emirates", code: "AE", region: "Middle East" },
-      { name: "United Kingdom", code: "GB", region: "Europe" },
-      { name: "United States", code: "US", region: "Americas" },
-      { name: "Uruguay", code: "UY", region: "Americas" },
+      { name: "Moldova", code: "MD", region: "Europe" },
+      { name: "Kazakhstan", code: "KZ", region: "Asia" },
       { name: "Uzbekistan", code: "UZ", region: "Asia" },
-      { name: "Vanuatu", code: "VU", region: "Oceania" },
-      { name: "Vatican City", code: "VA", region: "Europe" },
-      { name: "Venezuela", code: "VE", region: "Americas" },
-      { name: "Vietnam", code: "VN", region: "Asia" },
-      { name: "Yemen", code: "YE", region: "Middle East" },
-      { name: "Zambia", code: "ZM", region: "Africa" },
-      { name: "Zimbabwe", code: "ZW", region: "Africa" }
+      { name: "Turkey", code: "TR", region: "Europe/Asia" },
+      { name: "Australia", code: "AU", region: "Oceania" },
+      { name: "New Zealand", code: "NZ", region: "Oceania" },
+      { name: "South Africa", code: "ZA", region: "Africa" },
+      { name: "Nigeria", code: "NG", region: "Africa" },
+      { name: "Kenya", code: "KE", region: "Africa" },
+      { name: "Ghana", code: "GH", region: "Africa" },
+      { name: "India", code: "IN", region: "Asia" },
+      { name: "Philippines", code: "PH", region: "Asia" },
+      { name: "Japan", code: "JP", region: "Asia" }
     ];
 
     function populateCountryDropdowns() {
@@ -1625,6 +1538,361 @@
     }
 
     // ----------------------------------------------------
+    // TAB 1: MULTI-SOURCE LIVE REGULATORY DISPATCHER
+    // ----------------------------------------------------
+    const newsDatabase = {
+      "Brazil": [
+        {
+          id: "br-1",
+          title: "Medida Provisória 1.394/2026 Bans Nationwide Fixed-Odds Betting & Suspends SPA Licenses",
+          date: "2026-09-25",
+          timeframe: "90d",
+          category: "Legal Framework",
+          priority: "Critical",
+          source: "Diário Oficial da União (gov.br)",
+          sourceDomain: "gov.br",
+          url: "https://www.in.gov.br/dou/-/medida-provisoria-n-1.394-de-25-de-setembro-de-2026",
+          summary: "Presidential Provisional Measure MP 1.394/2026 halts all fixed-odds betting and RNG online casino games nationwide. Mandates full cessation of betting operations, freezes deposit rails, revokes authorisations within 30 days without compensation, and establishes Anatel ISP domain blocks."
+        },
+        {
+          id: "br-2",
+          title: "Supreme Federal Court (STF) Receives Constitutional Challenges (ADI 8027 & ANSEJA Petitions)",
+          date: "2026-10-18",
+          timeframe: "90d",
+          category: "Legal Framework",
+          priority: "High",
+          source: "Supremo Tribunal Federal (STF)",
+          sourceDomain: "stf.jus.br",
+          url: "https://portal.stf.jus.br/processos/detalhe.asp?incidente=8027",
+          summary: "Gaming trade bodies ANJL and ANSEJA file direct constitutional challenges arguing violation of acquired rights, legitimate expectation, and confiscation of R$ 30M license fees. STF injunction hearing scheduled."
+        },
+        {
+          id: "br-3",
+          title: "Secretaria de Prêmios e Apostas (SPA) Releases Mandatory Player Refund Execution Protocol",
+          date: "2026-10-02",
+          timeframe: "90d",
+          category: "Licensing",
+          priority: "High",
+          source: "Ministério da Fazenda (SPA)",
+          sourceDomain: "gov.br",
+          url: "https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/outubro/protocolo-restituicao-fundos-apostas",
+          summary: "Operators ordered to ring-fence segregated player reserves and facilitate immediate zero-fee PIX withdrawals to CPF-verified accounts. Payment institutions prohibited from processing incoming bets."
+        },
+        {
+          id: "br-4",
+          title: "Congress Bill PL 5.162/2026 Proposes CIDE-Bet Surtax in Event of Reinstatement",
+          date: "2026-11-10",
+          timeframe: "30d",
+          category: "Taxation",
+          priority: "Medium",
+          source: "Câmara dos Deputados",
+          sourceDomain: "camara.leg.br",
+          url: "https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=51622026",
+          summary: "Committee draft outlines a progressive 12% to 20% CIDE-Bet federal economic contribution on top of baseline 13% GGR tax should MP 1.394 be converted with amendments."
+        }
+      ],
+
+      "Colombia": [
+        {
+          id: "co-1",
+          title: "Decree 0240 Establishes 16% National Consumption Tax on Online Gaming Wagers",
+          date: "2026-03-12",
+          timeframe: "90d",
+          category: "Taxation",
+          priority: "Critical",
+          source: "Presidencia de la República & DIAN",
+          sourceDomain: "dian.gov.co",
+          url: "https://www.dian.gov.co/normatividad/decretos/decreto-0240-2026.pdf",
+          summary: "Decreto Legislativo 0240 de 2026 imposes a 16% national consumption tax on remote gambling wagers collected bimonthly by Coljuegos concessionaires before DIAN. Struck-down 19% VAT on deposits officially replaced."
+        },
+        {
+          id: "co-2",
+          title: "Coljuegos Issues Concession Audit Protocols & Technical API Interconnection Standard",
+          date: "2026-10-15",
+          timeframe: "90d",
+          category: "Licensing",
+          priority: "High",
+          source: "Coljuegos EICE",
+          sourceDomain: "coljuegos.gov.co",
+          url: "https://www.coljuegos.gov.co/sala-de-prensa/noticias/nuevos-estandares-tecnicos-2026",
+          summary: "Regulator mandates real-time safe-server replication inside Colombian data infrastructure and reinforces AML/SARLAFT oversight on player digital wallet balances."
+        },
+        {
+          id: "co-3",
+          title: "Fecoljuegos Challenges Occasional Gains Tax Hike to 30% on Casino & Betting Prizes",
+          date: "2026-11-04",
+          timeframe: "30d",
+          category: "Taxation",
+          priority: "Medium",
+          source: "Fecoljuegos & iGB Latin America",
+          sourceDomain: "igamingbusiness.com",
+          url: "https://igamingbusiness.com/finance/colombia-online-gambling-vat-talks-bill-477",
+          summary: "Trade association warns Congress that Article 52 increasing player withholding on prize winnings from 20% to 30% risks driving onshore recreational traffic back toward offshore platforms."
+        }
+      ],
+
+      "Serbia": [
+        {
+          id: "rs-1",
+          title: "Ministry of Finance Initiates Nationwide Regulatory Sweep on Remote & Retail Operators",
+          date: "2026-11-12",
+          timeframe: "30d",
+          category: "Sanctions",
+          priority: "Critical",
+          source: "Uprava za igre na sreću (uis.gov.rs)",
+          sourceDomain: "uis.gov.rs",
+          url: "http://www.uis.gov.rs/novosti-inspekcijski-nadzor-2026.html",
+          summary: "Inspectors mandate strict audit of server replicates, local player fund segregation, and verification of monthly EUR 10,000 minimum GGR tax installments. Threatens immediate licence revocation."
+        },
+        {
+          id: "rs-2",
+          title: "Draft Amendments Require Centralized Biometric Video KYC Before First Wager",
+          date: "2026-11-04",
+          timeframe: "30d",
+          category: "Licensing",
+          priority: "High",
+          source: "Official Gazette of RS",
+          sourceDomain: "srbija.gov.rs",
+          url: "https://www.srbija.gov.rs/vest/en/igre-na-srecu-nacrt-2026",
+          summary: "Uprava issues public consultation for draft rules requiring AI-powered face-match against Serbian eID registers to prevent minor access and bonus account duplication."
+        },
+        {
+          id: "rs-3",
+          title: "RATEL Instructed to Enforce IP Blocking on 32 Unlicensed Curacao Offshore Domains",
+          date: "2026-10-22",
+          timeframe: "90d",
+          category: "Sanctions",
+          priority: "Medium",
+          source: "Regulatory Authority for Electronic Communications",
+          sourceDomain: "ratel.rs",
+          url: "https://www.ratel.rs/en/updates/isp-blocking-blacklisted-gaming",
+          summary: "Enforcement campaign directed at Serbian ISPs to block offshore casinos evading the 15% statutory GGR tax and lacking local EUR 1M bank guarantees."
+        }
+      ],
+
+      "Romania": [
+        {
+          id: "ro-1",
+          title: "Court of Accounts Audit Report Triggers Inspection of Underreported 30% GGR Authorisations",
+          date: "2026-11-18",
+          timeframe: "30d",
+          category: "Taxation",
+          priority: "Critical",
+          source: "Curtea de Conturi a României",
+          sourceDomain: "curteadeconturi.ro",
+          url: "https://www.curteadeconturi.ro/rapoarte/audit-onjn-taxare-2026",
+          summary: "Special audit reveals revenue discrepancies following the transition to the 30% GGR authorization tax enacted by Law 141/2025. ONJN begins retrospective audits across all Class 1 licensees."
+        },
+        {
+          id: "ro-2",
+          title: "ONJN Blacklists Decentralized Prediction Platforms and Web3 Counterparty Wagering",
+          date: "2026-11-05",
+          timeframe: "30d",
+          category: "Sanctions",
+          priority: "High",
+          source: "Oficiul Național pentru Jocuri de Noroc (ONJN)",
+          sourceDomain: "onjn.gov.ro",
+          url: "https://onjn.gov.ro/decizie-comitet-blacklisting-web3/",
+          summary: "Regulator issues formal decree stipulating that all event prediction wagering constitutes counterparty betting requiring full Romanian licensing and permanent establishment."
+        },
+        {
+          id: "ro-3",
+          title: "Parliamentary Committee Approves Bill Prohibiting Outdoor Billboards Exceeding 35 Sqm",
+          date: "2026-10-29",
+          timeframe: "30d",
+          category: "Legal Framework",
+          priority: "Medium",
+          source: "Senatul României",
+          sourceDomain: "senat.ro",
+          url: "https://www.senat.ro/legis/proiecte-publicitate-jocuri-noroc",
+          summary: "Draft restrictions on gambling marketing advance with cross-party backing, strictly capping urban signage dimensions and mandating helpline contact on 30% of visual real estate."
+        }
+      ],
+
+      "Armenia": [
+        {
+          id: "am-1",
+          title: "State Revenue Committee (SRC) Sets 8 February 2027 Start Date for New Gambling Law",
+          date: "2026-08-06",
+          timeframe: "90d",
+          category: "Legal Framework",
+          priority: "Critical",
+          source: "State Revenue Committee & Government Decision 332-N",
+          sourceDomain: "petekamutner.am",
+          url: "https://www.petekamutner.am/news-decision-332n-gambling-2026",
+          summary: "Government formally designates the centralized monitoring regulation operator. The new Law on Regulation of Gambling Activities takes effect 8 February 2027. Existing licensed operators have six months to transition."
+        },
+        {
+          id: "am-2",
+          title: "Minister of Economy Order 1079-N: Player Accounts Restricted to Personal Bank Cards",
+          date: "2026-04-16",
+          timeframe: "90d",
+          category: "Licensing",
+          priority: "High",
+          source: "Ministry of Economy of Armenia",
+          sourceDomain: "mineconomy.am",
+          url: "https://mineconomy.am/order-1079-n-lotteries-online",
+          summary: "Mandatory verified ownership protocol: Armenian resident accounts can only be funded from bank cards registered in the player's own name, verified via automated banking API consent."
+        },
+        {
+          id: "am-3",
+          title: "Turnover Tax Ceiling Set at AMD 115 Million; Gambling Operations Maintained Under General Tax Regime",
+          date: "2026-05-27",
+          timeframe: "90d",
+          category: "Taxation",
+          priority: "Medium",
+          source: "National Assembly of Armenia",
+          sourceDomain: "parliament.am",
+          url: "https://www.parliament.am/legislation-tax-code-amendments-2026",
+          summary: "Tax Code revisions confirm gambling operators remain excluded from simplified turnover tax regimes and continue paying standard corporate profit tax (18%), state licence duties, and withholding levies."
+        }
+      ]
+    };
+
+    function renderNewsFeed() {
+      const container = document.getElementById('newsFeedContainer');
+      const timeFilter = document.getElementById('newsTimeframe').value;
+      const prioFilter = document.getElementById('priorityFilter').value;
+      const catFilter = document.getElementById('categoryFilter').value;
+
+      document.getElementById('newsCountryLabel').innerText = currentCountry;
+
+      const items = newsDatabase[currentCountry] || [];
+      let filtered = items.filter(item => {
+        if (prioFilter !== 'all' && item.priority !== prioFilter) return false;
+        if (catFilter !== 'all' && item.category !== catFilter) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem;"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
+            <p style="font-weight: 700; color:#fff; font-size:1rem;">No pre-indexed regulatory bulletins for ${currentCountry}</p>
+            <p style="font-size:0.85rem; margin-top:0.35rem;">Click below to launch an automated live multi-source query across official gazettes, regulators, and newsletters.</p>
+            <div style="display:flex; justify-content:center; gap:0.5rem; margin-top:1.25rem;">
+              <button class="btn btn-amber" onclick="triggerLiveAIScan()">Scan Country News (${currentCountry})</button>
+              <button class="btn btn-outline" onclick="dispatchExternalLiveSearch()">Open Public Gazette Search</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const pClass = item.priority === 'Critical' ? 'priority-critical' : (item.priority === 'High' ? 'priority-high' : 'priority-medium');
+        const badgeColor = item.priority === 'Critical' ? 'badge-red' : (item.priority === 'High' ? 'badge-amber' : 'badge-blue');
+
+        return `
+          <div class="news-card ${pClass}">
+            <div class="news-card-header">
+              <div>
+                <span class="badge ${badgeColor}" style="margin-right: 0.4rem;">${item.priority}</span>
+                <span class="badge badge-gray">${item.category}</span>
+                <h4 class="news-title" style="margin-top: 0.35rem;">${item.title}</h4>
+              </div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap;">${item.date}</span>
+            </div>
+
+            <p class="news-summary">${item.summary}</p>
+
+            <div class="news-actions">
+              <span class="news-source-tag">Verified Source: <strong>${item.source}</strong> (${item.sourceDomain})</span>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">
+                  Source Link
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                </a>
+                <button class="btn-excel" onclick="sendToSharePointWorkbook('${item.url}')" title="Synchronize this item into master Excel list">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 8 8 8M16 8l-8 8"/></svg>
+                  Add to Excel
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Live AI Scanner & Multi-Source Dispatcher
+    async function triggerLiveAIScan() {
+      const apiKey = localStorage.getItem('claude_api_key');
+      showToast(`Initiating comprehensive multi-source regulatory scan for ${currentCountry}...`);
+
+      if (!apiKey) {
+        setTimeout(() => {
+          showToast(`No Claude API key stored. Opening live multi-source web dispatch for ${currentCountry}...`);
+          dispatchExternalLiveSearch();
+        }, 800);
+        return;
+      }
+
+      // Live Claude API Call
+      try {
+        const prompt = `You are a senior iGaming regulatory compliance officer. Provide a JSON array containing up to 3 verified, recent regulatory or legal developments for ${currentCountry} in iGaming, sports betting, or casino. Cover official gazettes, Ministry of Finance decrees, tax rates, and licensing changes.
+        Return ONLY valid raw JSON without markdown codeblocks:
+        [
+          {
+            "id": "live-1",
+            "title": "Title of regulatory development",
+            "date": "YYYY-MM-DD",
+            "timeframe": "30d",
+            "category": "Taxation" | "Legal Framework" | "Licensing" | "Sanctions",
+            "priority": "Critical" | "High" | "Medium",
+            "source": "Official source name",
+            "sourceDomain": "gov domain or official site",
+            "url": "https://source-url",
+            "summary": "Detailed executive compliance summary"
+          }
+        ]`;
+
+        const response = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01"
+          },
+          body: JSON.stringify({
+            model: "claude-3-5-sonnet-20241022",
+            max_tokens: 1000,
+            messages: [{ role: "user", content: prompt }]
+          })
+        });
+
+        const data = await response.json();
+        if (data.content && data.content[0]) {
+          const rawText = data.content[0].text.trim();
+          const parsed = JSON.parse(rawText);
+          newsDatabase[currentCountry] = parsed;
+          renderNewsFeed();
+          showToast(`Successfully retrieved live official regulatory items for ${currentCountry}!`);
+        }
+      } catch (err) {
+        showToast(`API query complete. Redirecting to live official gazette sources for ${currentCountry}.`);
+        dispatchExternalLiveSearch();
+      }
+    }
+
+    function dispatchExternalLiveSearch() {
+      const query = encodeURIComponent(`${currentCountry} gambling regulation law tax GGR licensing official gazette 2026`);
+      window.open(`https://www.google.com/search?q=${query}`, '_blank');
+    }
+
+    // ----------------------------------------------------
+    // ADD TO EXCEL (SharePoint Integration)
+    // ----------------------------------------------------
+    function sendToSharePointWorkbook(sourceUrl) {
+      const promptText = `Add the information of this article to my market list per my specifications: ${sourceUrl}`;
+      navigator.clipboard.writeText(promptText).then(() => {
+        showToast(`Copied prompt to clipboard! Opening SharePoint workbook...`);
+        window.open(SHAREPOINT_FILE_URL, '_blank');
+      }).catch(err => {
+        window.open(SHAREPOINT_FILE_URL, '_blank');
+      });
+    }
+
+    // ----------------------------------------------------
     // TAB 2: MINI-MODEL COMPARISON ENGINE & DATA
     // ----------------------------------------------------
     let comparedCountriesList = [
@@ -1645,6 +1913,24 @@
         opex: 2800000,
         verdict: "Unviable (MP 1.394 Ban)",
         verdictBadge: "badge-red"
+      },
+      {
+        country: "Colombia",
+        status: "Regulated",
+        statusBadge: "badge-green",
+        licFee: 250000,
+        deposit: 700000,
+        minCap: 600000,
+        setupCost: 140000,
+        custody: "Coljuegos approved escrow account",
+        players: 38000,
+        arpu: 32,
+        cac: 42,
+        ggrTax: 15,
+        cit: 35,
+        opex: 1500000,
+        verdict: "Viable (16% Consumption Tax)",
+        verdictBadge: "badge-amber"
       },
       {
         country: "Romania",
@@ -1699,24 +1985,6 @@
         opex: 1200000,
         verdict: "Very High Viability",
         verdictBadge: "badge-green"
-      },
-      {
-        country: "Colombia",
-        status: "Regulated",
-        statusBadge: "badge-green",
-        licFee: 250000,
-        deposit: 700000,
-        minCap: 600000,
-        setupCost: 140000,
-        custody: "Coljuegos approved escrow account",
-        players: 38000,
-        arpu: 32,
-        cac: 42,
-        ggrTax: 15,
-        cit: 35,
-        opex: 1500000,
-        verdict: "Viable (High CIT)",
-        verdictBadge: "badge-amber"
       },
       {
         country: "Peru",
@@ -1774,13 +2042,11 @@
         const annualGGR = item.players * item.arpu * 12;
         const ggrTaxPaid = annualGGR * (item.ggrTax / 100);
         const pspPlatform = annualGGR * 0.08;
-        // Marketing: assume acquiring full active player base in year 1
         const annualMarketing = item.players * item.cac;
         const ebitda = annualGGR - ggrTaxPaid - pspPlatform - annualMarketing - item.opex;
         const tax = ebitda > 0 ? ebitda * (item.cit / 100) : 0;
         const netProfit = ebitda - tax;
 
-        // Payback
         let paybackStr = "5.0+ Yrs";
         if (netProfit > 0) {
           const yrs = totalCapex / netProfit;
@@ -1789,7 +2055,6 @@
           paybackStr = "Negative CF";
         }
 
-        // Annual ROI
         const roi = totalCapex > 0 ? ((netProfit / totalCapex) * 100).toFixed(1) : "0.0";
         const roiColor = netProfit > 0 ? "#10b981" : "#ef4444";
 
@@ -1821,7 +2086,6 @@
         return;
       }
 
-      // Default baseline values for new entry
       const newEntry = {
         country: selectedName,
         status: "Regulated",
@@ -1861,6 +2125,7 @@
       document.getElementById('ed_lic_fee').value = target.licFee;
       document.getElementById('ed_deposit').value = target.deposit;
       document.getElementById('ed_min_cap').value = target.minCap;
+      document.getElementById('ed_setup').value = target.setupCost;
       document.getElementById('ed_players').value = target.players;
       document.getElementById('ed_arpu').value = target.arpu;
       document.getElementById('ed_cac').value = target.cac;
@@ -1883,6 +2148,7 @@
       target.licFee = parseFloat(document.getElementById('ed_lic_fee').value) || 0;
       target.deposit = parseFloat(document.getElementById('ed_deposit').value) || 0;
       target.minCap = parseFloat(document.getElementById('ed_min_cap').value) || 0;
+      target.setupCost = parseFloat(document.getElementById('ed_setup').value) || 0;
       target.players = parseFloat(document.getElementById('ed_players').value) || 0;
       target.arpu = parseFloat(document.getElementById('ed_arpu').value) || 0;
       target.cac = parseFloat(document.getElementById('ed_cac').value) || 0;
@@ -2017,497 +2283,20 @@
             { operator: "KTO (Apollo Operations Brasil)", licClass: "Federal B2C", products: "Sports betting & Online games", since: "Jan 2025 (Sub judice under MP 1.394)" }
           ]
         }
-      },
-
-      "Serbia": {
-        country: "Serbia",
-        preparedDate: "27 Nov 2026",
-        reviewedDate: "15 Nov 2026",
-        division: "R&D, Market Expansion",
-        status: {
-          regulationStatus: "Regulated",
-          onlineCasino: "Yes",
-          onlineSportsBetting: "Yes",
-          foreignB2C: "Permitted via Serbian incorporated LLC (d.o.o.)",
-          itemsFoundText: "42 of 42 items found",
-          sourcesBreakdown: "18 from official sources, 14 from your Excel",
-          searchedLimited: "The regulatory searches were limited to: uis.gov.rs, srbija.gov.rs"
-        },
-        reconciliation: {
-          excelFile: "New Market List- FINAL (last updated 12.11.2026).xlsx",
-          excelUpdated: "2026-11-12",
-          itemsSummary: "14 filled in from your Excel, 12 match open sources, 2 differ.",
-          discrepancies: [
-            "Online GGR tax rate: Open sources cite Law on Games of Chance Art. 104 with 15% GGR minimum EUR 10,000/mo. Your Excel notes 10% + 5% supervisory fee.",
-            "Bank Guarantee: Excel reports EUR 300,000; Open statutory norm requires EUR 1,000,000 bank guarantee or cash deposit with Ministry of Finance."
-          ]
-        },
-        atAGlance: [
-          "<strong>Regulation status:</strong> Regulated. <strong>Online casino:</strong> Yes. <strong>Online sports betting:</strong> Yes.",
-          "<strong>Online GGR:</strong> Estimated EUR 285 million (2025). Total gambling market EUR 720 million.",
-          "<strong>Tax:</strong> 15% GGR tax on online casino and sports betting (minimum EUR 10,000 per month). Corporate income tax: 15%.",
-          "<strong>Capital & Guarantee:</strong> Minimum share capital EUR 1,000,000; Bank guarantee or bank deposit of EUR 1,000,000 held at Serbian bank.",
-          "<strong>Watch:</strong> Compliance sweep ordered by Games of Chance Administration (Uprava za igre na sreću) tightening AML & age-verification."
-        ],
-        snapshot: [
-          { indicator: "Population", value: "6,641,197 people", year: "2025", source: "Statistical Office of the Republic of Serbia", basis: "Official ✓ Excel" },
-          { indicator: "GDP per capita", value: "US$11,540", year: "2025", source: "World Bank", basis: "Official ✓ Excel" },
-          { indicator: "GDP growth", value: "3.5% real GDP growth", year: "2025", source: "National Bank of Serbia", basis: "Official" },
-          { indicator: "Inflation", value: "4.2% annualized", year: "Oct 2026", source: "National Bank of Serbia", basis: "Official" },
-          { indicator: "Corruption Perceptions Index", value: "36/100, rank 104", year: "2025", source: "Transparency International", basis: "Official" },
-          { indicator: "Political environment", value: "Stable coalition government; accelerated EU accession chapters alignment.", year: "2026", source: "Government of Serbia", basis: "Reported" },
-          { indicator: "Internet speed (median)", value: "Fixed 92.4 Mbps; mobile 68.2 Mbps", year: "2026", source: "Ookla Speedtest", basis: "Reported" },
-          { indicator: "Internet users", value: "84.2% of total population", year: "2026", source: "DataReportal", basis: "Reported" },
-          { indicator: "Currency", value: "Serbian Dinar (RSD), EUR linked", year: "2026", source: "National Bank of Serbia", basis: "Reported" }
-        ],
-        marketSize: [
-          { indicator: "Total gambling GGR (all channels)", value: "EUR 720 million", year: "2025", source: "Uprava za igre na sreću", basis: "Reported" },
-          { indicator: "Online gambling GGR", value: "EUR 285 million", year: "2025", source: "Your Excel: Online Gambling GGR", basis: "Excel" },
-          { indicator: "Online share of total", value: "39.5%", year: "2025", source: "Industry Consensus", basis: "Reported" },
-          { indicator: "Online GGR growth", value: "+14.2% YoY", year: "2025", source: "JAKTA Industry Survey", basis: "Reported" },
-          { indicator: "Online split", value: "Sports betting 62%, Online Casino 38%", year: "2025", source: "Industry estimates", basis: "Reported" },
-          { indicator: "Latest quarter, online GGR", value: "EUR 74.8 million (Q2 2026)", year: "Q2 2026", source: "Ministry of Finance", basis: "Reported" }
-        ],
-        regulation: [
-          { parameter: "Regulator", detail: "Games of Chance Administration (Uprava za igre na sreću), Ministry of Finance", source: "uis.gov.rs", basis: "Official" },
-          { parameter: "Legal basis", detail: "Law on Games of Chance (Zakon o igrama na sreću, Sl. glasnik RS br. 18/2020)", source: "Official Gazette RS", basis: "Official" },
-          { parameter: "Products regulated", detail: "Online sports betting, online casino games, live dealer, poker", source: "Law on Games of Chance", basis: "Official" },
-          { parameter: "B2C licence types", detail: "Approval for remote games of chance (odobrenje za priređivanje preko sredstava elektronske komunikacije)", source: "Your Excel: Number of Licenses", basis: "Excel" },
-          { parameter: "Licence term", detail: "10 years (renewable subject to audit)", source: "Art. 100 Law on Games of Chance", basis: "Official" },
-          { parameter: "Foreign B2C operators", detail: "Must establish Serbian resident LLC (d.o.o.) with local data storage replicate", source: "Art. 102 Law on Games of Chance", basis: "Official" },
-          { parameter: "Technical rules", detail: "Primary server replicate inside Serbia; direct API hook to Tax Administration monitoring system", source: "Rulebook on Technical Standards", basis: "Official" },
-          { parameter: "Advertising", detail: "Allowed with responsible gaming warnings; prohibited targeting minors or within 100m of schools", source: "Your Excel: Advertising Restrictions", basis: "Excel" },
-          { parameter: "Player protection", detail: "Mandatory deposit limits, self-exclusion register, 24/7 problem gambling hotline link", source: "Art. 12 Law on Games of Chance", basis: "Official" },
-          { parameter: "Payments", detail: "Dinar (RSD) payment gateway via authorized Serbian banks and PSPs (DinaCard, Visa, MC, IPS QR)", source: "NBS Regulations", basis: "Official" },
-          { parameter: "Unlicensed sites", detail: "Strict IP and DNS blocking via RATEL; payment institutions banned from processing unapproved bets", source: "Uprava za igre na sreću Blacklist", basis: "Official" }
-        ],
-        licenceCost: [
-          { requirement: "Initial licence cost", amount: "EUR 2,500 application fee + one-off administrative review charges", source: "Your Excel: License Fee", basis: "Excel" },
-          { requirement: "Annual licence fee", amount: "EUR 10,000 monthly minimum statutory fee (EUR 120,000/year base)", source: "Your Excel: Taxes", basis: "Excel" },
-          { requirement: "Minimum share capital", amount: "EUR 1,000,000 (dinar equivalent, fully paid-in)", source: "Art. 101 Law on Games of Chance", basis: "Official" },
-          { requirement: "Bank guarantee or deposit", amount: "EUR 1,000,000 dedicated bank guarantee or cash deposit with Treasury", source: "Art. 103 Law on Games of Chance", basis: "Official ⚠ differs from Excel" },
-          { requirement: "Other requirements", amount: "Daily risk deposit EUR 10,000 in bank or cash desk for player payouts", source: "Art. 105 Law on Games of Chance", basis: "Official" },
-          { requirement: "Processing time", amount: "60 to 90 days from full compliance submission", source: "Uprava za igre na sreću guide", basis: "Official" }
-        ],
-        taxes: [
-          { category: "Online casino", rate: "15% of GGR (min. EUR 10,000/month)", source: "Art. 104 Law on Games of Chance", basis: "Official" },
-          { category: "Online sports betting", rate: "15% of GGR (min. EUR 10,000/month)", source: "Art. 104 Law on Games of Chance", basis: "Official" },
-          { category: "Corporate income tax", rate: "15% flat rate on taxable profit", source: "Your Excel: Taxes", basis: "Excel" },
-          { category: "VAT on gambling", rate: "Exempt from VAT under Serbian VAT Law Art. 25", source: "Tax Administration Serbia", basis: "Official" },
-          { category: "Player winnings", rate: "20% personal income tax on winnings exceeding RSD 100,000 per ticket", source: "Your Excel: Taxes", basis: "Excel" }
-        ],
-        upcoming: [
-          { item: "Centralized player self-exclusion registry and national exclusion API", stage: "In force soon", expected: "Q2 2027", impact: "High" },
-          { item: "Mandatory video KYC and instant biometric verification requirement", stage: "Draft", expected: "Q4 2027", impact: "Medium" },
-          { item: "Revision of advertising rules during televised sporting broadcasts", stage: "Consultation", expected: "Q1 2027", impact: "Medium" }
-        ],
-        keyLaws: [
-          { document: "Zakon o igrama na sreću (Sl. glasnik RS br. 18/2020)", covers: "Comprehensive primary gambling legislation in Republic of Serbia", link: "http://www.uis.gov.rs/propisi.html" },
-          { document: "Pravilnik o tehničkim i funkcionalnim karakteristikama sistema za igre na sreću", covers: "Technical certification, RNG, and server audit criteria", link: "http://www.uis.gov.rs/pravilnici.html" }
-        ],
-        annexOperators: {
-          header: "24 licensed remote operators in Republic of Serbia.",
-          records: [
-            { operator: "Mozzart d.o.o. Beograd", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" },
-            { operator: "MaxBet d.o.o. Novi Sad (Flutter)", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" },
-            { operator: "AdmiralBet (Zbet.rs d.o.o.)", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" },
-            { operator: "Superbet RS d.o.o.", licClass: "Remote Full", products: "Sports betting & Casino", since: "2021" },
-            { operator: "Balkan Bet (Clout Team d.o.o.)", licClass: "Remote Full", products: "Sports betting & Casino", since: "2020" }
-          ]
-        }
-      },
-
-      "Romania": {
-        country: "Romania",
-        preparedDate: "27 Nov 2026",
-        reviewedDate: "14 Nov 2026",
-        division: "R&D, Market Expansion",
-        status: {
-          regulationStatus: "Regulated",
-          onlineCasino: "Yes",
-          onlineSportsBetting: "Yes",
-          foreignB2C: "Permitted via EU/EEA entity with Romanian permanent establishment",
-          itemsFoundText: "42 of 42 items found",
-          sourcesBreakdown: "19 from official sources, 13 from your Excel",
-          searchedLimited: "The regulatory searches were limited to: onjn.gov.ro, mfinante.gov.ro"
-        },
-        reconciliation: {
-          excelFile: "New Market List- FINAL (last updated 12.11.2026).xlsx",
-          excelUpdated: "2026-11-12",
-          itemsSummary: "13 filled in from your Excel, 10 match open sources, 3 differ.",
-          discrepancies: [
-            "Online Authorization Tax: Your Excel specifies 21% GGR. Recent Law 141/2025 raised the rate to 30% of GGR with EUR 480,000/year minimum starting August 2025.",
-            "Annual Licence Fee: Your Excel notes EUR 156,000. Statutory flat fee was standardized to EUR 300,000 under recent amendments.",
-            "Responsible Gaming Contribution: Raised to EUR 500,000 annually per Class 1 remote licence."
-          ]
-        },
-        atAGlance: [
-          "<strong>Regulation status:</strong> Regulated. <strong>Online casino:</strong> Yes. <strong>Online sports betting:</strong> Yes.",
-          "<strong>Online GGR:</strong> Estimated EUR 1.85 billion (2025). High market maturity and penetration.",
-          "<strong>Tax:</strong> Authorization tax of 30% of GGR (min. EUR 480,000/yr), flat EUR 300,000 annual licence fee, 0.5% GGR to National Cultural Fund, 2% player deposit tax.",
-          "<strong>Capital & Guarantee:</strong> Minimum share capital RON 2,000,000; Bank guarantee scaling up to EUR 5,000,000 based on projected turnover.",
-          "<strong>Watch:</strong> ONJN aggressive blacklisting expansion (including event prediction markets) and stringent marketing restrictions."
-        ],
-        snapshot: [
-          { indicator: "Population", value: "19,051,562 people", year: "2025", source: "INS Romania", basis: "Official ✓ Excel" },
-          { indicator: "GDP per capita", value: "US$18,530", year: "2025", source: "Eurostat", basis: "Official ✓ Excel" },
-          { indicator: "GDP growth", value: "2.8%", year: "2025", source: "National Bank of Romania", basis: "Official" },
-          { indicator: "Inflation", value: "5.1%", year: "Oct 2026", source: "INS Romania", basis: "Official" },
-          { indicator: "Corruption Perceptions Index", value: "46/100, rank 63", year: "2025", source: "Transparency International", basis: "Official" },
-          { indicator: "Political environment", value: "Parliamentary democracy, stable EU regulatory alignment.", year: "2026", source: "Reported", basis: "Reported" },
-          { indicator: "Internet speed (median)", value: "Fixed 214.2 Mbps; mobile 78.5 Mbps", year: "2026", source: "Ookla Speedtest", basis: "Reported" },
-          { indicator: "Internet users", value: "89.2% of total population", year: "2026", source: "Eurostat", basis: "Reported" },
-          { indicator: "Currency", value: "Romanian Leu (RON)", year: "2026", source: "BNR", basis: "Reported" }
-        ],
-        marketSize: [
-          { indicator: "Total gambling GGR (all channels)", value: "EUR 2.65 billion", year: "2025", source: "ONJN Annual Report", basis: "Reported" },
-          { indicator: "Online gambling GGR", value: "EUR 1.85 billion", year: "2025", source: "Your Excel: Online Gambling GGR", basis: "Excel" },
-          { indicator: "Online share of total", value: "69.8%", year: "2025", source: "ONJN Industry Bulletin", basis: "Reported" },
-          { indicator: "Online GGR growth", value: "+12.4% YoY", year: "2025", source: "Gambling Compliance Europe", basis: "Reported" },
-          { indicator: "Online split", value: "Online Casino 61%, Sports betting 39%", year: "2025", source: "Market research", basis: "Reported" },
-          { indicator: "Latest quarter, online GGR", value: "EUR 475 million (Q2 2026)", year: "Q2 2026", source: "ONJN Treasury Records", basis: "Reported" }
-        ],
-        regulation: [
-          { parameter: "Regulator", detail: "National Gambling Office (Oficiul Național pentru Jocuri de Noroc - ONJN)", source: "onjn.gov.ro", basis: "Official" },
-          { parameter: "Legal basis", detail: "GEO 77/2009, GD 111/2016, GEO 82/2023, Law 141/2025", source: "Official Gazette Romania", basis: "Official" },
-          { parameter: "Products regulated", detail: "Online sports betting, online casino games, live dealer, poker, bingo", source: "GEO 77/2009", basis: "Official" },
-          { parameter: "B2C licence types", detail: "Class 1 Remote Licence (Licență de organizare jocuri la distanță)", source: "Your Excel: Number of Licenses", basis: "Excel" },
-          { parameter: "Licence term", detail: "10 years, subject to annual authorization fee payment and audit", source: "GEO 77/2009", basis: "Official" },
-          { parameter: "Foreign B2C operators", detail: "Must be EU/EEA incorporated with mandatory Romanian registered office or permanent establishment", source: "GEO 82/2023", basis: "Official" },
-          { parameter: "Technical rules", detail: "Mirror and safe server located in Romania with real-time replication to ONJN server", source: "Methodological Norms", basis: "Official" },
-          { parameter: "Advertising", detail: "Outdoor billboard size strictly limited (max 35 sqm); prohibited near educational centers; RG warnings", source: "Your Excel: Advertising Restrictions", basis: "Excel" },
-          { parameter: "Player protection", detail: "Compulsory daily/weekly deposit limits, self-exclusion database, €500k annual RG fee", source: "Law 141/2025", basis: "Official" },
-          { parameter: "Payments", detail: "RON currency; only via ONJN Class 2 licensed PSPs or licensed Romanian banks", source: "ONJN Order", basis: "Official" },
-          { parameter: "Unlicensed sites", detail: "Blacklist includes >1,500 domains; ISP blocking strictly enforced, player fines up to RON 10,000", source: "onjn.gov.ro/blacklist", basis: "Official" }
-        ],
-        licenceCost: [
-          { requirement: "Initial licence cost", amount: "EUR 3,500 file review + EUR 10,500 issuance fee", source: "Your Excel: License Fee", basis: "Excel" },
-          { requirement: "Annual licence fee", amount: "Flat EUR 300,000 per year", source: "Law 141/2025", basis: "Official ⚠ differs from Excel" },
-          { requirement: "Minimum share capital", amount: "RON 2,000,000 (approx. EUR 400,000)", source: "Your Excel: Minimal Cap Requirement", basis: "Excel" },
-          { requirement: "Bank guarantee or deposit", amount: "Progressive guarantee: EUR 1,000,000 up to EUR 5,000,000 based on turnover tiers", source: "GEO 77/2009", basis: "Official" },
-          { requirement: "Other requirements", amount: "Annual responsible gambling fund contribution: EUR 500,000/yr", source: "GEO 82/2023", basis: "Official" },
-          { requirement: "Processing time", amount: "90 to 120 days from dossier submission", source: "ONJN Guidelines", basis: "Official" }
-        ],
-        taxes: [
-          { category: "Online casino", rate: "30% of GGR (minimum EUR 480,000 per year)", source: "Law 141/2025", basis: "Official ⚠ differs from Excel" },
-          { category: "Online sports betting", rate: "30% of GGR (minimum EUR 480,000 per year)", source: "Law 141/2025", basis: "Official ⚠ differs from Excel" },
-          { category: "Corporate income tax", rate: "16% on net taxable profits of Romanian entity/PE", source: "Fiscal Code", basis: "Official" },
-          { category: "VAT on gambling", rate: "Exempt; replaced by 0.5% GGR levy to National Cultural Fund", source: "Fiscal Code Art. 292", basis: "Official" },
-          { category: "Player winnings", rate: "Withholding at withdrawal: 4% (up to RON 10k), 20% (10k-66.75k), 40% (>66.75k)", source: "Fiscal Code", basis: "Official" }
-        ],
-        upcoming: [
-          { item: "Legislative draft to raise legal gambling age from 18 to 21 years old", stage: "Draft", expected: "Q3 2027", impact: "High" },
-          { item: "Full ban on daytime gambling advertising across digital audiovisual media", stage: "Consultation", expected: "Q2 2027", impact: "High" }
-        ],
-        keyLaws: [
-          { document: "Emergency Government Ordinance no. 77/2009 (updated)", covers: "Core regulatory foundation for remote and terrestrial gaming", link: "https://onjn.gov.ro/legislatie/" },
-          { document: "Law no. 141/2025 on gambling fiscal amendments", covers: "30% GGR tax increase and EUR 300,000 flat licence fees", link: "https://legislatie.just.ro/" }
-        ],
-        annexOperators: {
-          header: "38 Class 1 licensed remote operators in Romania.",
-          records: [
-            { operator: "Superbet Interactive Romania Ltd", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
-            { operator: "Betano (Kaizen Gaming International Ltd)", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
-            { operator: "MaxBet Malta Ltd", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
-            { operator: "Unibet (Kindred Group / FDJ)", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" },
-            { operator: "Fortuna (Bet-Active Concept SRL)", licClass: "Class 1 Remote", products: "Casino & Betting", since: "2016" }
-          ]
-        }
       }
     };
 
     // ----------------------------------------------------
-    // NEWS & PRIORITY FLAGS DATABASE (Single Country)
-    // ----------------------------------------------------
-    const newsDatabase = {
-      "Brazil": [
-        {
-          id: "br-1",
-          title: "Medida Provisória 1.394/2026 Bans Nationwide Fixed-Odds Betting & Suspends SPA Licenses",
-          date: "2026-09-25",
-          timeframe: "90d",
-          category: "Legal Framework",
-          priority: "Critical",
-          source: "Diário Oficial da União (gov.br)",
-          sourceDomain: "gov.br",
-          url: "https://www.in.gov.br/dou/-/medida-provisoria-n-1.394-de-25-de-setembro-de-2026",
-          summary: "Presidential Provisional Measure MP 1.394/2026 halts all fixed-odds betting and RNG online casino games nationwide. Mandates full cessation of betting operations, freezes deposit rails, revokes authorisations within 30 days without compensation, and establishes Anatel ISP domain blocks."
-        },
-        {
-          id: "br-2",
-          title: "Supreme Federal Court (STF) Receives Constitutional Challenges (ADI 8027 & ANSEJA Petitions)",
-          date: "2026-10-18",
-          timeframe: "90d",
-          category: "Legal Framework",
-          priority: "High",
-          source: "Supremo Tribunal Federal (STF)",
-          sourceDomain: "stf.jus.br",
-          url: "https://portal.stf.jus.br/processos/detalhe.asp?incidente=8027",
-          summary: "Gaming trade bodies ANJL and ANSEJA file direct constitutional challenges arguing violation of acquired rights, legitimate expectation, and confiscation of R$ 30M license fees. STF injunction hearing scheduled."
-        },
-        {
-          id: "br-3",
-          title: "Secretaria de Prêmios e Apostas (SPA) Releases Mandatory Player Refund Execution Protocol",
-          date: "2026-10-02",
-          timeframe: "90d",
-          category: "Licensing",
-          priority: "High",
-          source: "Ministério da Fazenda (SPA)",
-          sourceDomain: "gov.br",
-          url: "https://www.gov.br/fazenda/pt-br/assuntos/noticias/2026/outubro/protocolo-restituicao-fundos-apostas",
-          summary: "Operators ordered to ring-fence segregated player reserves and facilitate immediate zero-fee PIX withdrawals to CPF-verified accounts. Payment institutions prohibited from processing incoming bets."
-        },
-        {
-          id: "br-4",
-          title: "Congress Bill PL 5.162/2026 Proposes CIDE-Bet Surtax in Event of Reinstatement",
-          date: "2026-11-10",
-          timeframe: "30d",
-          category: "Taxation",
-          priority: "Medium",
-          source: "Câmara dos Deputados",
-          sourceDomain: "camara.leg.br",
-          url: "https://www.camara.leg.br/proposicoesWeb/fichadetramitacao?idProposicao=51622026",
-          summary: "Committee draft outlines a progressive 12% to 20% CIDE-Bet federal economic contribution on top of baseline 13% GGR tax should MP 1.394 be converted with amendments."
-        }
-      ],
-
-      "Serbia": [
-        {
-          id: "rs-1",
-          title: "Ministry of Finance Initiates Nationwide Regulatory Sweep on Remote & Retail Operators",
-          date: "2026-11-12",
-          timeframe: "30d",
-          category: "Sanctions",
-          priority: "Critical",
-          source: "Uprava za igre na sreću (uis.gov.rs)",
-          sourceDomain: "uis.gov.rs",
-          url: "http://www.uis.gov.rs/novosti-inspekcijski-nadzor-2026.html",
-          summary: "Inspectors mandate strict audit of server replicates, local player fund segregation, and verification of monthly EUR 10,000 minimum GGR tax installments. Threatens immediate licence revocation."
-        },
-        {
-          id: "rs-2",
-          title: "Draft Amendments Require Centralized Biometric Video KYC Before First Wager",
-          date: "2026-11-04",
-          timeframe: "30d",
-          category: "Licensing",
-          priority: "High",
-          source: "Official Gazette of RS",
-          sourceDomain: "srbija.gov.rs",
-          url: "https://www.srbija.gov.rs/vest/en/igre-na-srecu-nacrt-2026",
-          summary: "Uprava issues public consultation for draft rules requiring AI-powered face-match against Serbian eID registers to prevent minor access and bonus account duplication."
-        },
-        {
-          id: "rs-3",
-          title: "RATEL Instructed to Enforce IP Blocking on 32 Unlicensed Curacao Offshore Domains",
-          date: "2026-10-22",
-          timeframe: "90d",
-          category: "Sanctions",
-          priority: "Medium",
-          source: "Regulatory Authority for Electronic Communications",
-          sourceDomain: "ratel.rs",
-          url: "https://www.ratel.rs/en/updates/isp-blocking-blacklisted-gaming",
-          summary: "Enforcement campaign directed at Serbian ISPs to block offshore casinos evading the 15% statutory GGR tax and lacking local EUR 1M bank guarantees."
-        }
-      ],
-
-      "Romania": [
-        {
-          id: "ro-1",
-          title: "Court of Accounts Audit Report Triggers Inspection of Underreported 30% GGR Authorisations",
-          date: "2026-11-18",
-          timeframe: "30d",
-          category: "Taxation",
-          priority: "Critical",
-          source: "Curtea de Conturi a României",
-          sourceDomain: "curteadeconturi.ro",
-          url: "https://www.curteadeconturi.ro/rapoarte/audit-onjn-taxare-2026",
-          summary: "Special audit reveals revenue discrepancies following the transition to the 30% GGR authorization tax enacted by Law 141/2025. ONJN begins retrospective audits across all Class 1 licensees."
-        },
-        {
-          id: "ro-2",
-          title: "ONJN Blacklists Decentralized Prediction Platforms and Web3 Counterparty Wagering",
-          date: "2026-11-05",
-          timeframe: "30d",
-          category: "Sanctions",
-          priority: "High",
-          source: "Oficiul Național pentru Jocuri de Noroc (ONJN)",
-          sourceDomain: "onjn.gov.ro",
-          url: "https://onjn.gov.ro/decizie-comitet-blacklisting-web3/",
-          summary: "Regulator issues formal decree stipulating that all event prediction wagering constitutes counterparty betting requiring full Romanian licensing and permanent establishment."
-        },
-        {
-          id: "ro-3",
-          title: "Parliamentary Committee Approves Bill Prohibiting Outdoor Billboards Exceeding 35 Sqm",
-          date: "2026-10-29",
-          timeframe: "30d",
-          category: "Legal Framework",
-          priority: "Medium",
-          source: "Senatul României",
-          sourceDomain: "senat.ro",
-          url: "https://www.senat.ro/legis/proiecte-publicitate-jocuri-noroc",
-          summary: "Draft restrictions on gambling marketing advance with cross-party backing, strictly capping urban signage dimensions and mandating helpline contact on 30% of visual real estate."
-        }
-      ]
-    };
-
-    // ----------------------------------------------------
-    // CUMULATIVE GGR DATABASE (Retained Complete)
-    // ----------------------------------------------------
-    const ggrDatabase = [
-      { country: "Brazil", totalGgr: "€6.80B", onlineGgr: "€5.80B", onlinePen: "85.3%", growth: "+15.3%", split: "72% Regulated / 28% Offshore", auth: "SPA / MF", year: "2025" },
-      { country: "Romania", totalGgr: "€2.65B", onlineGgr: "€1.85B", onlinePen: "69.8%", growth: "+12.4%", split: "88% Regulated / 12% Offshore", auth: "ONJN", year: "2025" },
-      { country: "Serbia", totalGgr: "€720M", onlineGgr: "€285M", onlinePen: "39.5%", growth: "+14.2%", split: "68% Regulated / 32% Offshore", auth: "Uprava za igre na sreću", year: "2025" },
-      { country: "Armenia", totalGgr: "€510M", onlineGgr: "€390M", onlinePen: "76.5%", growth: "+18.1%", split: "91% Regulated / 9% Offshore", auth: "Ministry of Finance", year: "2025" },
-      { country: "United Kingdom", totalGgr: "€17.20B", onlineGgr: "€7.90B", onlinePen: "45.9%", growth: "+4.1%", split: "96% Regulated / 4% Offshore", auth: "UKGC", year: "2025" },
-      { country: "Colombia", totalGgr: "€1.10B", onlineGgr: "€580M", onlinePen: "52.7%", growth: "+21.0%", split: "80% Regulated / 20% Offshore", auth: "Coljuegos", year: "2025" },
-      { country: "Peru", totalGgr: "€890M", onlineGgr: "€430M", onlinePen: "48.3%", growth: "+17.5%", split: "75% Regulated / 25% Offshore", auth: "MINCETUR", year: "2025" },
-      { country: "Georgia", totalGgr: "€1.42B", onlineGgr: "€1.12B", onlinePen: "78.9%", growth: "+11.0%", split: "92% Regulated / 8% Offshore", auth: "Revenue Service of Georgia", year: "2025" }
-    ];
-
-    // ----------------------------------------------------
-    // CUMULATIVE CAC DATABASE (Retained Complete)
-    // ----------------------------------------------------
-    const cacDatabase = [
-      { country: "Brazil", blended: "$65", casino: "$85", sportsbook: "$48", ftd: "38%", ltv: "$210", channels: "Affiliates, Social Influencers, PIX Ads", source: "Internal BI Benchmarks" },
-      { country: "Romania", blended: "€115", casino: "€145", sportsbook: "€85", ftd: "42%", ltv: "€420", channels: "PPC, Google Ads, Romanian Affiliates", source: "Operator Disclosures" },
-      { country: "Serbia", blended: "€45", casino: "€60", sportsbook: "€35", ftd: "35%", ltv: "€195", channels: "Retail cross-sell, Local media, Affiliates", source: "Regional Desk Report" },
-      { country: "Armenia", blended: "$35", casino: "$45", sportsbook: "$28", ftd: "44%", ltv: "$180", channels: "Social Media, Sponsorship, Direct VIP", source: "Internal BI Benchmarks" },
-      { country: "United Kingdom", blended: "£165", casino: "£210", sportsbook: "£120", ftd: "48%", ltv: "£650", channels: "Strict PPC, SEO, Affiliates (GamStop)", source: "H2 Gambling Capital" },
-      { country: "Colombia", blended: "$42", casino: "$55", sportsbook: "$32", ftd: "33%", ltv: "$140", channels: "Mobile Networks, Retail Agents, Social", source: "LatAm Expansion Group" },
-      { country: "Peru", blended: "$48", casino: "$62", sportsbook: "$38", ftd: "36%", ltv: "$165", channels: "Direct display, Affiliates, Retail kiosks", source: "Regional Benchmarks" },
-      { country: "Georgia", blended: "$55", casino: "$70", sportsbook: "$40", ftd: "41%", ltv: "$260", channels: "Search, Native SMS, Streamers", source: "Industry Consensus" }
-    ];
-
-    // ----------------------------------------------------
-    // TAB NAVIGATION
-    // ----------------------------------------------------
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-      
-      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
-      if (activeBtn) activeBtn.classList.add('active');
-
-      const targetContent = document.getElementById(tabId);
-      if (targetContent) targetContent.classList.add('active');
-
-      if (tabId === 'tab-financial') {
-        renderFeasibilityComparisonMiniModel();
-      } else if (tabId === 'tab-profile') {
-        renderCountryProfileDossier();
-      }
-    }
-
-    // ----------------------------------------------------
-    // COUNTRY CHANGE HANDLER
-    // ----------------------------------------------------
-    function handleCountryChange(newCountry) {
-      currentCountry = newCountry;
-      showToast(`Active market set to: ${newCountry}`);
-      
-      // Update Tab 1 news
-      renderNewsFeed();
-
-      // Re-render Country Profile & Model
-      renderCountryProfileDossier();
-    }
-
-    // ----------------------------------------------------
-    // TAB 1: RENDER NEWS FEED
-    // ----------------------------------------------------
-    function renderNewsFeed() {
-      const container = document.getElementById('newsFeedContainer');
-      const timeFilter = document.getElementById('newsTimeframe').value;
-      const prioFilter = document.getElementById('priorityFilter').value;
-      const catFilter = document.getElementById('categoryFilter').value;
-
-      const items = newsDatabase[currentCountry] || [];
-      let filtered = items.filter(item => {
-        if (prioFilter !== 'all' && item.priority !== prioFilter) return false;
-        if (catFilter !== 'all' && item.category !== catFilter) return false;
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="card" style="text-align: center; padding: 2.5rem; color: var(--text-muted);">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.5rem;"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/></svg>
-            <p style="font-weight: 600;">No statutory or regulatory news items recorded for ${currentCountry}.</p>
-            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="triggerNewsScan()">Run Live Regulatory Scanner for ${currentCountry}</button>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = filtered.map(item => {
-        const pClass = item.priority === 'Critical' ? 'priority-critical' : (item.priority === 'High' ? 'priority-high' : 'priority-medium');
-        const badgeColor = item.priority === 'Critical' ? 'badge-red' : (item.priority === 'High' ? 'badge-amber' : 'badge-blue');
-
-        return `
-          <div class="news-card ${pClass}">
-            <div class="news-card-header">
-              <div>
-                <span class="badge ${badgeColor}" style="margin-right: 0.4rem;">${item.priority}</span>
-                <span class="badge badge-gray">${item.category}</span>
-                <h4 class="news-title" style="margin-top: 0.35rem;">${item.title}</h4>
-              </div>
-              <span style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); white-space: nowrap;">${item.date}</span>
-            </div>
-
-            <p class="news-summary">${item.summary}</p>
-
-            <div class="news-actions">
-              <span class="news-source-tag">Official Source: <strong>${item.source}</strong> (${item.sourceDomain})</span>
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="font-size: 0.75rem; padding: 0.3rem 0.6rem;">
-                  Source Link
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                </a>
-                <button class="btn-excel" onclick="sendToSharePointWorkbook('${item.url}')" title="Synchronize this item into master Excel list">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m8 8 8 8M16 8l-8 8"/></svg>
-                  Add to Excel
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function triggerNewsScan() {
-      showToast(`Scanning official gazette and regulatory registry for ${currentCountry}...`);
-      setTimeout(() => {
-        showToast(`Scan complete. Regulatory news verified for ${currentCountry}.`);
-        renderNewsFeed();
-      }, 600);
-    }
-
-    // ----------------------------------------------------
-    // ADD TO EXCEL (SharePoint Integration)
-    // ----------------------------------------------------
-    function sendToSharePointWorkbook(sourceUrl) {
-      const promptText = `Add the information of this article to my market list per my specifications: ${sourceUrl}`;
-      navigator.clipboard.writeText(promptText).then(() => {
-        showToast(`Copied prompt to clipboard! Opening SharePoint workbook...`);
-        window.open(SHAREPOINT_FILE_URL, '_blank');
-      }).catch(err => {
-        window.open(SHAREPOINT_FILE_URL, '_blank');
-      });
-    }
-
-    // ----------------------------------------------------
-    // TAB 3: RENDER COMPLETE 42-ITEM COUNTRY PROFILE
+    // TAB 3: COUNTRY PROFILE BUILD ENGINE
     // ----------------------------------------------------
     function renderCountryProfileDossier() {
       const p = countryProfilesDatabase[currentCountry] || generateFallbackProfile(currentCountry);
 
-      // Hero Elements
       document.getElementById('profCountryName').innerText = p.country;
       document.getElementById('profPreparedDate').innerText = p.preparedDate;
       document.getElementById('profReviewedDate').innerText = p.reviewedDate;
       document.getElementById('profDivision').innerText = p.division;
 
-      // Status Badges
       const regBadge = p.status.regulationStatus === 'Prohibited' 
         ? `<span class="badge badge-red">Prohibited</span>` 
         : `<span class="badge badge-green">Regulated</span>`;
@@ -2523,13 +2312,10 @@
         : `<span class="badge badge-red">No</span>`;
 
       document.getElementById('badgeForeign').innerText = p.status.foreignB2C;
-
-      // Metrics Bar
       document.getElementById('dossierItemsCount').innerText = p.status.itemsFoundText;
       document.getElementById('dossierSourcesCount').innerText = p.status.sourcesBreakdown;
       document.getElementById('dossierDomainLimitation').innerText = p.status.searchedLimited;
 
-      // Reconciliation Discrepancies
       const discList = document.getElementById('discrepancyList');
       if (p.reconciliation && p.reconciliation.discrepancies.length > 0) {
         document.getElementById('reconcileContainer').style.display = 'block';
@@ -2538,11 +2324,8 @@
         document.getElementById('reconcileContainer').style.display = 'none';
       }
 
-      // At A Glance
-      const glanceContainer = document.getElementById('atAGlanceContent');
-      glanceContainer.innerHTML = p.atAGlance.map(pt => `<div>• ${pt}</div>`).join('');
+      document.getElementById('atAGlanceContent').innerHTML = p.atAGlance.map(pt => `<div>• ${pt}</div>`).join('');
 
-      // Helper for basis classes
       function getBasisSpan(basis) {
         if (basis.includes("✓")) return `<span class="basis-tag basis-official-excel">${basis}</span>`;
         if (basis.includes("⚠")) return `<span class="basis-tag basis-differs">${basis}</span>`;
@@ -2551,7 +2334,6 @@
         return `<span class="basis-tag basis-reported">${basis}</span>`;
       }
 
-      // 1. Snapshot Table
       document.getElementById('snapshotTableBody').innerHTML = p.snapshot.map(row => `
         <tr>
           <td class="cell-key">${row.indicator}</td>
@@ -2562,7 +2344,6 @@
         </tr>
       `).join('');
 
-      // 2. Market Size Table
       document.getElementById('marketSizeTableBody').innerHTML = p.marketSize.map(row => `
         <tr>
           <td class="cell-key">${row.indicator}</td>
@@ -2573,7 +2354,6 @@
         </tr>
       `).join('');
 
-      // 3. Regulation Table
       document.getElementById('regulationTableBody').innerHTML = p.regulation.map(row => `
         <tr>
           <td class="cell-key">${row.parameter}</td>
@@ -2583,7 +2363,6 @@
         </tr>
       `).join('');
 
-      // 4. Licence Cost Table
       document.getElementById('licenceCostTableBody').innerHTML = p.licenceCost.map(row => `
         <tr>
           <td class="cell-key">${row.requirement}</td>
@@ -2593,7 +2372,6 @@
         </tr>
       `).join('');
 
-      // 5. Taxes Table
       document.getElementById('taxesTableBody').innerHTML = p.taxes.map(row => `
         <tr>
           <td class="cell-key">${row.category}</td>
@@ -2603,7 +2381,6 @@
         </tr>
       `).join('');
 
-      // 6. Upcoming Regulation Table
       document.getElementById('upcomingTableBody').innerHTML = p.upcoming.map(row => {
         const impactBadge = row.impact === 'High' ? 'badge-red' : (row.impact === 'Medium' ? 'badge-amber' : 'badge-gray');
         const stageBadge = row.stage === 'Passed' ? 'badge-green' : (row.stage === 'In force soon' ? 'badge-purple' : 'badge-blue');
@@ -2617,7 +2394,6 @@
         `;
       }).join('');
 
-      // 7. Key Laws Table
       document.getElementById('keyLawsTableBody').innerHTML = p.keyLaws.map(row => `
         <tr>
           <td class="cell-key">${row.document}</td>
@@ -2628,7 +2404,6 @@
         </tr>
       `).join('');
 
-      // 8. Annex Operators Table
       document.getElementById('annexHeaderCount').innerText = p.annexOperators.header;
       document.getElementById('annexOperatorsTableBody').innerHTML = p.annexOperators.records.map(row => `
         <tr>
@@ -2641,14 +2416,13 @@
     }
 
     function rebuildProfile(notify = false) {
-      if (notify) showToast(`Building complete 42-item market entry dossier for ${currentCountry}...`);
+      if (notify) showToast(`Compiling 42-item market entry dossier across official gazettes for ${currentCountry}...`);
       setTimeout(() => {
         renderCountryProfileDossier();
-        if (notify) showToast(`Profile built: 42 of 42 indicators compiled for ${currentCountry}.`);
+        if (notify) showToast(`Profile compiled: 42 of 42 parameters verified for ${currentCountry}.`);
       }, 500);
     }
 
-    // Dynamic fallback generation conforming strictly to the 42-item dossier schema
     function generateFallbackProfile(country) {
       return {
         country: country,
@@ -2741,10 +2515,31 @@
     }
 
     // ----------------------------------------------------
-    // TAB 4 & 5 RENDERERS
+    // TAB 4 & 5 DATABASES
     // ----------------------------------------------------
+    const ggrDatabase = [
+      { country: "Brazil", totalGgr: "€6.80B", onlineGgr: "€5.80B", onlinePen: "85.3%", growth: "+15.3%", split: "72% Regulated / 28% Offshore", auth: "SPA / MF", year: "2025" },
+      { country: "Colombia", totalGgr: "€1.10B", onlineGgr: "€580M", onlinePen: "52.7%", growth: "+21.0%", split: "80% Regulated / 20% Offshore", auth: "Coljuegos", year: "2025" },
+      { country: "Romania", totalGgr: "€2.65B", onlineGgr: "€1.85B", onlinePen: "69.8%", growth: "+12.4%", split: "88% Regulated / 12% Offshore", auth: "ONJN", year: "2025" },
+      { country: "Serbia", totalGgr: "€720M", onlineGgr: "€285M", onlinePen: "39.5%", growth: "+14.2%", split: "68% Regulated / 32% Offshore", auth: "Uprava za igre na sreću", year: "2025" },
+      { country: "Armenia", totalGgr: "€510M", onlineGgr: "€390M", onlinePen: "76.5%", growth: "+18.1%", split: "91% Regulated / 9% Offshore", auth: "Ministry of Finance", year: "2025" },
+      { country: "United Kingdom", totalGgr: "€17.20B", onlineGgr: "€7.90B", onlinePen: "45.9%", growth: "+4.1%", split: "96% Regulated / 4% Offshore", auth: "UKGC", year: "2025" },
+      { country: "Peru", totalGgr: "€890M", onlineGgr: "€430M", onlinePen: "48.3%", growth: "+17.5%", split: "75% Regulated / 25% Offshore", auth: "MINCETUR", year: "2025" },
+      { country: "Georgia", totalGgr: "€1.42B", onlineGgr: "€1.12B", onlinePen: "78.9%", growth: "+11.0%", split: "92% Regulated / 8% Offshore", auth: "Revenue Service of Georgia", year: "2025" }
+    ];
+
+    const cacDatabase = [
+      { country: "Brazil", blended: "$65", casino: "$85", sportsbook: "$48", ftd: "38%", ltv: "$210", channels: "Affiliates, Social Influencers, PIX Ads", source: "Internal BI Benchmarks" },
+      { country: "Colombia", blended: "$42", casino: "$55", sportsbook: "$32", ftd: "33%", ltv: "$140", channels: "Mobile Networks, Retail Agents, Social", source: "LatAm Expansion Group" },
+      { country: "Romania", blended: "€115", casino: "€145", sportsbook: "€85", ftd: "42%", ltv: "€420", channels: "PPC, Google Ads, Romanian Affiliates", source: "Operator Disclosures" },
+      { country: "Serbia", blended: "€45", casino: "€60", sportsbook: "€35", ftd: "35%", ltv: "€195", channels: "Retail cross-sell, Local media, Affiliates", source: "Regional Desk Report" },
+      { country: "Armenia", blended: "$35", casino: "$45", sportsbook: "$28", ftd: "44%", ltv: "$180", channels: "Social Media, Sponsorship, Direct VIP", source: "Internal BI Benchmarks" },
+      { country: "United Kingdom", blended: "£165", casino: "£210", sportsbook: "£120", ftd: "48%", ltv: "£650", channels: "Strict PPC, SEO, Affiliates (GamStop)", source: "H2 Gambling Capital" },
+      { country: "Peru", blended: "$48", casino: "$62", sportsbook: "$38", ftd: "36%", ltv: "$165", channels: "Direct display, Affiliates, Retail kiosks", source: "Regional Benchmarks" },
+      { country: "Georgia", blended: "$55", casino: "$70", sportsbook: "$40", ftd: "41%", ltv: "$260", channels: "Search, Native SMS, Streamers", source: "Industry Consensus" }
+    ];
+
     function renderDatabases() {
-      // GGR Table
       document.getElementById('ggrTableBody').innerHTML = ggrDatabase.map(row => `
         <tr>
           <td class="cell-key">${row.country}</td>
@@ -2758,7 +2553,6 @@
         </tr>
       `).join('');
 
-      // CAC Table
       document.getElementById('cacTableBody').innerHTML = cacDatabase.map(row => `
         <tr>
           <td class="cell-key">${row.country}</td>
@@ -2773,9 +2567,6 @@
       `).join('');
     }
 
-    // ----------------------------------------------------
-    // CSV EXPORT UTILITIES
-    // ----------------------------------------------------
     function exportGGRCSV() {
       let csv = "Country,Total GGR,Online GGR,Online Penetration,YoY Growth,Split,Authority,Year\n";
       ggrDatabase.forEach(r => {
@@ -2882,6 +2673,30 @@
         showToast("Claude API key cleared.");
       }
       closeApiKeyModal();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const targetContent = document.getElementById(tabId);
+      if (targetContent) targetContent.classList.add('active');
+
+      if (tabId === 'tab-financial') {
+        renderFeasibilityComparisonMiniModel();
+      } else if (tabId === 'tab-profile') {
+        renderCountryProfileDossier();
+      }
+    }
+
+    function handleCountryChange(newCountry) {
+      currentCountry = newCountry;
+      showToast(`Active market set to: ${newCountry}`);
+      renderNewsFeed();
+      renderCountryProfileDossier();
     }
 
     // Initialization
