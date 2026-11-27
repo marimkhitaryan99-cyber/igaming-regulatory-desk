@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iGaming Regulatory Desk & Market Entry Intelligence</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.js"></script>
+  <!-- React & ReactDOM -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <!-- Babel -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <style>
+    :root {
+      --brand: #0D5662;
+      --brand-dark: #08373E;
+      --brand-soft: #E5F1F3;
+      --accent: #2563EB;
+      --danger: #B42318;
+      --warn: #B54708;
+      --ok: #027A48;
+    }
+    body {
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 5px;
+      width: 5px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 999px;
+    }
+    .nav-tab-active {
+      border-bottom: 3px solid var(--brand);
+      color: var(--brand);
+      font-weight: 700;
+    }
+    .badge-money { background: #FEF3F2; color: #B42318; border: 1px solid #FECDCA; }
+    .badge-rules { background: #FFFAEB; color: #B54708; border: 1px solid #FEDF89; }
+    .badge-market { background: #EFF8FF; color: #175CD3; border: 1px solid #B2DDFF; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useMemo, useEffect } = React;
+
+    // --- Core Datasets ---
+    const SEED_NEWS = [
+      {
+        id: "n-br-1",
+        country: "Brazil",
+        date: "2026-11-20",
+        title: "SPA Ratifies Technical Architecture & Testing Lab Guidelines",
+        summary: "Secretariat of Prizes and Betting (SPA) mandates primary data servers located in Brazil or certified reciprocal jurisdictions. Integration testing begins for all provisional licensees.",
+        category: "Licensing",
+        flags: ["newlaw", "capital"],
+        flag_note: "BRL 30M (~$5.2M) license fee + BRL 5M bank guarantee confirmed.",
+        source: "SPA / Ministry of Finance Brazil",
+        url: "https://www.gov.br/fazenda/pt-br",
+        verified: true,
+        isNew: true
+      },
+      {
+        id: "n-ro-1",
+        country: "Romania",
+        date: "2026-11-18",
+        title: "Emergency Ordinance Raises Remote Gaming Tax Surcharge to 21% GGR",
+        summary: "Romanian parliament enacts fiscal reform bill raising online gaming tax bracket from 16% to 21% GGR, requiring local bank guarantee of €5,000,000 for Class 1 remote operators.",
+        category: "Taxation",
+        flags: ["tax", "capital"],
+        flag_note: "Tax increases from 16% to 21% GGR from Jan 2027.",
+        source: "ONJN (Oficiul Național pentru Jocuri de Noroc)",
+        url: "https://onjn.gov.ro",
+        verified: true,
+        isNew: true
+      },
+      {
+        id: "n-am-1",
+        country: "Armenia",
+        date: "2026-11-14",
+        title: "SRC Finalizes Digital Telemetry Protocol for Online Gaming Servers",
+        summary: "State Revenue Committee mandates real-time API telemetry for total turnover wagers and automated withholding tax deductions across all active sports betting accounts.",
+        category: "Regulation",
+        flags: ["restriction", "newlaw"],
+        flag_note: "Direct server API telemetry required within 90 days.",
+        source: "State Revenue Committee RA",
+        url: "https://petekamutner.am",
+        verified: true,
+        isNew: false
+      },
+      {
+        id: "n-de-1",
+        country: "Germany",
+        date: "2026-11-10",
+        title: "GGL Opens Consultation on Cross-State Deposit Limit Flexibility",
+        summary: "Glücksspielbehörde reviews LUGAS €1,000 monthly limit exceptions for verified high-net-worth patrons under strict KYC thresholds.",
+        category: "Regulation",
+        flags: ["opening"],
+        flag_note: "Draft consultation open for public review.",
+        source: "Gemeinsame Glücksspielbehörde der Länder",
+        url: "https://gluecksspiel-behoerde.de",
+        verified: true,
+        isNew: false
+      },
+      {
+        id: "n-pe-1",
+        country: "Peru",
+        date: "2026-11-05",
+        title: "MINCETUR Reports Q3 Online GGR Surpasses $95M Post-Regulation",
+        summary: "Remote betting and online igaming market shows 24% YoY growth as 40 international operators secure active authorization certificates.",
+        category: "Market volume",
+        flags: ["entry"],
+        flag_note: "Market volume up 24% YoY.",
+        source: "MINCETUR Peru",
+        url: "https://mincetur.gob.pe",
+        verified: true,
+        isNew: false
+      }
+    ];
+
+    const SEED_PROFILES = {
+      "Brazil": {
+        country: "Brazil",
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local Entity Required" },
+        fields: {
+          population: "215,300,000",
+          total_ggr: "USD 4.80 billion",
+          online_ggr: 3200000000,
+          online_growth: "+28.5%",
+          app_fee: "BRL 30,000,000 (~USD 5.2M)",
+          annual_fee: "Monthly inspection fee up to BRL 1.9M",
+          min_capital: "BRL 30,000,000",
+          bank_guarantee: "BRL 5,000,000",
+          tax_rate: 0.12,
+          tax_label: "12% of GGR",
+          corporate_tax: "34% (IRPJ/CSLL)",
+          upfront_usd: 5200000
+        },
+        glance: [
+          "Federal framework operating under Law 14.790/2023 with high regulatory certainty.",
+          "High upfront capital barrier ($5.2M license fee covers up to 3 commercial domains for 5 years).",
+          "Competitive 12% GGR statutory gaming tax, though indirect PIS/COFINS and corporate taxes add overhead.",
+          "Mandatory Brazilian local corporate vehicle with at least 20% national shareholding participation."
+        ],
+        upcoming: [
+          { item: "Mandatory PIX-only real-time payment settlement protocol", stage: "In Force", expected: "Q1 2027", impact: "High" },
+          { item: "National facial recognition biometrics validation check for active sessions", stage: "Draft", expected: "Q3 2027", impact: "Medium" }
+        ]
+      },
+      "Romania": {
+        country: "Romania",
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "EU Entity Authorized" },
+        fields: {
+          population: "19,050,000",
+          total_ggr: "EUR 1.45 billion",
+          online_ggr: 1050000000,
+          online_growth: "+14.2%",
+          app_fee: "EUR 10,500 application fee",
+          annual_fee: "EUR 300k - EUR 500k based on revenue tiers",
+          min_capital: "EUR 2,000,000 equivalent",
+          bank_guarantee: "EUR 5,000,000 guarantee letter",
+          tax_rate: 0.21,
+          tax_label: "21% of GGR",
+          corporate_tax: "16%",
+          upfront_usd: 5500000
+        },
+        glance: [
+          "Mature, well-regulated market under ONJN Class 1 remote licensing structure.",
+          "Substantial bank guarantee requirement (€5M) increases capitalization threshold.",
+          "Recent fiscal overhaul elevated gaming tax to 21% GGR, dampening margin profile.",
+          "High average player value with steady volume across sports and casino verticals."
+        ],
+        upcoming: [
+          { item: "Centralized National Self-Exclusion Database API integration deadline", stage: "Passed", expected: "Q2 2027", impact: "High" }
+        ]
+      },
+      "Armenia": {
+        country: "Armenia",
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Domestic License Required" },
+        fields: {
+          population: "2,980,000",
+          total_ggr: "USD 540 million",
+          online_ggr: 410000000,
+          online_growth: "+11.0%",
+          app_fee: "AMD 500M (~$1.3M) annual state duty",
+          annual_fee: "State duty + quarterly license charges",
+          min_capital: "AMD 1,000,000,000",
+          bank_guarantee: "AMD 250,000,000",
+          tax_rate: 0.10,
+          tax_label: "10% Margin + 5% Winnings Withholding",
+          corporate_tax: "18%",
+          upfront_usd: 1300000
+        },
+        glance: [
+          "High online penetration (~76% share) led by domestic tier-1 platforms.",
+          "Steep state duty upfront: AMD 500M annual statutory levy.",
+          "Strict marketing restrictions across outdoor, public TV, and digital sponsorships.",
+          "High consumer appetite for dynamic crash games, live casino, and European football."
+        ],
+        upcoming: [
+          { item: "Real-time wagering data pipeline audit with SRC automated server", stage: "In Force", expected: "Q1 2027", impact: "High" }
+        ]
+      }
+    };
+
+    function App() {
+      const [activeTab, setActiveTab] = useState("news");
+      const [newsItems] = useState(SEED_NEWS);
+      const [profiles] = useState(SEED_PROFILES);
+      const [selectedCountry, setSelectedCountry] = useState("Brazil");
+      const [searchQuery, setSearchQuery] = useState("");
+      const [selectedFlag, setSelectedFlag] = useState("All");
+      const [selectedCategory, setSelectedCategory] = useState("All");
+      const [toastMsg, setToastMsg] = useState("");
+
+      // Financial Engine Controls (Compare / M&A / Greenfield)
+      const [entryModel, setEntryModel] = useState("greenfield"); // 'greenfield' | 'm_and_a'
+      const [targetShare, setTargetShare] = useState(2.0); // 2%
+      const [arpu, setArpu] = useState(45); // $45/month
+      const [platformPct, setPlatformPct] = useState(13); // 13% tech provider fee
+      const [marketingOpexPct, setMarketingOpexPct] = useState(28); // 28% marketing & CRM
+      const [staffCount, setStaffCount] = useState(20);
+      const [discountRate, setDiscountRate] = useState(12); // 12% WACC hurdle
+
+      // Attractiveness Scoring Weights
+      const [weights, setWeights] = useState({
+        size: 9,
+        growth: 8,
+        tax: 9,
+        capitalBarrier: 7,
+        stability: 6
+      });
+
+      const copyToClipboard = (text, message) => {
+        navigator.clipboard.writeText(text);
+        setToastMsg(message || "Copied to clipboard!");
+        setTimeout(() => setToastMsg(""), 3500);
+      };
+
+      const filteredNews = useMemo(() => {
+        return newsItems.filter(item => {
+          const matchQuery = !searchQuery || (item.title + item.summary + item.country).toLowerCase().includes(searchQuery.toLowerCase());
+          const matchFlag = selectedFlag === "All" || (item.flags && item.flags.includes(selectedFlag));
+          const matchCat = selectedCategory === "All" || item.category === selectedCategory;
+          return matchQuery && matchFlag && matchCat;
+        });
+      }, [newsItems, searchQuery, selectedFlag, selectedCategory]);
+
+      const activeProfile = profiles[selectedCountry] || profiles["Brazil"];
+
+      return (
+        <div className="min-h-screen">
+          {/* Top Bar */}
+          <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex justify-between items-center h-16">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-xs" style={{ background: "var(--brand)" }}>
+                    RD
+                  </div>
+                  <div>
+                    <h1 className="text-lg font-bold text-gray-900 leading-tight">iGaming Regulatory & Market Entry Portal</h1>
+                    <p className="text-xs text-gray-500 font-medium">Strategic Expansion • M&A Evaluation • Financial Modeling & Intelligence</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
+                    ● Production Live
+                  </span>
+                  <button 
+                    onClick={() => copyToClipboard(window.location.href, "Live portal link copied to clipboard!")}
+                    className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-semibold rounded-md text-gray-700 bg-white hover:bg-gray-50 shadow-xs transition-colors"
+                  >
+                    Share Portal Link 🔗
+                  </button>
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <nav className="flex space-x-6 -mb-px overflow-x-auto custom-scroll">
+                {[
+                  { id: "news", label: "Statutory Bulletins & Flags", count: filteredNews.length },
+                  { id: "profile", label: "Country Dossier", count: null },
+                  { id: "compare", label: "Financial Modeling & Valuation (DCF / NPV)", count: Object.keys(profiles).length },
+                  { id: "timeline", label: "Regulatory Roadmap", count: 3 },
+                  { id: "sources", label: "Data Pipeline & Excel", count: null }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`whitespace-nowrap py-3 px-1 text-sm font-semibold transition-colors flex items-center space-x-2 ${
+                      activeTab === tab.id ? "nav-tab-active" : "text-gray-500 hover:text-gray-800 border-b-2 border-transparent"
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    {tab.count !== null && (
+                      <span className={`px-2 py-0.5 rounded-full text-xs ${activeTab === tab.id ? "bg-teal-100 text-teal-900" : "bg-gray-100 text-gray-600"}`}>
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </header>
+
+          {/* Toast */}
+          {toastMsg && (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+              <div className="bg-gray-900 text-white text-xs sm:text-sm px-4 py-3 rounded-lg shadow-lg flex justify-between items-center">
+                <span>⚡ {toastMsg}</span>
+                <span className="text-gray-400 text-xs">Ready to share</span>
+              </div>
+            </div>
+          )}
+
+          {/* Main Content Area */}
+          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            
+            {/* 1. NEWS & PRIORITY ATTENTION FLAGS */}
+            {activeTab === "news" && (
+              <div className="space-y-6">
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">Priority Regulatory Monitor</h2>
+                    <p className="text-xs sm:text-sm text-gray-600">Continuous statutory monitoring: amendments, tax modifications, capitalization rules, and gazette decrees.</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold uppercase text-gray-400">Alert Priority:</span>
+                    <span className="badge-money text-xs px-2.5 py-1 rounded font-semibold">Fiscal / Tax</span>
+                    <span className="badge-rules text-xs px-2.5 py-1 rounded font-semibold">Statutory Rules</span>
+                    <span className="badge-market text-xs px-2.5 py-1 rounded font-semibold">Market Entry</span>
+                  </div>
+                </div>
+
+                {/* Filters */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs flex flex-wrap gap-3 items-center justify-between">
+                  <div className="flex flex-wrap items-center gap-3 flex-1">
+                    <input
+                      type="text"
+                      placeholder="Search country, rule, keyword..."
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-72 focus:outline-none focus:ring-2 focus:ring-teal-700"
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                    />
+                    <select
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none"
+                      value={selectedFlag}
+                      onChange={e => setSelectedFlag(e.target.value)}
+                    >
+                      <option value="All">All Priority Flags</option>
+                      <option value="tax">Tax Modification</option>
+                      <option value="capital">Capital / Bond</option>
+                      <option value="opening">Market Legalization</option>
+                      <option value="newlaw">New Ordinance / Decree</option>
+                      <option value="restriction">Restrictions / Blocking</option>
+                    </select>
+
+                    <select
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none"
+                      value={selectedCategory}
+                      onChange={e => setSelectedCategory(e.target.value)}
+                    >
+                      <option value="All">All Verticals</option>
+                      <option value="Taxation">Taxation</option>
+                      <option value="Regulation">Regulation</option>
+                      <option value="Licensing">Licensing</option>
+                      <option value="Market volume">Market Volume (GGR)</option>
+                    </select>
+                  </div>
+
+                  {(searchQuery || selectedFlag !== "All" || selectedCategory !== "All") && (
+                    <button
+                      onClick={() => { setSearchQuery(""); setSelectedFlag("All"); setSelectedCategory("All"); }}
+                      className="text-xs font-semibold text-teal-800 hover:underline"
+                    >
+                      Clear Filters
+                    </button>
+                  )}
+                </div>
+
+                {/* News Feed Cards */}
+                <div className="space-y-4">
+                  {filteredNews.map(item => (
+                    <div 
+                      key={item.id}
+                      className={`bg-white rounded-xl border p-5 shadow-xs transition-shadow hover:shadow-md ${
+                        item.isNew ? "border-teal-400 bg-teal-50 bg-opacity-20" : "border-gray-200"
+                      }`}
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-bold text-gray-900 text-xs bg-gray-100 px-2.5 py-0.5 rounded">
+                            {item.country}
+                          </span>
+                          <span className="text-xs text-gray-500 font-medium">{item.date}</span>
+                          <span className="text-xs font-semibold px-2 py-0.5 rounded bg-blue-50 text-blue-700">
+                            {item.category}
+                          </span>
+                          {item.isNew && (
+                            <span className="text-xs font-bold px-2 py-0.5 rounded bg-teal-800 text-white">
+                              New Alert
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          {item.flags && item.flags.map(f => (
+                            <span 
+                              key={f} 
+                              className={`text-xs font-bold px-2 py-0.5 rounded ${
+                                f === "tax" || f === "capital" ? "badge-money" : f === "opening" ? "badge-market" : "badge-rules"
+                              }`}
+                            >
+                              {f === "tax" ? "Tax Impact" : f === "capital" ? "Capital Surcharge" : f === "opening" ? "Legalization" : "Statutory Decree"}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <h3 className="text-base font-bold text-gray-900 mb-1 leading-snug">{item.title}</h3>
+                      
+                      {item.flag_note && (
+                        <div className="text-xs font-semibold text-red-800 bg-red-50 border-l-4 border-red-600 px-3 py-1.5 my-2 rounded-r">
+                          ⚠️ Executive Alert: {item.flag_note}
+                        </div>
+                      )}
+
+                      <p className="text-sm text-gray-700 mb-3 leading-relaxed">{item.summary}</p>
+
+                      <div className="flex flex-wrap items-center justify-between pt-3 border-t border-gray-100 text-xs text-gray-500 gap-2">
+                        <span>Source: <strong className="text-gray-700">{item.source}</strong> (Verified Link ✓)</span>
+                        <div className="flex items-center space-x-3">
+                          <a 
+                            href={item.url} 
+                            target="_blank" 
+                            rel="noreferrer"
+                            className="font-bold text-teal-800 hover:text-teal-950"
+                          >
+                            Official Gazette ↗
+                          </a>
+                          <button
+                            onClick={() => copyToClipboard(
+                              `[${item.country}] ${item.title} | ${item.source} (${item.date}): ${item.summary} URL: ${item.url}`,
+                              `Copied "${item.title.substring(0, 35)}..." for Excel hand-off`
+                            )}
+                            className="px-2.5 py-1 bg-white border border-gray-300 rounded font-semibold text-gray-700 hover:bg-gray-50 shadow-xs"
+                          >
+                            Copy for Excel
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 2. COUNTRY DOSSIER */}
+            {activeTab === "profile" && (
+              <div className="space-y-6">
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs flex flex-wrap justify-between items-center gap-4">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-sm font-bold text-gray-700">Select Market:</span>
+                    <select
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-base font-bold bg-white text-gray-900 focus:ring-2 focus:ring-teal-700"
+                      value={selectedCountry}
+                      onChange={e => setSelectedCountry(e.target.value)}
+                    >
+                      {Object.keys(profiles).map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button
+                    onClick={() => window.print()}
+                    className="px-4 py-2 bg-teal-800 text-white rounded-lg text-sm font-bold hover:bg-teal-900 shadow-xs flex items-center space-x-2"
+                  >
+                    <span>Print Country Dossier</span> 🖨️
+                  </button>
+                </div>
+
+                <div className="bg-white rounded-xl border border-gray-200 shadow-xs p-6 sm:p-8 space-y-8">
+                  {/* Title */}
+                  <div className="border-b border-gray-200 pb-6 flex flex-wrap justify-between items-start gap-4">
+                    <div>
+                      <span className="text-xs font-bold uppercase tracking-wider text-teal-800">Sovereign iGaming Statutory Assessment</span>
+                      <h2 className="text-3xl font-black text-gray-900 mt-1">{activeProfile.country}</h2>
+                      <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Audited statutory parameters for market entry & licensing.</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full sm:w-auto text-center">
+                      <div className="bg-green-50 p-2.5 rounded-lg border border-green-200">
+                        <span className="block text-xs uppercase font-bold text-green-700">Reg. Status</span>
+                        <span className="text-sm font-black text-green-900">{activeProfile.status.status}</span>
+                      </div>
+                      <div className="bg-blue-50 p-2.5 rounded-lg border border-blue-200">
+                        <span className="block text-xs uppercase font-bold text-blue-700">Online Casino</span>
+                        <span className="text-sm font-black text-blue-900">{activeProfile.status.casino}</span>
+                      </div>
+                      <div className="bg-indigo-50 p-2.5 rounded-lg border border-indigo-200">
+                        <span className="block text-xs uppercase font-bold text-indigo-700">Sports Betting</span>
+                        <span className="text-sm font-black text-indigo-900">{activeProfile.status.sports}</span>
+                      </div>
+                      <div className="bg-yellow-50 p-2.5 rounded-lg border border-yellow-200">
+                        <span className="block text-xs uppercase font-bold text-yellow-700">Foreign Access</span>
+                        <span className="text-sm font-black text-yellow-900">{activeProfile.status.foreign}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Glance */}
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Executive Summary & Entry Barriers</h3>
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                      <ul className="space-y-2">
+                        {activeProfile.glance.map((b, idx) => (
+                          <li key={idx} className="flex items-start text-sm text-gray-800 font-medium">
+                            <span className="text-teal-700 mr-2 font-bold">•</span>
+                            <span>{b}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Tables */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Market Dynamics & Demographics</h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full text-left text-sm divide-y divide-gray-200">
+                          <tbody className="divide-y divide-gray-200">
+                            {[
+                              ["Population", activeProfile.fields.population],
+                              ["Total Gambling GGR", activeProfile.fields.total_ggr],
+                              ["Online Gambling GGR", "$" + (activeProfile.fields.online_ggr / 1e6).toFixed(0) + "M"],
+                              ["Online Growth (YoY)", activeProfile.fields.online_growth]
+                            ].map(([k, v], i) => (
+                              <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                <td className="p-3 font-semibold text-gray-600 w-1/2">{k}</td>
+                                <td className="p-3 font-bold text-gray-900">{v}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500">Fiscal & Licensing Structure</h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden">
+                        <table className="w-full text-left text-sm divide-y divide-gray-200">
+                          <tbody className="divide-y divide-gray-200">
+                            {[
+                              ["Initial License Surcharge", activeProfile.fields.app_fee],
+                              ["Annual Maintenance Fee", activeProfile.fields.annual_fee],
+                              ["Statutory Gaming Tax", activeProfile.fields.tax_label],
+                              ["Bank Guarantee / Bond", activeProfile.fields.bank_guarantee],
+                              ["Corporate Income Tax", activeProfile.fields.corporate_tax]
+                            ].map(([k, v], i) => (
+                              <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                <td className="p-3 font-semibold text-gray-600 w-1/2">{k}</td>
+                                <td className="p-3 font-bold text-gray-900">{v}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upcoming Laws */}
+                  <div>
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Legislative Pipeline</h4>
+                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                      <table className="w-full text-left text-sm divide-y divide-gray-200">
+                        <thead className="bg-gray-50 text-xs uppercase font-bold text-gray-600">
+                          <tr>
+                            <th className="p-3">Pending Rule / Bill</th>
+                            <th className="p-3">Stage</th>
+                            <th className="p-3">Expected Date</th>
+                            <th className="p-3">Impact</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {activeProfile.upcoming.map((u, i) => (
+                            <tr key={i}>
+                              <td className="p-3 font-bold text-gray-900">{u.item}</td>
+                              <td className="p-3 text-gray-600 font-semibold">{u.stage}</td>
+                              <td className="p-3 text-gray-600">{u.expected}</td>
+                              <td className="p-3">
+                                <span className={`px-2 py-0.5 rounded text-xs font-black ${
+                                  u.impact === "High" ? "bg-red-100 text-red-800" : "bg-yellow-100 text-yellow-800"
+                                }`}>
+                                  {u.impact}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. FINANCIAL MODELING & VALUATION (DCF / NPV / PAYBACK / SCENARIOS) */}
+            {activeTab === "compare" && (
+              <div className="space-y-8">
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs flex flex-wrap justify-between items-center gap-4">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">Multi-Market Expansion Screening & DCF Financial Engine</h2>
+                    <p className="text-xs sm:text-sm text-gray-600">Model entry economics across Greenfield licensing vs. Local M&A Acquisition with ROI, NPV, and payback periods.</p>
+                  </div>
+
+                  {/* Model Toggle */}
+                  <div className="flex items-center bg-gray-100 p-1 rounded-lg border border-gray-300">
+                    <button
+                      onClick={() => setEntryModel("greenfield")}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                        entryModel === "greenfield" ? "bg-white text-teal-900 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      🌱 Greenfield Build
+                    </button>
+                    <button
+                      onClick={() => setEntryModel("m_and_a")}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${
+                        entryModel === "m_and_a" ? "bg-white text-teal-900 shadow-xs" : "text-gray-600 hover:text-gray-900"
+                      }`}
+                    >
+                      🤝 Local M&A Buyout
+                    </button>
+                  </div>
+                </div>
+
+                {/* Model Input Sandbox */}
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-xs space-y-4">
+                  <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-teal-900">
+                      {entryModel === "greenfield" ? "Greenfield Scenario Assumptions" : "M&A Acquisition Assumptions"}
+                    </h3>
+                    <span className="text-xs text-gray-500 font-medium">All financial calculations execute in real-time</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">Target Market Share</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          step="0.5"
+                          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm font-bold"
+                          value={targetShare}
+                          onChange={e => setTargetShare(parseFloat(e.target.value) || 0)}
+                        />
+                        <span className="absolute right-2 top-2 text-xs font-bold text-gray-400">%</span>
+                      </div>
+                      <span className="text-xxs text-gray-400 mt-0.5 block">% of Total Online GGR</span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">Monthly Player ARPU</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm font-bold"
+                          value={arpu}
+                          onChange={e => setArpu(parseFloat(e.target.value) || 0)}
+                        />
+                        <span className="absolute right-2 top-2 text-xs font-bold text-gray-400">$</span>
+                      </div>
+                      <span className="text-xxs text-gray-400 mt-0.5 block">GGR / active player / mo</span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">Platform Tech Royalty</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm font-bold"
+                          value={platformPct}
+                          onChange={e => setPlatformPct(parseFloat(e.target.value) || 0)}
+                        />
+                        <span className="absolute right-2 top-2 text-xs font-bold text-gray-400">%</span>
+                      </div>
+                      <span className="text-xxs text-gray-400 mt-0.5 block">% of GGR to Software</span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">Marketing & CPA Opex</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm font-bold"
+                          value={marketingOpexPct}
+                          onChange={e => setMarketingOpexPct(parseFloat(e.target.value) || 0)}
+                        />
+                        <span className="absolute right-2 top-2 text-xs font-bold text-gray-400">%</span>
+                      </div>
+                      <span className="text-xxs text-gray-400 mt-0.5 block">Player acquisition budget</span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">Local Headcount (FTE)</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm font-bold"
+                        value={staffCount}
+                        onChange={e => setStaffCount(parseInt(e.target.value) || 0)}
+                      />
+                      <span className="text-xxs text-gray-400 mt-0.5 block">Ops & compliance team</span>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1">WACC Discount Rate</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          className="w-full border border-gray-300 rounded px-2.5 py-1.5 text-sm font-bold"
+                          value={discountRate}
+                          onChange={e => setDiscountRate(parseFloat(e.target.value) || 0)}
+                        />
+                        <span className="absolute right-2 top-2 text-xs font-bold text-gray-400">%</span>
+                      </div>
+                      <span className="text-xxs text-gray-400 mt-0.5 block">Hurdle rate for NPV</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Output Table */}
+                <div className="bg-white rounded-xl border border-gray-200 shadow-xs overflow-hidden">
+                  <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-sm">3-Year Investment Feasibility & Returns Analysis (USD)</h3>
+                      <p className="text-xs text-gray-500">
+                        {entryModel === "greenfield" 
+                          ? "Includes upfront sovereign license fee and regulatory bond as Year 0 Capex." 
+                          : "Assumes M&A purchase price at 4.5x Year 1 Projected EBITDA with existing license in place."}
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-1 rounded">
+                      Model: {entryModel === "greenfield" ? "Greenfield Expansion" : "M&A Buyout (4.5x EBITDA)"}
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm border-collapse">
+                      <thead className="bg-gray-100 text-xs font-bold text-gray-700 uppercase">
+                        <tr>
+                          <th className="p-3">Target Country</th>
+                          <th className="p-3">Online Market</th>
+                          <th className="p-3">Proj. Annual GGR</th>
+                          <th className="p-3">Gaming Tax</th>
+                          <th className="p-3">Annual EBITDA</th>
+                          <th className="p-3">Initial Outlay</th>
+                          <th className="p-3">Payback Period</th>
+                          <th className="p-3">3-Yr NPV (12%)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {Object.keys(profiles).map(countryKey => {
+                          const prof = profiles[countryKey];
+                          const mktGgr = prof.fields.online_ggr;
+                          const projGgr = mktGgr * (targetShare / 100);
+                          const gamingTax = projGgr * prof.fields.tax_rate;
+                          const techRoyalty = projGgr * (platformPct / 100);
+                          const marketing = projGgr * (marketingOpexPct / 100);
+                          const staffOpex = staffCount * 45000; // estimated blended $45k/FTE annual
+                          const annualEbitda = projGgr - (gamingTax + techRoyalty + marketing + staffOpex);
+
+                          // Year 0 Capex
+                          const initialOutlay = entryModel === "greenfield" 
+                            ? prof.fields.upfront_usd 
+                            : Math.max(0, annualEbitda * 4.5);
+
+                          const payback = annualEbitda > 0 
+                            ? (initialOutlay / annualEbitda).toFixed(1) + " yrs" 
+                            : "Negative";
+
+                          // 3-Year DCF NPV calculation:
+                          // NPV = -Outlay + CF1/(1+r) + CF2/(1+r)^2 + CF3/(1+r)^3
+                          const r = discountRate / 100;
+                          const cf1 = annualEbitda * 0.8; // ramp-up year 1
+                          const cf2 = annualEbitda * 1.0; // year 2
+                          const cf3 = annualEbitda * 1.15; // year 3 maturity
+                          const npv = -initialOutlay + (cf1 / (1 + r)) + (cf2 / Math.pow(1 + r, 2)) + (cf3 / Math.pow(1 + r, 3));
+
+                          return (
+                            <tr key={countryKey} className="hover:bg-gray-50">
+                              <td className="p-3 font-bold text-gray-900">{prof.country}</td>
+                              <td className="p-3 font-medium text-gray-600">${(mktGgr / 1e6).toFixed(0)}M</td>
+                              <td className="p-3 font-bold text-teal-800">${(projGgr / 1e6).toFixed(2)}M</td>
+                              <td className="p-3 font-semibold text-red-700">
+                                ${(gamingTax / 1e6).toFixed(2)}M ({(prof.fields.tax_rate * 100).toFixed(0)}%)
+                              </td>
+                              <td className={`p-3 font-black ${annualEbitda > 0 ? "text-green-700" : "text-red-700"}`}>
+                                ${(annualEbitda / 1e6).toFixed(2)}M
+                              </td>
+                              <td className="p-3 font-bold text-gray-800">
+                                ${(initialOutlay / 1e6).toFixed(2)}M
+                              </td>
+                              <td className="p-3 font-bold">
+                                {payback === "Negative" ? (
+                                  <span className="text-red-600">Unprofitable</span>
+                                ) : (
+                                  <span className="text-teal-900">{payback}</span>
+                                )}
+                              </td>
+                              <td className="p-3 font-black">
+                                <span className={npv >= 0 ? "text-green-700" : "text-red-700"}>
+                                  ${(npv / 1e6).toFixed(2)}M
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Multi-Factor Attractiveness Matrix */}
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-xs space-y-4">
+                  <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-teal-900">Multi-Factor Market Attractiveness Index</h3>
+                    <span className="text-xs text-gray-500 font-medium">Adjust variable weights to simulate strategic priorities</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    {Object.keys(weights).map(w => (
+                      <div key={w} className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-gray-700 uppercase">
+                          <span>{w}</span>
+                          <span>{weights[w]}/10</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          value={weights[w]}
+                          onChange={e => setWeights({ ...weights, [w]: parseInt(e.target.value) })}
+                          className="w-full accent-teal-700"
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Ranked Output */}
+                  <div className="space-y-3 pt-2">
+                    {[
+                      { country: "Brazil", score: 86, tag: "Top Greenfield Opportunity", note: "Rapid online GGR ramp-up ($3.2B runway) and low 12% GGR gaming tax offset initial $5.2M barrier." },
+                      { country: "Romania", score: 72, tag: "Mature Cash-Flow Market", note: "Predictable consumer base, though recent 21% GGR tax rate and €5M bank bond pinch Year 1-2 margins." },
+                      { country: "Armenia", score: 70, tag: "High Margin, High Concentration", note: "High online share (~76%) with strong player demand, offset by saturated tier-1 domestic operator positions." }
+                    ].map((row, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg">
+                        <div className="space-y-1">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-base font-black text-gray-900">#{i + 1} {row.country}</span>
+                            <span className="px-2 py-0.5 rounded text-xs font-bold bg-teal-100 text-teal-900">
+                              Index: {row.score} / 100
+                            </span>
+                            <span className="px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">
+                              {row.tag}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-600">{row.note}</p>
+                        </div>
+                        <div className="w-32 bg-gray-100 h-2.5 rounded-full overflow-hidden hidden sm:block">
+                          <div className="bg-teal-800 h-full rounded-full" style={{ width: `${row.score}%` }}></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. REGULATORY TIMELINE */}
+            {activeTab === "timeline" && (
+              <div className="space-y-6">
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+                  <h2 className="text-lg font-bold text-gray-900">Global Regulatory Implementation Roadmap</h2>
+                  <p className="text-xs sm:text-sm text-gray-600">Upcoming statutory enforcements, technical audit cutoffs, and regulatory transition gates.</p>
+                </div>
+
+                <div className="relative border-l-2 border-teal-800 ml-4 pl-6 space-y-8 my-8">
+                  {[
+                    {
+                      date: "Q1 2027",
+                      country: "Armenia",
+                      title: "Mandatory Real-Time SRC Telemetry API Live Enforcement",
+                      desc: "Remote operators must stream live bet transaction tickets and customer hashed IDs directly to the State Revenue Committee central audit node.",
+                      impact: "High Impact"
+                    },
+                    {
+                      date: "Q2 2027",
+                      country: "Romania",
+                      title: "Class 1 Licensee National Responsible Gaming Central Gateway Integration",
+                      desc: "Mandatory API cross-checks against the national self-exclusion registry prior to depositing or wager placement.",
+                      impact: "High Impact"
+                    },
+                    {
+                      date: "Q3 2027",
+                      country: "Brazil",
+                      title: "Biometric Liveness & Facial Recognition Protocol Deadline",
+                      desc: "SPA mandates verified biometric liveness checks on account creation and high-tier withdrawal transactions.",
+                      impact: "Medium Impact"
+                    }
+                  ].map((event, i) => (
+                    <div key={i} className="relative">
+                      <div className="absolute -left-9 top-1.5 w-6 h-6 rounded-full bg-teal-800 border-4 border-white shadow-sm flex items-center justify-center"></div>
+                      <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-xs">
+                        <div className="flex flex-wrap justify-between items-center mb-1">
+                          <span className="text-xs font-black text-teal-800 uppercase tracking-wider">{event.date} • {event.country}</span>
+                          <span className="text-xs font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">{event.impact}</span>
+                        </div>
+                        <h3 className="text-base font-bold text-gray-900">{event.title}</h3>
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">{event.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 5. DATA PIPELINE & EXCEL */}
+            {activeTab === "sources" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-xs space-y-4">
+                  <h3 className="text-base font-bold text-gray-900">OneDrive / SharePoint Master Workbook Link</h3>
+                  <p className="text-xs text-gray-600 leading-relaxed">
+                    Direct integration link to your central market analysis workbook. Used for automated synchronization with Claude in Excel.
+                  </p>
+                  <input
+                    type="text"
+                    readOnly
+                    className="w-full bg-gray-50 border border-gray-300 rounded-lg p-2.5 text-xs font-mono text-gray-700"
+                    value="https://digitainllc-my.sharepoint.com/.../New%20Market%20List-%20FINAL%20(last%20updated%2012.11.2026).xlsx"
+                  />
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => copyToClipboard(
+                        "https://digitainllc-my.sharepoint.com/.../New%20Market%20List-%20FINAL%20(last%20updated%2012.11.2026).xlsx",
+                        "SharePoint workbook link copied!"
+                      )}
+                      className="px-4 py-2 bg-teal-800 text-white rounded-lg text-xs font-bold hover:bg-teal-900 shadow-xs"
+                    >
+                      Copy SharePoint Link
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-xs space-y-4">
+                  <h3 className="text-base font-bold text-gray-900">Active Intelligence Feed Subscriptions</h3>
+                  <div className="space-y-2">
+                    {[
+                      { name: "SBC Americas & SBC News", type: "RSS / Industry Press", active: true },
+                      { name: "iGaming Business (iGB)", type: "Regulatory Gazette Digest", active: true },
+                      { name: "VIXIO GamblingCompliance", type: "Statutory Law Crawler", active: true },
+                      { name: "@GamingRegWatch Telegram", type: "Public Channel Preview", active: true }
+                    ].map((feed, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs font-semibold">
+                        <span>{feed.name} ({feed.type})</span>
+                        <span className="text-green-700 font-bold">✓ Active</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </main>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById("root"));
+  </script>
+</body>
+</html>
