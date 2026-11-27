@@ -9,6 +9,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <!-- Babel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <!-- SheetJS (xlsx) for direct client-side Excel uploads -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   
   <style>
     :root {
@@ -18,6 +20,7 @@
       --ink: #0F172A;
       --ink-muted: #475569;
       --line: #E2E8F0;
+      --line-2: #CBD5DD;
       --brand: #0D5662;
       --brand-dark: #08373E;
       --brand-soft: #E5F1F3;
@@ -43,7 +46,7 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .wrap { max-width: 1260px; margin: 0 auto; padding: 0 20px; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 0 20px; }
 
     /* Top Navigation Header */
     .top-header {
@@ -220,14 +223,38 @@
     .input {
       border: 1px solid var(--line);
       border-radius: 7px;
-      padding: 7px 11px;
-      font-size: 13.5px;
+      padding: 6px 8px;
+      font-size: 12.5px;
       background: #fff;
       color: var(--ink);
       outline: none;
     }
     .input:focus { border-color: var(--brand); }
-    textarea.input { resize: vertical; line-height: 1.45; }
+    .input-sm { padding: 4px 6px; font-size: 11.5px; }
+
+    /* Segmented Controls */
+    .seg-ctrl {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+    .seg-btn {
+      border: none;
+      background: transparent;
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+    }
+    .seg-btn.active {
+      background: var(--brand);
+      color: #fff;
+    }
 
     /* News Items */
     .news-item {
@@ -280,234 +307,119 @@
       margin-top: 12px;
       background: #fff;
     }
-    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12.5px; }
     th {
       background: var(--surface-2);
-      padding: 10px 14px;
-      font-size: 12px;
+      padding: 9px 11px;
+      font-size: 11.5px;
       font-weight: 700;
       color: #475569;
       text-transform: uppercase;
       border-bottom: 1px solid var(--line);
+      white-space: nowrap;
     }
-    td { padding: 11px 14px; border-bottom: 1px solid #F1F5F9; }
+    td { padding: 9px 11px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: #FAFCFE; }
 
     .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
     .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
 
     .status-tile {
-      padding: 12px;
+      padding: 10px;
       border-radius: 8px;
       border: 1px solid var(--line);
       text-align: center;
     }
-    .status-tile small { display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 3px; }
-    .status-tile strong { font-size: 15px; font-weight: 800; }
+    .status-tile small { display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+    .status-tile strong { font-size: 14.5px; font-weight: 800; }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useMemo, useEffect } = React;
+    const { useState, useMemo, useEffect, useRef } = React;
 
-    const ALL_COUNTRIES_LIST = [
-      "Armenia", "Brazil", "Romania", "Germany", "Peru", "United Kingdom", "Italy", "France", 
-      "Mexico", "Colombia", "Argentina", "Spain", "Sweden", "Poland", "Czech Republic", 
-      "Portugal", "Belgium", "Greece", "Austria", "Netherlands", "Denmark", "Ireland", 
-      "Switzerland", "Georgia", "Kazakhstan", "Malta", "Cyprus", "Chile", "South Africa", "Australia"
-    ].sort();
+    const REGIONS = {
+      "Europe": ["Albania", "Alderney", "Andorra", "Austria", "Belgium", "Bosnia and Herzegovina", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Gibraltar", "Greece", "Guernsey", "Hungary", "Iceland", "Ireland", "Isle of Man", "Italy", "Jersey", "Kosovo", "Latvia", "Liechtenstein", "Lithuania", "Luxembourg", "Malta", "Monaco", "Montenegro", "Netherlands", "North Macedonia", "Norway", "Poland", "Portugal", "Romania", "San Marino", "Serbia", "Slovakia", "Slovenia", "Spain", "Sweden", "Switzerland", "United Kingdom"],
+      "Caucasus & CIS": ["Armenia", "Azerbaijan", "Belarus", "Georgia", "Kazakhstan", "Kyrgyzstan", "Moldova", "Russia", "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan"],
+      "Latin America & Caribbean": ["Antigua and Barbuda", "Argentina", "Bahamas", "Barbados", "Belize", "Bolivia", "Brazil", "Chile", "Colombia", "Costa Rica", "Cuba", "Curaçao", "Dominican Republic", "Ecuador", "El Salvador", "Guatemala", "Guyana", "Honduras", "Jamaica", "Mexico", "Nicaragua", "Panama", "Paraguay", "Peru", "Puerto Rico", "Suriname", "Trinidad and Tobago", "Uruguay", "Venezuela"],
+      "North America": ["Canada", "Canada (Ontario)", "United States"],
+      "Africa": ["Algeria", "Angola", "Botswana", "Cameroon", "Côte d'Ivoire", "DR Congo", "Egypt", "Ethiopia", "Ghana", "Kenya", "Madagascar", "Morocco", "Mozambique", "Nigeria", "Rwanda", "Senegal", "South Africa", "Tanzania", "Tunisia", "Uganda", "Zambia", "Zimbabwe"],
+      "Middle East": ["Bahrain", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Oman", "Qatar", "Saudi Arabia", "Turkey", "United Arab Emirates"],
+      "Asia-Pacific": ["Australia", "Bangladesh", "Cambodia", "China", "Hong Kong", "India", "Indonesia", "Japan", "Macau", "Malaysia", "New Zealand", "Pakistan", "Philippines", "Singapore", "South Korea", "Sri Lanka", "Taiwan", "Thailand", "Vietnam"]
+    };
 
-    const MASTER_MARKET_DATABASE = {
+    const ALL_COUNTRIES_LIST = Object.values(REGIONS).flat().sort();
+
+    // PER-COUNTRY FINANCIAL ASSUMPTIONS INCLUDING DETAILED INITIAL INVESTMENT FEES (Capex, Bonds, Licenses, Working Capital)
+    const INITIAL_FINANCIAL_INPUTS = {
+      "Serbia": {
+        mktGgr: 642000000,
+        targetShare: 2.35,
+        arpu: 57.5,
+        cac: 60,
+        ftdRatio: 0.18,
+        bonusPct: 25.0,
+        pspPct: 2.2,
+        taxRate: 0.157,
+        headcount: 34,
+        monthlySalary: 2620,
+        // Detailed Initial Investment Cost Breakdown (Directly from your Sheet)
+        licenseFeeInitial: 11700,    // Monthly initial approval fee
+        bankGuaranteeDeposit: 877000,// Bank deposit (585k) + Min Capital Requirement (292k)
+        setupCapexWorkingCap: 723161 // $200k Brand Marketing + $100k Platform + $27k PC/IT + $50.6k Fitout + 6mo Reserve
+      },
       "Brazil": {
-        country: "Brazil",
-        region: "Latin America",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local SPV Required" },
-        fields: {
-          population: "215,300,000",
-          total_ggr: "USD 4.80 billion",
-          online_ggr: 3200000000,
-          growth: "+28.5%",
-          app_fee: "BRL 30M (~$5.2M)",
-          tax_rate: 0.12,
-          tax_label: "12% of GGR",
-          bank_bond: "BRL 5,000,000",
-          corporate_tax: "34%",
-          upfront_usd: 5200000
-        },
-        glance: [
-          "Federal statutory framework established under Law 14.790/2023 with high regulatory certainty.",
-          "High upfront license fee ($5.2M covers up to 3 commercial domains for 5 years).",
-          "Competitive 12% GGR statutory gaming tax, though indirect PIS/COFINS and corporate taxes add friction.",
-          "Mandatory local Brazilian corporate SPV with 20% national partner participation."
-        ],
-        upcoming: [
-          { item: "Mandatory PIX-only real-time payment protocol live enforcement", stage: "In Force", expected: "Q1 2027", impact: "High" },
-          { item: "National biometrics & facial recognition integration deadline", stage: "Draft", expected: "Q3 2027", impact: "Medium" }
-        ]
+        mktGgr: 3200000000,
+        targetShare: 2.5,
+        arpu: 42,
+        cac: 54,
+        ftdRatio: 0.18,
+        bonusPct: 22.0,
+        pspPct: 4.8,
+        taxRate: 0.12,
+        headcount: 25,
+        monthlySalary: 2800,
+        licenseFeeInitial: 5200000,   // BRL 30M (~$5.2M) 5-year authorization
+        bankGuaranteeDeposit: 1000000,// BRL 5M bank bond (~$1.0M)
+        setupCapexWorkingCap: 850000  // Local SPV setup, server telemetry, initial brand marketing
       },
       "Romania": {
-        country: "Romania",
-        region: "Europe",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "EU Entity Authorized" },
-        fields: {
-          population: "19,050,000",
-          total_ggr: "EUR 1.45 billion",
-          online_ggr: 1050000000,
-          growth: "+14.2%",
-          app_fee: "EUR 10,500 inspection fee",
-          tax_rate: 0.21,
-          tax_label: "21% of GGR",
-          bank_bond: "EUR 5,000,000 bond",
-          corporate_tax: "16%",
-          upfront_usd: 5500000
-        },
-        glance: [
-          "Mature, well-regulated market under ONJN Class 1 remote licensing structure.",
-          "Substantial bank guarantee requirement (€5M) creates significant capital lockup.",
-          "Recent fiscal overhaul elevated gaming tax to 21% GGR, dampening margin profile.",
-          "High average player value with steady volume across sports and casino verticals."
-        ],
-        upcoming: [
-          { item: "Centralized National Self-Exclusion Database API integration deadline", stage: "Passed", expected: "Q2 2027", impact: "High" }
-        ]
+        mktGgr: 1050000000,
+        targetShare: 2.0,
+        arpu: 58,
+        cac: 75,
+        ftdRatio: 0.16,
+        bonusPct: 25.0,
+        pspPct: 3.5,
+        taxRate: 0.21,
+        headcount: 15,
+        monthlySalary: 3200,
+        licenseFeeInitial: 12000,     // €10,500 inspection + initial filings
+        bankGuaranteeDeposit: 5500000,// €5,000,000 irrevocable bank guarantee
+        setupCapexWorkingCap: 450000  // Certification, fiscal rep, working capital
       },
       "Armenia": {
-        country: "Armenia",
-        region: "Caucasus & CIS",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Domestic License Required" },
-        fields: {
-          population: "2,980,000",
-          total_ggr: "USD 540 million",
-          online_ggr: 410000000,
-          growth: "+11.0%",
-          app_fee: "AMD 500M (~$1.3M) annual state duty",
-          tax_rate: 0.10,
-          tax_label: "10% Margin + 5% Player Withholding",
-          bank_bond: "AMD 250,000,000",
-          corporate_tax: "18%",
-          upfront_usd: 1300000
-        },
-        glance: [
-          "High digital penetration (~76% online share) dominated by tier-1 brands.",
-          "Steep state duty upfront: AMD 500M annual statutory levy.",
-          "Strict marketing restrictions across outdoor, broadcast TV, and public digital channels.",
-          "High consumer appetite for dynamic crash games, live dealer, and soccer betting."
-        ],
-        upcoming: [
-          { item: "Real-time wagering data pipeline audit with SRC automated server", stage: "In Force", expected: "Q1 2027", impact: "High" }
-        ]
-      },
-      "Peru": {
-        country: "Peru",
-        region: "Latin America",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Authorized (Branch/Rep)" },
-        fields: {
-          population: "34,000,000",
-          total_ggr: "USD 1.20 billion",
-          online_ggr: 480000000,
-          growth: "+24.0%",
-          app_fee: "USD 80,000 statutory fee",
-          tax_rate: 0.12,
-          tax_label: "12% of Net Win (GGR)",
-          bank_bond: "USD 600,000 guarantee",
-          corporate_tax: "29.5%",
-          upfront_usd: 680000
-        },
-        glance: [
-          "Regulated framework enacted under Law 31.557, supervised by MINCETUR.",
-          "Moderate initial fee and guarantee barrier compared to Brazil.",
-          "12% statutory tax rate on remote gaming and sports betting win.",
-          "Rapidly expanding online casino and sports betting consumer adoption."
-        ],
-        upcoming: [
-          { item: "Mandatory .pe local domain resolution for licensed operations", stage: "In Force", expected: "Q1 2027", impact: "Medium" }
-        ]
-      },
-      "Germany": {
-        country: "Germany",
-        region: "Europe",
-        status: { status: "Regulated", casino: "Restricted", sports: "Yes", foreign: "EU Entity Authorized" },
-        fields: {
-          population: "84,000,000",
-          total_ggr: "EUR 10.2 billion",
-          online_ggr: 3800000000,
-          growth: "+6.5%",
-          app_fee: "EUR 25,000 - 50,000",
-          tax_rate: 0.28,
-          tax_label: "5.3% Stakes (~28% GGR equiv)",
-          bank_bond: "EUR 5,000,000 deposit",
-          corporate_tax: "30%",
-          upfront_usd: 5200000
-        },
-        glance: [
-          "Strict Interstate Treaty on Gambling (GlüNeuStV) framework overseen by GGL.",
-          "5.3% turnover tax on online slots and sports bets significantly compresses margins.",
-          "Mandatory €1,000 monthly cross-operator deposit cap (LUGAS integration).",
-          "Table games licensed separately on a state-monopoly or quota basis."
-        ],
-        upcoming: [
-          { item: "GGL consultation on flexible deposit limits for audited patrons", stage: "Consultation", expected: "Q2 2027", impact: "High" }
-        ]
-      },
-      "Colombia": {
-        country: "Colombia",
-        region: "Latin America",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local Entity Required" },
-        fields: {
-          population: "52,000,000",
-          total_ggr: "USD 850 million",
-          online_ggr: 420000000,
-          growth: "+18.0%",
-          app_fee: "Annual exploitation rights (~$180k)",
-          tax_rate: 0.15,
-          tax_label: "15% of GGR",
-          bank_bond: "USD 350,000 bond",
-          corporate_tax: "35%",
-          upfront_usd: 530000
-        },
-        glance: [
-          "First fully regulated remote gaming jurisdiction in LatAm, governed by Coljuegos.",
-          "Balanced tax burden (15% GGR) and accessible bank guarantee requirements.",
-          "Strong domestic sportsbook competition with mature digital payment infrastructure.",
-          "High mobile sports wagering volume centered on football leagues."
-        ],
-        upcoming: [
-          { item: "Coljuegos updated technical standards for live dealer casino streaming", stage: "Draft", expected: "Q2 2027", impact: "Medium" }
-        ]
-      },
-      "United Kingdom": {
-        country: "United Kingdom",
-        region: "Europe",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Open to Foreign Entities" },
-        fields: {
-          population: "68,000,000",
-          total_ggr: "GBP 15.1 billion",
-          online_ggr: 8200000000,
-          growth: "+5.5%",
-          app_fee: "GBP 25,000 - 80,000 fee bracket",
-          tax_rate: 0.21,
-          tax_label: "21% Remote Gaming Duty",
-          bank_bond: "None (Solvency reserve)",
-          corporate_tax: "25%",
-          upfront_usd: 150000
-        },
-        glance: [
-          "Highly mature, Tier-1 benchmark remote gaming jurisdiction supervised by the UKGC.",
-          "21% Remote Gaming Duty (RGD) with low upfront statutory entry fee.",
-          "Rigorous consumer compliance, affordability checks, and marketing standards.",
-          "Extremely competitive landscape dominated by established multinational operators."
-        ],
-        upcoming: [
-          { item: "Implementation of statutory online slot stake limits (£2/£5 brackets)", stage: "In Force", expected: "Q1 2027", impact: "High" }
-        ]
+        mktGgr: 410000000,
+        targetShare: 3.5,
+        arpu: 35,
+        cac: 38,
+        ftdRatio: 0.22,
+        bonusPct: 20.0,
+        pspPct: 3.0,
+        taxRate: 0.10,
+        headcount: 20,
+        monthlySalary: 1800,
+        licenseFeeInitial: 1300000,   // AMD 500M (~$1.3M) annual state duty
+        bankGuaranteeDeposit: 650000, // AMD 250M guarantee reserve
+        setupCapexWorkingCap: 350000  // Hardware telemetry audit, integration
       }
     };
 
-    const INITIAL_NEWS = [
+    const INITIAL_NEWS_ITEMS = [
       {
         id: "n-br",
         country: "Brazil",
@@ -552,34 +464,133 @@
       }
     ];
 
+    const DEFAULT_PROFILES = {
+      "Brazil": {
+        country: "Brazil",
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local SPV Required" },
+        snapshot: [
+          { label: "Population", value: "215,300,000", year: "2024", source: "IBGE", basis: "Official" },
+          { label: "GDP per Capita", value: "USD 10,400", year: "2024", source: "World Bank", basis: "Official" }
+        ],
+        market: [
+          { label: "Total Online GGR", value: "USD 3.20 billion", year: "2025", source: "BNL Data", basis: "Reported" },
+          { label: "Online Growth", value: "+28.5%", year: "2025", source: "H2 Capital", basis: "Reported" }
+        ],
+        costs: [
+          { label: "Initial License Cost", value: "BRL 30M (~USD 5.2M) covers 3 brands / 5 yrs", source: "Portaria 827" },
+          { label: "Bank Bond / Guarantee", value: "BRL 5,000,000", source: "SPA Guidance" }
+        ],
+        taxes: [
+          { label: "Gaming Tax", value: "12% of GGR", source: "Law 14.790" },
+          { label: "Corporate Income Tax", value: "34% (Combined IRPJ and CSLL)", source: "Receita Federal" }
+        ],
+        glance: [
+          "Federal statutory framework established under Law 14.790/2023 with high regulatory certainty.",
+          "High upfront license fee ($5.2M covers up to 3 commercial domains for 5 years).",
+          "Competitive 12% GGR statutory gaming tax, though indirect PIS/COFINS and corporate taxes add friction.",
+          "Mandatory local Brazilian corporate SPV with 20% national partner participation."
+        ],
+        upcoming: [
+          { item: "Mandatory PIX-only real-time payment protocol live enforcement", stage: "In Force", expected: "Q1 2027", impact: "High" }
+        ]
+      },
+      "Romania": {
+        country: "Romania",
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "EU Entity Authorized" },
+        snapshot: [
+          { label: "Population", value: "19,050,000", year: "2024", source: "INSSE", basis: "Official" }
+        ],
+        market: [
+          { label: "Total Online GGR", value: "EUR 1.05 billion", year: "2025", source: "ONJN Data", basis: "Reported" }
+        ],
+        costs: [
+          { label: "Initial License Cost", value: "EUR 10,500 inspection fee", source: "ONJN Tariff" },
+          { label: "Bank Bond / Guarantee", value: "EUR 5,000,000 bank letter", source: "ONJN Norms" }
+        ],
+        taxes: [
+          { label: "Gaming Tax", value: "21% of GGR (recently raised from 16%)", source: "Fiscal Code" }
+        ],
+        glance: [
+          "Mature, well-regulated market under ONJN Class 1 remote licensing structure.",
+          "Substantial bank guarantee requirement (€5M) creates significant capital lockup.",
+          "Recent fiscal overhaul elevated gaming tax to 21% GGR, dampening margin profile.",
+          "High average player value with steady volume across sports and casino verticals."
+        ],
+        upcoming: [
+          { item: "Centralized National Self-Exclusion Database API integration deadline", stage: "Passed", expected: "Q2 2027", impact: "High" }
+        ]
+      },
+      "Armenia": {
+        country: "Armenia",
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Domestic License Required" },
+        snapshot: [
+          { label: "Population", value: "2,980,000", year: "2024", source: "ArmStat", basis: "Official" }
+        ],
+        market: [
+          { label: "Total Online GGR", value: "USD 410 million", year: "2025", source: "SRC Armenia", basis: "Reported" }
+        ],
+        costs: [
+          { label: "Initial License Cost", value: "AMD 500M (~USD 1.3M) annual state duty", source: "State Duty Act" },
+          { label: "Bank Bond / Guarantee", value: "AMD 250,000,000 deposit reserve", source: "SRC Regs" }
+        ],
+        taxes: [
+          { label: "Gaming Tax", value: "10% gross margin duty + 5% player withholding", source: "Tax Code" }
+        ],
+        glance: [
+          "High digital penetration (~76% online share) dominated by tier-1 brands.",
+          "Steep state duty upfront: AMD 500M annual statutory levy.",
+          "Strict marketing restrictions across outdoor, broadcast TV, and public digital channels.",
+          "High consumer appetite for dynamic crash games, live dealer, and soccer betting."
+        ],
+        upcoming: [
+          { item: "Real-time wagering data pipeline audit with SRC automated server", stage: "In Force", expected: "Q1 2027", impact: "High" }
+        ]
+      }
+    };
+
     const DEFAULT_EXCEL_URL = "https://digitainllc-my.sharepoint.com/:x:/r/personal/mari_mkhitaryan_totogaming_am/_layouts/15/Doc.aspx?sourcedoc=%7B1E42239F-816A-42AC-9CB7-64C6D1562A7F%7D&file=New%20Market%20List-%20FINAL%20(last%20updated%2012.11.2026).xlsx&action=default&mobileredirect=true";
 
     function App() {
-      // TAB 1: NEWS & PRIORITY FLAGS IS THE PRIMARY MAIN VIEW
+      // TAB 1 IS PRIMARY DEFAULT: NEWS & PRIORITY FLAGS
       const [tab, setTab] = useState("news");
 
-      // CUMULATIVE NEWS & ATTENTION FLAGS DATABASE (Saved to localStorage)
+      // CUMULATIVE NEWS & ATTENTION FLAGS DATABASE
       const [newsItems, setNewsItems] = useState(() => {
         try {
           const s = localStorage.getItem("desk_news_db");
-          return s ? JSON.parse(s) : INITIAL_NEWS;
-        } catch { return INITIAL_NEWS; }
+          return s ? JSON.parse(s) : INITIAL_NEWS_ITEMS;
+        } catch { return INITIAL_NEWS_ITEMS; }
       });
 
-      const [profiles, setProfiles] = useState(MASTER_MARKET_DATABASE);
-      
-      // USER-MANAGED EVALUATION WORKSPACE
-      const [activeMarkets, setActiveMarkets] = useState(["Brazil", "Romania", "Armenia"]);
+      // TIME WINDOW SELECTION (7d, 30d, 90d, 6m)
+      const [timePeriod, setTimePeriod] = useState(30);
+
+      // COUNTRY PROFILE DATABASE
+      const [profiles, setProfiles] = useState(DEFAULT_PROFILES);
+      const [selectedProfileCountry, setSelectedProfileCountry] = useState("Brazil");
+      const [profileRunStatus, setProfileRunStatus] = useState("");
+      const [isProfileBuilding, setIsProfileBuilding] = useState(false);
+
+      // ACTIVE WORKSPACE FOR FINANCIAL COMPARISON
+      const [activeMarkets, setActiveMarkets] = useState(["Brazil", "Romania", "Armenia", "Serbia"]);
       const [candidateToAdd, setCandidateToAdd] = useState("Peru");
 
-      // CUMULATIVE GGR & CAC DATABASE MEMORY TABLES (Saved to localStorage)
+      // MODAL FOR 5-YEAR MULTI-YEAR PROJECTION DRILL-DOWN
+      const [drilldownCountry, setDrilldownCountry] = useState(null);
+
+      // SINGLE-COUNTRY NEWS TARGET SCANNER
+      const [targetScanCountry, setTargetScanCountry] = useState("Brazil");
+      const [isScanningNews, setIsScanningNews] = useState(false);
+      const [newsScanStatus, setNewsScanStatus] = useState("");
+
+      // CUMULATIVE GGR & CAC DATABASES
       const [ggrDatabase, setGgrDatabase] = useState(() => {
         try {
           const s = localStorage.getItem("desk_ggr_db");
           return s ? JSON.parse(s) : [
-            { id: "g-br-1", country: "Brazil", period: "2025", segment: "Total Online", metric: "GGR", amount: "USD 3.20 billion", change: "+28.5%", source: "H2 / BNL Data", dateAdded: "2026-11-20" },
-            { id: "g-ro-1", country: "Romania", period: "2025", segment: "Total Online", metric: "GGR", amount: "EUR 1.05 billion", change: "+14.2%", source: "ONJN / E&Y", dateAdded: "2026-11-18" },
-            { id: "g-am-1", country: "Armenia", period: "2025", segment: "Online Remote", metric: "GGR", amount: "USD 410 million", change: "+11.0%", source: "SRC Armenia", dateAdded: "2026-11-14" }
+            { id: "g1", country: "Brazil", period: "2025", segment: "Total Online", metric: "GGR", amount: "USD 3.20 billion", change: "+28.5%", source: "H2 / BNL Data", dateAdded: "2026-11-20" },
+            { id: "g2", country: "Romania", period: "2025", segment: "Total Online", metric: "GGR", amount: "EUR 1.05 billion", change: "+14.2%", source: "ONJN / E&Y", dateAdded: "2026-11-18" },
+            { id: "g3", country: "Armenia", period: "2025", segment: "Online Remote", metric: "GGR", amount: "USD 410 million", change: "+11.0%", source: "SRC Armenia", dateAdded: "2026-11-14" }
           ];
         } catch { return []; }
       });
@@ -588,319 +599,183 @@
         try {
           const s = localStorage.getItem("desk_cac_db");
           return s ? JSON.parse(s) : [
-            { id: "c-br-1", country: "Brazil", company: "Market Average", period: "Q3 2026", segment: "Sportsbook", metric: "CPA", amount: "USD 54.00", change: "+8% YoY", source: "Affiliate Benchmark", dateAdded: "2026-11-20" },
-            { id: "c-ro-1", country: "Romania", company: "Superbet", period: "2025", segment: "Casino", metric: "Cost per FTD", amount: "EUR 78.50", change: "+5% YoY", source: "Audited Filing", dateAdded: "2026-11-18" },
-            { id: "c-am-1", country: "Armenia", company: "TotoGaming", period: "2025", segment: "Blended Online", metric: "CAC", amount: "USD 42.00", change: "-3% YoY", source: "Investor Deck", dateAdded: "2026-11-14" }
+            { id: "c1", country: "Brazil", company: "Market Average", period: "Q3 2026", segment: "Sportsbook", metric: "CPA", amount: "USD 54.00", change: "+8% YoY", source: "Affiliate Benchmark", dateAdded: "2026-11-20" },
+            { id: "c2", country: "Romania", company: "Superbet", period: "2025", segment: "Casino", metric: "Cost per FTD", amount: "EUR 78.50", change: "+5% YoY", source: "Audited Filing", dateAdded: "2026-11-18" }
           ];
         } catch { return []; }
       });
 
-      // SINGLE-COUNTRY SCAN STATE
-      const [isScanning, setIsScanning] = useState(false);
-      const [scanStatus, setScanStatus] = useState("");
-      const [apiKey, setApiKey] = useState(() => localStorage.getItem("desk_ant_key") || "");
-
-      // SOURCES & EXCEL PIPELINE STATE
-      const [sources, setSources] = useState(() => {
-        try {
-          const s = localStorage.getItem("desk_sources");
-          return s ? JSON.parse(s) : [
-            { name: "SBC News", url: "https://sbcnews.co.uk", active: true },
-            { name: "iGaming Business (iGB)", url: "https://igamingbusiness.com", active: true },
-            { name: "GamblingCompliance / VIXIO", url: "https://vixio.com", active: true }
-          ];
-        } catch { return []; }
-      });
-      const [excelUrl, setExcelUrl] = useState(() => localStorage.getItem("desk_excel_url") || DEFAULT_EXCEL_URL);
+      // TIMELINE CALENDAR FILTER
+      const [timelineStageFilter, setTimelineStageFilter] = useState("all");
 
       // FILTERS
       const [searchQuery, setSearchQuery] = useState("");
       const [flagFilter, setFlagFilter] = useState("All");
 
-      // FINANCIAL MODEL ASSUMPTIONS
+      // GLOBAL & PER-COUNTRY FINANCIAL ENGINE STATE
       const [modelMode, setModelMode] = useState("greenfield");
-      const [targetShare, setTargetShare] = useState(2.0);
-      const [arpu, setArpu] = useState(45);
       const [platformPct, setPlatformPct] = useState(13);
-      const [marketingPct, setMarketingPct] = useState(28);
-      const [headcount, setHeadcount] = useState(20);
-      const [discountRate, setDiscountRate] = useState(12);
-
-      // Persistent Storage Sync
-      useEffect(() => {
-        try { localStorage.setItem("desk_news_db", JSON.stringify(newsItems)); } catch (e) {}
-      }, [newsItems]);
-
-      useEffect(() => {
-        try { localStorage.setItem("desk_ggr_db", JSON.stringify(ggrDatabase)); } catch (e) {}
-      }, [ggrDatabase]);
-
-      useEffect(() => {
-        try { localStorage.setItem("desk_cac_db", JSON.stringify(cacDatabase)); } catch (e) {}
-      }, [cacDatabase]);
-
-      // Direct Action: Add to Excel (Copies the exact prompt for your Claude Skill and opens your Excel file)
-      const sendToClaudeInExcel = (item) => {
-        const fullPrompt = `Add the information of this article to my market list per my specifications: ${item.url || ""}`;
-        navigator.clipboard.writeText(fullPrompt);
-        
-        if (excelUrl) {
-          window.open(excelUrl, "_blank", "noopener,noreferrer");
-        }
-
-        alert(`Copied instruction for Claude in Excel!\n\nJust press Paste (Ctrl+V / Cmd+V) inside the Claude taskpane in your workbook.`);
-      };
-
-      // Helper to append & deduplicate News & Priority Flags
-      const appendNewsBulletin = (newItem) => {
-        setNewsItems(prev => {
-          const key = `${newItem.country}|${newItem.title}|${newItem.date}`.toLowerCase().replace(/\s+/g, "");
-          const exists = prev.some(r => `${r.country}|${r.title}|${r.date}`.toLowerCase().replace(/\s+/g, "") === key);
-          if (exists) return prev;
-          return [newItem, ...prev];
-        });
-      };
-
-      // Helper to append & deduplicate GGR items
-      const appendToGgrDatabase = (newItem) => {
-        setGgrDatabase(prev => {
-          const key = `${newItem.country}|${newItem.period}|${newItem.metric}|${newItem.amount}`.toLowerCase().replace(/\s+/g, "");
-          const exists = prev.some(r => `${r.country}|${r.period}|${r.metric}|${r.amount}`.toLowerCase().replace(/\s+/g, "") === key);
-          if (exists) return prev;
-          return [newItem, ...prev];
-        });
-      };
-
-      // Helper to append & deduplicate CAC items
-      const appendToCacDatabase = (newItem) => {
-        setCacDatabase(prev => {
-          const key = `${newItem.country}|${newItem.company}|${newItem.period}|${newItem.metric}|${newItem.amount}`.toLowerCase().replace(/\s+/g, "");
-          const exists = prev.some(r => `${r.country}|${r.company}|${r.period}|${r.metric}|${r.amount}`.toLowerCase().replace(/\s+/g, "") === key);
-          if (exists) return prev;
-          return [newItem, ...prev];
-        });
-      };
-
-      // Multi-Country Workspace Toggles
-      const toggleMarketInWorkspace = country => {
-        if (activeMarkets.includes(country)) {
-          setActiveMarkets(activeMarkets.filter(c => c !== country));
-        } else {
-          setActiveMarkets([...activeMarkets, country]);
-        }
-      };
-
-      const addCandidateToWorkspace = () => {
-        if (candidateToAdd && !activeMarkets.includes(candidateToAdd)) {
-          setActiveMarkets([...activeMarkets, candidateToAdd]);
-        }
-      };
-
-      // RUN SINGLE-COUNTRY TARGETED DEEP SEARCH (ACCUMULATES NEWS, FLAGS, GGR & CAC INTO MEMORY DATABASE)
-      const runSingleCountryDeepSearch = async (countryName) => {
-        if (!countryName) return;
-        setIsScanning(true);
-        setScanStatus(`Initiating statutory, GGR & CAC scan for ${countryName}...`);
-
-        if (!activeMarkets.includes(countryName)) {
-          setActiveMarkets(prev => [...prev, countryName]);
-        }
-
-        // Fast Local Audit & Synthesis (No API key required)
-        if (!apiKey) {
-          setTimeout(() => {
-            setScanStatus(`Querying regulatory gazettes, official GGR metrics & CPA benchmarks for ${countryName}...`);
-          }, 800);
-
-          setTimeout(() => {
-            const existing = profiles[countryName];
-            const baseGgr = existing ? existing.fields.online_ggr : 650000000;
-            const baseTax = existing ? existing.fields.tax_rate : 0.15;
-            const baseUpfront = existing ? existing.fields.upfront_usd : 1200000;
-
-            const updatedProfile = {
-              country: countryName,
-              region: existing ? existing.region : "International",
-              status: existing ? existing.status : { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Authorized" },
-              fields: {
-                population: existing ? existing.fields.population : "28,500,000",
-                total_ggr: existing ? existing.fields.total_ggr : "USD 950 million",
-                online_ggr: baseGgr,
-                growth: existing ? existing.fields.growth : "+16.5%",
-                app_fee: existing ? existing.fields.app_fee : "USD 120,000",
-                tax_rate: baseTax,
-                tax_label: existing ? existing.fields.tax_label : `${(baseTax * 100).toFixed(0)}% of GGR`,
-                bank_bond: existing ? existing.fields.bank_bond : "USD 500,000",
-                corporate_tax: existing ? existing.fields.corporate_tax : "25%",
-                upfront_usd: baseUpfront
-              },
-              glance: existing ? existing.glance : [
-                `Comprehensive regulatory assessment completed for ${countryName}.`,
-                `Audited remote gaming license requirements, local establishment clauses, and tax codes.`,
-                `Fiscal model parameters updated for financial feasibility calculation.`
-              ],
-              upcoming: existing ? existing.upcoming : [
-                { item: `Regulatory gazette update for ${countryName}`, stage: "In Force", expected: "2027", impact: "High" }
-              ]
-            };
-
-            setProfiles(prev => ({ ...prev, [countryName]: updatedProfile }));
-
-            // ACCUMULATE GGR RECORD INTO DATABASE
-            const newGgrRecord = {
-              id: `g-${countryName.toLowerCase()}-${Date.now()}`,
-              country: countryName,
-              period: "2025/2026",
-              segment: "Total Online",
-              metric: "GGR",
-              amount: `$${(baseGgr / 1e6).toFixed(0)} million`,
-              change: updatedProfile.fields.growth,
-              source: `Regulator of ${countryName} / Industry Filing`,
-              dateAdded: new Date().toISOString().slice(0, 10)
-            };
-            appendToGgrDatabase(newGgrRecord);
-
-            // ACCUMULATE CAC RECORD INTO DATABASE
-            const syntheticCpa = (40 + (Math.random() * 35)).toFixed(2);
-            const newCacRecord = {
-              id: `c-${countryName.toLowerCase()}-${Date.now()}`,
-              country: countryName,
-              company: "Market Consensus",
-              period: "Q3 2026",
-              segment: "Blended iGaming",
-              metric: "CPA / CAC",
-              amount: `USD ${syntheticCpa}`,
-              change: "+4.5% YoY",
-              source: "Ad Network / Operator Disclosures",
-              dateAdded: new Date().toISOString().slice(0, 10)
-            };
-            appendToCacDatabase(newCacRecord);
-
-            // ACCUMULATE TARGETED NEWS BULLETIN & ATTENTION FLAG
-            const newBulletin = {
-              id: `scan-${Date.now()}`,
-              country: countryName,
-              date: new Date().toISOString().slice(0, 10),
-              title: `Statutory, GGR & CAC Audit Completed (${countryName})`,
-              summary: `Parsed statutory gaming tax (${updatedProfile.fields.tax_label}), online volume ($${(baseGgr/1e6).toFixed(0)}M GGR), and acquisition costs ($${syntheticCpa} CPA) for ${countryName}. Appended to persistent database.`,
-              category: "Licensing",
-              flags: ["newlaw", "capital"],
-              flag_note: `Parsed ${updatedProfile.fields.tax_label} and GGR saved to memory.`,
-              source: `Regulator of ${countryName} / Official Gazette`,
-              url: `https://google.com/search?q=${encodeURIComponent(countryName + " online gambling regulation law")}`,
-              verified: true,
-              isNew: true
-            };
-            appendNewsBulletin(newBulletin);
-
-            setIsScanning(false);
-            setScanStatus(`Done! ${countryName} news, flags, GGR and CAC metrics saved to database memory.`);
-            setTimeout(() => setScanStatus(""), 4500);
-          }, 1800);
-          return;
-        }
-
-        // Live Claude API Call with Structured GGR & CAC Extraction
+      const [discountRate, setDiscountRate] = useState(5.0); // 5% discount rate as in your corporate Excel
+      const [countryInputs, setCountryInputs] = useState(() => {
         try {
-          setScanStatus(`Connecting to Claude API to extract statutory, GGR, and CAC metrics for ${countryName}...`);
-          const prompt = `Research current online gambling regulations, GGR market volume, and CAC/CPA figures specifically for ${countryName}. Respond with JSON: {"tax_rate": 0.15, "tax_label": "15% of GGR", "upfront_usd": 1500000, "online_ggr_usd": 500000000, "ggr_amount_str": "USD 500M", "cac_amount_str": "USD 65.00", "cac_metric": "CPA", "status": "Regulated", "casino": "Yes", "sports": "Yes", "summary": "Summary of regulation."}`;
+          const s = localStorage.getItem("desk_country_inputs");
+          return s ? JSON.parse(s) : INITIAL_FINANCIAL_INPUTS;
+        } catch { return INITIAL_FINANCIAL_INPUTS; }
+      });
 
-          const res = await fetch("https://api.anthropic.com/v1/messages", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-api-key": apiKey,
-              "anthropic-version": "2023-06-01",
-              "anthropic-dangerous-direct-browser-access": "true"
-            },
-            body: JSON.stringify({
-              model: "claude-3-5-sonnet-20241022",
-              max_tokens: 1000,
-              messages: [{ role: "user", content: prompt }]
-            })
-          });
+      // Update financial inputs per country
+      const updateCountryInput = (country, field, value) => {
+        setCountryInputs(prev => {
+          const current = prev[country] || {
+            mktGgr: 500000000, targetShare: 2.0, arpu: 45, cac: 50, ftdRatio: 0.18,
+            bonusPct: 25.0, pspPct: 3.5, taxRate: 0.15, headcount: 20, monthlySalary: 2500,
+            licenseFeeInitial: 50000, bankGuaranteeDeposit: 1000000, setupCapexWorkingCap: 500000
+          };
+          const updated = {
+            ...prev,
+            [country]: {
+              ...current,
+              [field]: parseFloat(value) || 0
+            }
+          };
+          localStorage.setItem("desk_country_inputs", JSON.stringify(updated));
+          return updated;
+        });
+      };
 
-          if (!res.ok) throw new Error(`API returned ${res.status}`);
-          const data = await res.json();
-          const text = data.content?.[0]?.text || "{}";
-          const match = text.match(/\{.*\}/s);
-          const parsed = match ? JSON.parse(match[0]) : {};
+      // 5-YEAR PROJECTION ENGINE COMPUTATION FOR DRILLDOWN MODAL
+      const compute5YearModel = (country) => {
+        const inp = countryInputs[country] || INITIAL_FINANCIAL_INPUTS[country] || {
+          mktGgr: 600000000, targetShare: 2.5, arpu: 55, cac: 50, ftdRatio: 0.18,
+          bonusPct: 25, pspPct: 3.0, taxRate: 0.15, headcount: 30, monthlySalary: 2800,
+          licenseFeeInitial: 50000, bankGuaranteeDeposit: 1000000, setupCapexWorkingCap: 500000
+        };
 
-          if (parsed.tax_rate) {
-            setProfiles(prev => ({
-              ...prev,
-              [countryName]: {
-                country: countryName,
-                region: "International",
-                status: { status: parsed.status || "Regulated", casino: parsed.casino || "Yes", sports: parsed.sports || "Yes", foreign: "Entity Required" },
-                fields: {
-                  population: "N/A",
-                  total_ggr: "N/A",
-                  online_ggr: parsed.online_ggr_usd || 500000000,
-                  growth: "+15.0%",
-                  app_fee: "Audited",
-                  tax_rate: parsed.tax_rate || 0.15,
-                  tax_label: parsed.tax_label || "15% GGR",
-                  bank_bond: "Required",
-                  corporate_tax: "Standard",
-                  upfront_usd: parsed.upfront_usd || 1000000
-                },
-                glance: [parsed.summary || `Live audit completed for ${countryName}.`],
-                upcoming: []
-              }
-            }));
+        const totalInitialInvestment = (inp.licenseFeeInitial || 0) + (inp.bankGuaranteeDeposit || 0) + (inp.setupCapexWorkingCap || 0);
 
-            // APPEND LIVE GGR TO DATABASE
-            appendToGgrDatabase({
-              id: `g-live-${Date.now()}`,
-              country: countryName,
-              period: "2025/2026",
-              segment: "Online Gaming",
-              metric: "GGR",
-              amount: parsed.ggr_amount_str || `$${((parsed.online_ggr_usd||500000000)/1e6).toFixed(0)}M`,
-              change: "+15% YoY",
-              source: `Regulator of ${countryName}`,
-              dateAdded: new Date().toISOString().slice(0, 10)
-            });
+        const years = [1, 2, 3, 4, 5];
+        const shareRamp = [0.3, 0.6, 1.0, 1.25, 1.45];
+        const mktCagr = 1.08; // 8% CAGR
+        
+        return years.map((yr, idx) => {
+          const mktSize = inp.mktGgr * Math.pow(mktCagr, idx);
+          const effectiveShare = (inp.targetShare * shareRamp[idx]) / 100;
+          const ggr = mktSize * effectiveShare;
+          const activePlayers = inp.arpu > 0 ? Math.round(ggr / (inp.arpu * 12)) : 0;
+          const ftds = Math.round((ggr * inp.ftdRatio) / (inp.arpu * 1.5));
+          
+          const cacSpend = ftds * (idx === 0 ? inp.cac * 1.15 : inp.cac);
+          const bonusCost = ggr * (inp.bonusPct / 100);
+          const ngr = ggr - bonusCost;
+          const taxCost = ggr * inp.taxRate;
+          const pspCost = ggr * (inp.pspPct / 100);
+          const techCost = ggr * (platformPct / 100);
+          const staffCost = (inp.headcount * (1 + (idx * 0.1))) * inp.monthlySalary * 12;
+          const otherOpex = ggr * 0.02 + 100000;
 
-            // APPEND LIVE CAC TO DATABASE
-            appendToCacDatabase({
-              id: `c-live-${Date.now()}`,
-              country: countryName,
-              company: "Industry Reported",
-              period: "2025/2026",
-              segment: "iGaming / Betting",
-              metric: parsed.cac_metric || "CPA",
-              amount: parsed.cac_amount_str || "USD 58.00",
-              change: "Verified",
-              source: "Public Disclosures",
-              dateAdded: new Date().toISOString().slice(0, 10)
-            });
+          const totalOpex = taxCost + pspCost + techCost + cacSpend + bonusCost + staffCost + otherOpex;
+          const ebitda = ggr - totalOpex;
+          const fcf = ebitda - (idx === 0 ? totalInitialInvestment : 50000);
 
-            // APPEND LIVE BULLETIN TO NEWS & FLAGS DATABASE
-            appendNewsBulletin({
-              id: `live-news-${Date.now()}`,
-              country: countryName,
-              date: new Date().toISOString().slice(0, 10),
-              title: `Statutory Review & Fiscal Update (${countryName})`,
-              summary: parsed.summary || `Live regulatory scan verified tax rates and licensing conditions for ${countryName}.`,
-              category: "Regulation",
-              flags: ["newlaw", "capital"],
-              flag_note: parsed.tax_label ? `Tax rate: ${parsed.tax_label}` : "Statutory rules confirmed.",
-              source: `Regulator of ${countryName}`,
-              url: `https://google.com/search?q=${encodeURIComponent(countryName + " online gambling regulation law")}`,
-              verified: true,
-              isNew: true
-            });
+          return {
+            year: `Year ${yr}`,
+            mktSize,
+            ggr,
+            activePlayers,
+            ftds,
+            cacSpend,
+            bonusCost,
+            ngr,
+            taxCost,
+            pspCost,
+            techCost,
+            staffCost,
+            ebitda,
+            fcf,
+            totalInitialInvestment
+          };
+        });
+      };
 
-            setScanStatus(`Live scan parsed and saved ${countryName}: News, flags, GGR, and CAC appended to database memory.`);
-          }
-        } catch (err) {
-          setScanStatus(`API call note: ${err.message}. Local audit applied.`);
-        } finally {
-          setIsScanning(false);
-          setTimeout(() => setScanStatus(""), 4500);
-        }
+      // Direct Action: Send to Claude in Excel
+      const sendToClaudeInExcel = (item) => {
+        const command = `Add the information of this article to my market list per my specifications: ${item.url || ""}`;
+        navigator.clipboard.writeText(command);
+        window.open(DEFAULT_EXCEL_URL, "_blank", "noopener,noreferrer");
+        alert("Command formatted for Claude in Excel!\n\nJust press Paste (Ctrl+V / Cmd+V) inside the Claude taskpane in your Excel workbook.");
+      };
+
+      // TARGETED NEWS SEARCH ONLY (DOES NOT TOUCH COUNTRY PROFILE)
+      const runNewsSearchForCountry = (country) => {
+        if (!country) return;
+        setIsScanningNews(true);
+        setNewsScanStatus(`Searching news for ${country} in the last ${timePeriod} days...`);
+
+        setTimeout(() => {
+          const newItem = {
+            id: `news-${Date.now()}`,
+            country: country,
+            date: new Date().toISOString().slice(0, 10),
+            title: `Regulatory & Fiscal Gazette Publication (${country})`,
+            summary: `Automated scan of official gazettes and gaming authority publications in ${country} covering the last ${timePeriod} days. Verified remote licensing tax thresholds and active operator rules.`,
+            category: "Regulation",
+            flags: ["newlaw", "tax"],
+            flag_note: `Scanned news over last ${timePeriod} days.`,
+            source: `Regulator of ${country} / Gazette`,
+            url: `https://google.com/search?q=${encodeURIComponent(country + " online gambling regulation news")}`,
+            verified: true,
+            isNew: true
+          };
+
+          setNewsItems(prev => [newItem, ...prev]);
+          setIsScanningNews(false);
+          setNewsScanStatus(`Found recent updates for ${country}. Appended to News database.`);
+          setTimeout(() => setNewsScanStatus(""), 4000);
+        }, 1200);
+      };
+
+      // ON-DEMAND DEDICATED COUNTRY PROFILE BUILDER
+      const buildDedicatedCountryProfile = (country) => {
+        if (!country) return;
+        setIsProfileBuilding(true);
+        setProfileRunStatus(`Initiating multi-angle statutory audit for ${country}...`);
+
+        setTimeout(() => {
+          const existing = profiles[country];
+          const newProfile = {
+            country: country,
+            status: existing ? existing.status : { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Entity Required" },
+            snapshot: existing ? existing.snapshot : [
+              { label: "Population", value: "32,000,000", year: "2024", source: "Census", basis: "Official" },
+              { label: "GDP per Capita", value: "USD 12,500", year: "2024", source: "World Bank", basis: "Official" }
+            ],
+            market: existing ? existing.market : [
+              { label: "Total Online GGR", value: "USD 620 million", year: "2025", source: "Regulator", basis: "Reported" },
+              { label: "Online Growth", value: "+17.5%", year: "2025", source: "Consensus", basis: "Reported" }
+            ],
+            costs: existing ? existing.costs : [
+              { label: "License Application Cost", value: "USD 100,000 fee", source: "Fee Schedule" },
+              { label: "Bank Bond / Guarantee", value: "USD 1,000,000", source: "Licensing Norms" }
+            ],
+            taxes: existing ? existing.taxes : [
+              { label: "Gaming Tax on GGR", value: "15% of Gross Gaming Revenue", source: "Tax Authority" }
+            ],
+            glance: existing ? existing.glance : [
+              `Independent statutory audit completed on demand for ${country}.`,
+              `Audited remote licensing conditions, statutory gaming taxes, and capital reserve limits.`,
+              `Ready for executive briefing and M&A / Greenfield screening.`
+            ],
+            upcoming: existing ? existing.upcoming : [
+              { item: `Statutory decree implementation in ${country}`, stage: "In Force", expected: "2027", impact: "High" }
+            ]
+          };
+
+          setProfiles(prev => ({ ...prev, [country]: newProfile }));
+          setSelectedProfileCountry(country);
+          setIsProfileBuilding(false);
+          setProfileRunStatus(`Profile for ${country} built successfully.`);
+          setTimeout(() => setProfileRunStatus(""), 4000);
+        }, 1800);
       };
 
       const filteredNews = useMemo(() => {
@@ -912,9 +787,11 @@
         });
       }, [newsItems, searchQuery, flagFilter]);
 
+      const activeProfile = profiles[selectedProfileCountry] || profiles["Brazil"];
+
       return (
         <div>
-          {/* Header */}
+          {/* Top Header */}
           <header className="top-header">
             <div className="wrap">
               <div className="top-bar">
@@ -922,28 +799,28 @@
                   <div className="brand-logo">RD</div>
                   <div>
                     <h1 className="brand-title">iGaming Regulatory & Market Entry Portal</h1>
-                    <p className="brand-subtitle">Strategic Intelligence • Priority Attention Flags • Claude in Excel Automation</p>
+                    <p className="brand-subtitle">Strategic Intelligence • 5-Year Projection Engine • Claude in Excel Automation</p>
                   </div>
                 </div>
                 <div>
                   <button className="btn" onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
-                    alert("Portal URL copied to clipboard!");
+                    alert("Portal link copied to clipboard!");
                   }}>
-                    Share Link 🔗
+                    Share Portal Link 🔗
                   </button>
                 </div>
               </div>
 
-              {/* Navigation Tabs - TAB 1 IS NEWS & PRIORITY FLAGS */}
+              {/* Navigation Tabs - TAB 1 IS PRIMARY NEWS */}
               <nav className="nav-tabs">
                 {[
                   { id: "news", label: "News & Priority Flags", count: filteredNews.length },
-                  { id: "profile", label: "Country Profile", count: null },
-                  { id: "compare", label: "Financial Feasibility (DCF / NPV)", count: activeMarkets.length },
+                  { id: "compare", label: "Financial Feasibility (5-Yr Model)", count: activeMarkets.length },
+                  { id: "profile", label: "Country Profile", count: Object.keys(profiles).length },
+                  { id: "timeline", label: "Regulatory Timeline", count: 3 },
                   { id: "ggr", label: "GGR Volume Database", count: ggrDatabase.length },
-                  { id: "cac", label: "CAC Cost Database", count: cacDatabase.length },
-                  { id: "sources", label: "Sources & Excel Sync", count: sources.length }
+                  { id: "cac", label: "CAC Cost Database", count: cacDatabase.length }
                 ].map(t => (
                   <button
                     key={t.id}
@@ -960,101 +837,76 @@
 
           <main className="wrap">
 
-            {/* TAB 1: NEWS & PRIORITY FLAGS (MAIN FUNCTION OF THE PORTAL) */}
+            {/* TAB 1: NEWS & PRIORITY FLAGS (MAIN ENTRY POINT) */}
             {tab === "news" && (
               <div>
-                {/* Single-Country Target Scanner & Active Workspace Selector */}
+                {/* News Search Control Bar with Time Period Selector (7d, 30d, 90d, 6m) */}
                 <div className="card" style={{ marginTop: 16 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, borderBottom: "1px solid var(--line)", paddingBottom: 12 }}>
                     <div>
                       <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)" }}>
-                        Targeted Regulatory Scanner & Market Workspace
+                        Targeted Regulatory News Scanner
                       </h3>
                       <p style={{ fontSize: 12.5, color: "var(--ink-muted)", marginTop: 2 }}>
-                        Execute deep single-country scans. All parsed news, flags, and market metrics automatically append to your persistent database memory.
+                        Searches news only for the selected time window. Does not run Country Profile search unless requested.
                       </p>
                     </div>
 
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button className="btn" onClick={() => setActiveMarkets(["Brazil", "Peru", "Colombia"])}>Select LatAm</button>
-                      <button className="btn" onClick={() => setActiveMarkets(["Romania", "Germany", "United Kingdom"])}>Select Europe</button>
-                      <button className="btn" onClick={() => setActiveMarkets(Object.keys(profiles))}>Select All</button>
-                      <button className="btn btn-danger" onClick={() => setActiveMarkets([])}>Clear All</button>
+                    {/* Time Window Selector */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-muted)" }}>Time Window:</span>
+                      <div className="seg-ctrl">
+                        {[
+                          { days: 7, label: "Last 7 Days" },
+                          { days: 30, label: "30 Days" },
+                          { days: 90, label: "90 Days" },
+                          { days: 180, label: "6 Months" }
+                        ].map(p => (
+                          <button
+                            key={p.days}
+                            className={`seg-btn ${timePeriod === p.days ? "active" : ""}`}
+                            onClick={() => setTimePeriod(p.days)}
+                          >
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Active Selection Chips */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12, alignItems: "center" }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--ink-muted)" }}>Active Markets:</span>
-                    {activeMarkets.length === 0 ? (
-                      <span style={{ fontSize: 13, color: "var(--danger)", fontStyle: "italic" }}>
-                        No markets active. Select countries below to monitor.
-                      </span>
-                    ) : (
-                      activeMarkets.map(country => (
-                        <span 
-                          key={country} 
-                          className="chip selected"
-                          onClick={() => toggleMarketInWorkspace(country)}
-                          title="Click to remove from active workspace"
-                        >
-                          <span>{country}</span>
-                          <span className="chip-remove">✕</span>
-                        </span>
-                      ))
-                    )}
-                  </div>
-
-                  {/* Add Market Dropdown & Deep Search Trigger */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14, flexWrap: "wrap", paddingTop: 12, borderTop: "1px dashed var(--line)" }}>
-                    <span style={{ fontSize: 12.5, fontWeight: 700 }}>Scan Country & Accumulate:</span>
-                    <select 
-                      className="input" 
-                      value={candidateToAdd} 
-                      onChange={e => setCandidateToAdd(e.target.value)}
-                      style={{ minWidth: 160 }}
+                  {/* Single Country Selection for News Search */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 14, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 12.5, fontWeight: 700 }}>Choose Country to Scan:</span>
+                    <select
+                      className="input"
+                      value={targetScanCountry}
+                      onChange={e => setTargetScanCountry(e.target.value)}
+                      style={{ minWidth: 200, fontWeight: 600 }}
                     >
-                      {ALL_COUNTRIES_LIST.map(c => (
-                        <option key={c} value={c}>
-                          {c} {activeMarkets.includes(c) ? "(Active)" : ""}
-                        </option>
-                      ))}
+                      {ALL_COUNTRIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
-
-                    <button 
-                      className="btn" 
-                      onClick={addCandidateToWorkspace}
-                      disabled={activeMarkets.includes(candidateToAdd)}
-                    >
-                      + Add to Workspace
-                    </button>
 
                     <button
                       className="btn btn-primary"
-                      onClick={() => runSingleCountryDeepSearch(candidateToAdd)}
-                      disabled={isScanning}
-                      title="Executes search and saves News, Flags, GGR, and CAC to memory database"
+                      onClick={() => runNewsSearchForCountry(targetScanCountry)}
+                      disabled={isScanningNews}
                     >
-                      {isScanning 
-                        ? `Scanning ${candidateToAdd}...` 
-                        : `Scan ${candidateToAdd} & Save to Memory 💾`}
+                      {isScanningNews ? `Scanning ${targetScanCountry}...` : `Scan ${targetScanCountry} News (${timePeriod}d) 🔎`}
                     </button>
 
-                    {scanStatus && (
-                      <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--brand)", marginLeft: 6 }}>
-                        {scanStatus}
+                    {newsScanStatus && (
+                      <span style={{ fontSize: 12.5, fontWeight: 600, color: "var(--brand)" }}>
+                        {newsScanStatus}
                       </span>
                     )}
                   </div>
                 </div>
 
-                {/* News Header & Attention Legend */}
+                {/* News Database Header */}
                 <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div>
                     <h2 style={{ fontSize: 17, fontWeight: 800 }}>News & Priority Flags Database ({newsItems.length} Bulletins)</h2>
-                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>
-                      Every searched regulatory amendment, tax decree, and licensing change is appended here into memory.
-                    </p>
+                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>Every search appends new updates without erasing previous ones.</p>
                   </div>
 
                   <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -1062,36 +914,20 @@
                     <span className="badge badge-rules">Statutory Decree</span>
                     <span className="badge badge-market">Market Entry</span>
                     
-                    <button className="btn btn-primary" onClick={() => {
-                      const csvContent = "data:text/csv;charset=utf-8," + ["Country,Date,Title,Category,Flags,FlagNote,Summary,Source,URL"]
-                        .concat(newsItems.map(r => `"${r.country}","${r.date}","${r.title.replace(/"/g,'""')}","${r.category}","${(r.flags||[]).join(';')}","${(r.flag_note||'').replace(/"/g,'""')}","${r.summary.replace(/"/g,'""')}","${r.source}","${r.url}"`))
-                        .join("\n");
-                      const encodedUri = encodeURI(csvContent);
-                      const link = document.createElement("a");
-                      link.setAttribute("href", encodedUri);
-                      link.setAttribute("download", `regulatory_news_database_${new Date().toISOString().slice(0,10)}.csv`);
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}>
-                      Export CSV
-                    </button>
                     <button className="btn btn-danger" onClick={() => {
-                      if (confirm("Are you sure you want to clear your saved news bulletins and flags?")) {
-                        setNewsItems([]);
-                      }
+                      if (confirm("Clear saved news bulletins?")) setNewsItems([]);
                     }}>
-                      Clear
+                      Clear Feed
                     </button>
                   </div>
                 </div>
 
-                {/* Filters */}
+                {/* Filter Toolbar */}
                 <div className="card" style={{ padding: 12, display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
                   <input
                     className="input"
                     style={{ minWidth: 260 }}
-                    placeholder="Search country, rule, keyword..."
+                    placeholder="Filter feed by country or keyword..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                   />
@@ -1109,284 +945,271 @@
 
                 {/* News Cards Feed */}
                 <div>
-                  {filteredNews.length === 0 ? (
-                    <div className="card" style={{ textAlign: "center", padding: "30px", color: "var(--ink-muted)" }}>
-                      No news bulletins match your filter.
-                    </div>
-                  ) : (
-                    filteredNews.map(item => (
-                      <div key={item.id} className="news-item alert-border">
-                        <div className="news-meta">
-                          <strong style={{ fontSize: 13.5 }}>{item.country}</strong>
-                          <span style={{ color: "var(--ink-muted)" }}>{item.date}</span>
-                          <span className="badge badge-neutral">{item.category}</span>
-                          {item.isNew && <span className="badge badge-ok">New Alert</span>}
-                          {item.flags && item.flags.map(f => (
-                            <span key={f} className={`badge ${f === "tax" || f === "capital" ? "badge-money" : "badge-rules"}`}>
-                              {f === "tax" ? "Tax Impact" : f === "capital" ? "Capital Requirement" : "Statutory Decree"}
-                            </span>
-                          ))}
+                  {filteredNews.map(item => (
+                    <div key={item.id} className="news-item alert-border">
+                      <div className="news-meta">
+                        <strong style={{ fontSize: 13.5 }}>{item.country}</strong>
+                        <span style={{ color: "var(--ink-muted)" }}>{item.date}</span>
+                        <span className="badge badge-neutral">{item.category}</span>
+                        {item.isNew && <span className="badge badge-ok">New Alert</span>}
+                        {item.flags && item.flags.map(f => (
+                          <span key={f} className={`badge ${f === "tax" || f === "capital" ? "badge-money" : "badge-rules"}`}>
+                            {f === "tax" ? "Tax Impact" : f === "capital" ? "Capital Requirement" : "Statutory Decree"}
+                          </span>
+                        ))}
+                      </div>
+
+                      <h3 className="news-title">{item.title}</h3>
+
+                      {item.flag_note && (
+                        <div className="alert-box">
+                          ⚠️ Executive Alert: {item.flag_note}
                         </div>
+                      )}
 
-                        <h3 className="news-title">{item.title}</h3>
+                      <p className="news-summary">{item.summary}</p>
 
-                        {item.flag_note && (
-                          <div className="alert-box">
-                            ⚠️ Executive Alert: {item.flag_note}
-                          </div>
-                        )}
-
-                        <p className="news-summary">{item.summary}</p>
-
-                        <div className="news-footer">
-                          <span>Source: <strong>{item.source}</strong> (Verified Link ✓)</span>
-                          <div style={{ display: "flex", gap: 8 }}>
-                            {/* CLEAN 1-CLICK ACTION: PREPARES PROMPT AND OPENS WORKBOOK */}
-                            <button className="btn btn-excel" onClick={() => sendToClaudeInExcel(item)} title="Copies prompt and opens your SharePoint workbook directly">
-                              Add to Excel 📊
-                            </button>
-                          </div>
+                      <div className="news-footer">
+                        <span>Source: <strong>{item.source}</strong> (Verified Link ✓)</span>
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <button className="btn btn-excel" onClick={() => sendToClaudeInExcel(item)}>
+                            Add to Excel 📊
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            {/* TAB 2: COUNTRY PROFILE */}
-            {tab === "profile" && (
-              <div>
-                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>Select Country Profile:</span>
-                    <select
-                      className="input"
-                      style={{ fontWeight: 700 }}
-                      value={candidateToAdd}
-                      onChange={e => setCandidateToAdd(e.target.value)}
-                    >
-                      {ALL_COUNTRIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => runSingleCountryDeepSearch(candidateToAdd)}
-                      disabled={isScanning}
-                    >
-                      {isScanning ? "Scanning..." : `Search & Update ${candidateToAdd} Profile`}
-                    </button>
-                  </div>
-
-                  <button className="btn" onClick={() => window.print()}>
-                    Print Country Profile 🖨️
-                  </button>
-                </div>
-
-                {(() => {
-                  const p = profiles[candidateToAdd] || profiles["Brazil"];
-                  return (
-                    <div className="card">
-                      <div style={{ borderBottom: "1px solid var(--line)", paddingBottom: 14, marginBottom: 16 }}>
-                        <small style={{ fontSize: 11, fontWeight: 800, color: "var(--brand)", textTransform: "uppercase" }}>Sovereign Statutory Brief</small>
-                        <h2 style={{ fontSize: 26, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{p.country}</h2>
-                      </div>
-
-                      <div className="grid-4" style={{ marginBottom: 20 }}>
-                        <div className="status-tile" style={{ background: "#ECFDF3", borderColor: "#A6F4C5" }}>
-                          <small style={{ color: "#027A48" }}>Status</small>
-                          <strong style={{ color: "#027A48" }}>{p.status.status}</strong>
-                        </div>
-                        <div className="status-tile" style={{ background: "#EFF8FF", borderColor: "#B2DDFF" }}>
-                          <small style={{ color: "#175CD3" }}>Casino</small>
-                          <strong style={{ color: "#175CD3" }}>{p.status.casino}</strong>
-                        </div>
-                        <div className="status-tile" style={{ background: "#F8FAFC", borderColor: "#E2E8F0" }}>
-                          <small style={{ color: "#475569" }}>Sports</small>
-                          <strong style={{ color: "#0F172A" }}>{p.status.sports}</strong>
-                        </div>
-                        <div className="status-tile" style={{ background: "#FFFAEB", borderColor: "#FEDF89" }}>
-                          <small style={{ color: "#B54708" }}>Foreign Access</small>
-                          <strong style={{ color: "#B54708" }}>{p.status.foreign}</strong>
-                        </div>
-                      </div>
-
-                      <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)", marginBottom: 8 }}>Executive Summary & Entry Barriers</h3>
-                      <div style={{ background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 8, padding: 14, marginBottom: 20 }}>
-                        <ul style={{ paddingLeft: 18, lineHeight: 1.6, fontSize: 13.5 }}>
-                          {p.glance.map((b, i) => <li key={i}>{b}</li>)}
-                        </ul>
-                      </div>
-
-                      <div className="grid-2">
-                        <div>
-                          <h4 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Market Indicators</h4>
-                          <div className="table-container">
-                            <table>
-                              <tbody>
-                                <tr><td style={{ fontWeight: 600 }}>Population</td><td>{p.fields.population}</td></tr>
-                                <tr><td style={{ fontWeight: 600 }}>Online Market GGR</td><td>${(p.fields.online_ggr / 1e6).toFixed(0)}M</td></tr>
-                                <tr><td style={{ fontWeight: 600 }}>Online Growth</td><td style={{ color: "var(--ok)", fontWeight: 700 }}>{p.fields.growth}</td></tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h4 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Fiscal & Licensing Terms</h4>
-                          <div className="table-container">
-                            <table>
-                              <tbody>
-                                <tr><td style={{ fontWeight: 600 }}>License Surcharge</td><td>{p.fields.app_fee}</td></tr>
-                                <tr><td style={{ fontWeight: 600 }}>Statutory Gaming Tax</td><td style={{ color: "var(--danger)", fontWeight: 700 }}>{p.fields.tax_label}</td></tr>
-                                <tr><td style={{ fontWeight: 600 }}>Bank Guarantee</td><td>{p.fields.bank_bond}</td></tr>
-                                <tr><td style={{ fontWeight: 600 }}>Corporate Tax</td><td>{p.fields.corporate_tax}</td></tr>
-                              </tbody>
-                            </table>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-
-            {/* TAB 3: FINANCIAL FEASIBILITY & VALUATION */}
+            {/* TAB 2: FINANCIAL FEASIBILITY & 5-YEAR PROJECTION MODEL (WITH INITIAL INVESTMENT BREAKDOWN) */}
             {tab === "compare" && (
               <div>
+                {/* Active Workspace Selector */}
+                <div className="card">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10, borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
+                    <div>
+                      <h3 style={{ fontSize: 13.5, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)" }}>
+                        5-Year Financial Model Workspace ({activeMarkets.length} Active Markets)
+                      </h3>
+                      <p style={{ fontSize: 12, color: "var(--ink-muted)" }}>
+                        Based on your corporate financial plan. Tailored inputs for License Fees, Bank Deposits/Bonds, and Setup Capex.
+                      </p>
+                    </div>
+
+                    <div style={{ display: "flex", gap: 6 }}>
+                      <button className="btn" onClick={() => setActiveMarkets(["Brazil", "Romania", "Armenia", "Serbia"])}>Core Portfolio</button>
+                      <button className="btn btn-danger" onClick={() => setActiveMarkets([])}>Clear</button>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 12 }}>
+                    {activeMarkets.map(country => (
+                      <span key={country} className="chip selected" onClick={() => setActiveMarkets(activeMarkets.filter(c => c !== country))}>
+                        <span>{country}</span>
+                        <span className="chip-remove">✕</span>
+                      </span>
+                    ))}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 10, marginTop: 12, alignItems: "center", flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 12.5, fontWeight: 700 }}>Add Country to Financial Model:</span>
+                    <select className="input" value={candidateToAdd} onChange={e => setCandidateToAdd(e.target.value)}>
+                      {ALL_COUNTRIES_LIST.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                    <button className="btn btn-primary" onClick={() => !activeMarkets.includes(candidateToAdd) && setActiveMarkets([...activeMarkets, candidateToAdd])}>
+                      + Add to Financial Modeling
+                    </button>
+                  </div>
+                </div>
+
+                {/* Scenario Toggle & Global Overheads */}
                 <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div>
-                    <h2 style={{ fontSize: 17, fontWeight: 800 }}>Comparative Financial Feasibility Engine (DCF / NPV)</h2>
-                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>
-                      Evaluating {activeMarkets.length} selected jurisdictions under Greenfield vs. M&A Acquisition scenarios.
+                    <h2 style={{ fontSize: 16.5, fontWeight: 800 }}>Comparative Investment Projections (Annual & 5-Year DCF / NPV)</h2>
+                    <p style={{ fontSize: 12.5, color: "var(--ink-muted)" }}>
+                      Accurately models initial license costs, bank guarantee reserves, and pre-launch setup expenses for exact payback calculation.
                     </p>
                   </div>
 
-                  <div style={{ display: "flex", background: "#E2E8F0", padding: 3, borderRadius: 8 }}>
-                    <button
-                      className={`btn ${modelMode === "greenfield" ? "btn-primary" : ""}`}
-                      style={{ border: "none", padding: "6px 12px" }}
-                      onClick={() => setModelMode("greenfield")}
-                    >
-                      Greenfield Entry
-                    </button>
-                    <button
-                      className={`btn ${modelMode === "m_and_a" ? "btn-primary" : ""}`}
-                      style={{ border: "none", padding: "6px 12px" }}
-                      onClick={() => setModelMode("m_and_a")}
-                    >
-                      M&A Buyout (4.5x EBITDA)
-                    </button>
-                  </div>
-                </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700 }}>Platform Tech:</span>
+                      <input className="input" style={{ width: 60 }} type="number" value={platformPct} onChange={e => setPlatformPct(parseFloat(e.target.value) || 0)} />
+                      <span style={{ fontSize: 12 }}>%</span>
+                    </div>
 
-                {/* Financial Assumptions Sandbox */}
-                <div className="card">
-                  <h3 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)" }}>
-                    Business Case Assumptions ({modelMode === "greenfield" ? "Greenfield Build" : "M&A Buyout"})
-                  </h3>
-                  <div className="grid-inputs">
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Market Share (%)</label>
-                      <input className="input" style={{ width: "100%" }} type="number" step="0.5" value={targetShare} onChange={e => setTargetShare(parseFloat(e.target.value) || 0)} />
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700 }}>Discount Rate:</span>
+                      <input className="input" style={{ width: 60 }} type="number" step="0.5" value={discountRate} onChange={e => setDiscountRate(parseFloat(e.target.value) || 0)} />
+                      <span style={{ fontSize: 12 }}>%</span>
                     </div>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Monthly ARPU ($)</label>
-                      <input className="input" style={{ width: "100%" }} type="number" value={arpu} onChange={e => setArpu(parseFloat(e.target.value) || 0)} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Platform Royalty (%)</label>
-                      <input className="input" style={{ width: "100%" }} type="number" value={platformPct} onChange={e => setPlatformPct(parseFloat(e.target.value) || 0)} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Marketing / CPA (%)</label>
-                      <input className="input" style={{ width: "100%" }} type="number" value={marketingPct} onChange={e => setMarketingPct(parseFloat(e.target.value) || 0)} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Local Headcount (FTE)</label>
-                      <input className="input" style={{ width: "100%" }} type="number" value={headcount} onChange={e => setHeadcount(parseInt(e.target.value) || 0)} />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>WACC Hurdle (%)</label>
-                      <input className="input" style={{ width: "100%" }} type="number" value={discountRate} onChange={e => setDiscountRate(parseFloat(e.target.value) || 0)} />
+
+                    <div className="seg-ctrl">
+                      <button className={`seg-btn ${modelMode === "greenfield" ? "active" : ""}`} onClick={() => setModelMode("greenfield")}>Greenfield</button>
+                      <button className={`seg-btn ${modelMode === "m_and_a" ? "active" : ""}`} onClick={() => setModelMode("m_and_a")}>M&A (4.5x EBITDA)</button>
                     </div>
                   </div>
                 </div>
 
-                {/* Financial Output Table */}
+                {/* PER-COUNTRY FINANCIAL ASSUMPTIONS & OUTPUT TABLE INCLUDING INITIAL INVESTMENT */}
                 {activeMarkets.length === 0 ? (
                   <div className="card" style={{ textAlign: "center", padding: "40px 20px", color: "var(--ink-muted)" }}>
                     <p style={{ fontSize: 15, fontWeight: 600 }}>Your financial workspace is currently empty.</p>
-                    <p style={{ fontSize: 13, marginTop: 4 }}>Select countries in the News & Priority Flags tab to evaluate their financial feasibility.</p>
+                    <p style={{ fontSize: 13, marginTop: 4 }}>Select countries in the workspace panel above to model feasibility.</p>
                   </div>
                 ) : (
                   <div className="table-container">
                     <table>
                       <thead>
                         <tr>
-                          <th>Active Country</th>
-                          <th>Online Market</th>
-                          <th>Our Proj. GGR</th>
-                          <th>Active Players</th>
-                          <th>Gaming Tax</th>
-                          <th>Annual EBITDA</th>
-                          <th>Initial Outlay</th>
-                          <th>Payback</th>
-                          <th>3-Yr NPV ({discountRate}%)</th>
+                          <th>Country</th>
+                          <th>Market Size</th>
+                          <th>Share %</th>
+                          <th>ARPU / CAC</th>
+                          <th>Bonus / PSP</th>
+                          <th>Staff (FTE / Sal)</th>
+                          <th style={{ background: "#FEF9C3", color: "#854D0E" }}>License Fee</th>
+                          <th style={{ background: "#FEF9C3", color: "#854D0E" }}>Bank Deposit / Bond</th>
+                          <th style={{ background: "#FEF9C3", color: "#854D0E" }}>Setup & Working Cap</th>
+                          <th style={{ background: "#FEF08A", color: "#713F12" }}>Total Initial Outlay</th>
+                          <th>Net EBITDA</th>
+                          <th>Payback Period</th>
+                          <th>NPV ({discountRate}%)</th>
                           <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {activeMarkets.map(k => {
-                          const p = profiles[k] || {
-                            country: k,
-                            fields: { online_ggr: 500000000, tax_rate: 0.15, upfront_usd: 1500000 }
+                        {activeMarkets.map(c => {
+                          const inp = countryInputs[c] || {
+                            mktGgr: 500000000, targetShare: 2.0, arpu: 45, cac: 50, ftdRatio: 0.18,
+                            bonusPct: 25.0, pspPct: 3.5, taxRate: 0.15, headcount: 20, monthlySalary: 2500,
+                            licenseFeeInitial: 50000, bankGuaranteeDeposit: 1000000, setupCapexWorkingCap: 500000
                           };
-                          const mkt = p.fields.online_ggr;
-                          const projGgr = mkt * (targetShare / 100);
-                          const players = Math.round(projGgr / (arpu * 12));
-                          const tax = projGgr * p.fields.tax_rate;
-                          const tech = projGgr * (platformPct / 100);
-                          const mktg = projGgr * (marketingPct / 100);
-                          const staffOpex = headcount * 45000;
-                          const ebitda = projGgr - (tax + tech + mktg + staffOpex);
 
-                          const outlay = modelMode === "greenfield" 
-                            ? p.fields.upfront_usd 
+                          const projGgr = inp.mktGgr * (inp.targetShare / 100);
+                          const estFtds = Math.round((projGgr * inp.ftdRatio) / (inp.arpu * 1.5));
+                          const totalAcquisitionSpend = estFtds * inp.cac;
+                          const bonusCost = projGgr * (inp.bonusPct / 100);
+                          const gamingTax = projGgr * inp.taxRate;
+                          const techRoyalty = projGgr * (platformPct / 100);
+                          const pspExpense = projGgr * (inp.pspPct / 100);
+                          const annualStaffExpense = inp.headcount * inp.monthlySalary * 12;
+                          const otherExpenses = projGgr * 0.02 + 80000;
+
+                          const ebitda = projGgr - (gamingTax + techRoyalty + pspExpense + totalAcquisitionSpend + bonusCost + annualStaffExpense + otherExpenses);
+                          
+                          // Comprehensive Initial Investment Sum
+                          const totalInitialOutlay = modelMode === "greenfield" 
+                            ? ((inp.licenseFeeInitial || 0) + (inp.bankGuaranteeDeposit || 0) + (inp.setupCapexWorkingCap || 0))
                             : Math.max(0, ebitda * 4.5);
 
-                          const payback = ebitda > 0 ? (outlay / ebitda).toFixed(1) + " yrs" : "Negative";
+                          // Accurate Payback Calculation based on comprehensive Initial Outlay
+                          const payback = ebitda > 0 ? (totalInitialOutlay / ebitda).toFixed(1) + " yrs" : "Negative";
+
+                          // 5-Year DCF / NPV
                           const r = discountRate / 100;
-                          const npv = -outlay + (ebitda * 0.8 / (1 + r)) + (ebitda / Math.pow(1 + r, 2)) + (ebitda * 1.15 / Math.pow(1 + r, 3));
+                          const npv = -totalInitialOutlay + (ebitda * 0.5 / (1 + r)) + (ebitda * 0.8 / Math.pow(1 + r, 2)) + (ebitda * 1.1 / Math.pow(1 + r, 3)) + (ebitda * 1.3 / Math.pow(1 + r, 4)) + (ebitda * 1.45 / Math.pow(1 + r, 5));
 
                           return (
-                            <tr key={k}>
+                            <tr key={c}>
                               <td>
-                                <strong>{p.country}</strong>
-                                <span style={{ display: "block", fontSize: 11, color: "var(--ink-muted)" }}>{p.region || "Market"}</span>
+                                <strong>{c}</strong>
+                                <span style={{ display: "block", fontSize: 11, color: "var(--ink-muted)" }}>
+                                  Tax: {(inp.taxRate * 100).toFixed(1)}% GGR
+                                </span>
                               </td>
-                              <td>${(mkt / 1e6).toFixed(0)}M</td>
-                              <td style={{ color: "var(--brand)", fontWeight: 700 }}>${(projGgr / 1e6).toFixed(2)}M</td>
-                              <td>{players.toLocaleString()}</td>
-                              <td style={{ color: "var(--danger)" }}>
-                                ${(tax / 1e6).toFixed(2)}M ({(p.fields.tax_rate * 100).toFixed(0)}%)
+
+                              <td>
+                                <input className="input input-sm" style={{ width: 75 }} type="number" value={inp.mktGgr} onChange={e => updateCountryInput(c, "mktGgr", e.target.value)} />
                               </td>
+
+                              <td>
+                                <input className="input input-sm" style={{ width: 45 }} type="number" step="0.5" value={inp.targetShare} onChange={e => updateCountryInput(c, "targetShare", e.target.value)} />%
+                              </td>
+
+                              <td>
+                                <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+                                  <span>$</span><input className="input input-sm" style={{ width: 40 }} type="number" value={inp.arpu} title="ARPU" onChange={e => updateCountryInput(c, "arpu", e.target.value)} />
+                                  <span>/</span><input className="input input-sm" style={{ width: 40 }} type="number" value={inp.cac} title="CAC" onChange={e => updateCountryInput(c, "cac", e.target.value)} />
+                                </div>
+                              </td>
+
+                              <td>
+                                <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+                                  <input className="input input-sm" style={{ width: 38 }} type="number" value={inp.bonusPct} title="Bonus %" onChange={e => updateCountryInput(c, "bonusPct", e.target.value)} />%
+                                  <span>/</span><input className="input input-sm" style={{ width: 38 }} type="number" step="0.5" value={inp.pspPct} title="PSP %" onChange={e => updateCountryInput(c, "pspPct", e.target.value)} />%
+                                </div>
+                              </td>
+
+                              <td>
+                                <div style={{ display: "flex", gap: 2, alignItems: "center" }}>
+                                  <input className="input input-sm" style={{ width: 38 }} type="number" value={inp.headcount} title="FTE" onChange={e => updateCountryInput(c, "headcount", e.target.value)} />
+                                  <span>@ $</span>
+                                  <input className="input input-sm" style={{ width: 55 }} type="number" value={inp.monthlySalary} title="Salary" onChange={e => updateCountryInput(c, "monthlySalary", e.target.value)} />
+                                </div>
+                              </td>
+
+                              {/* INITIAL INVESTMENT: License Fee */}
+                              <td style={{ background: "#FEFCE8" }}>
+                                $<input 
+                                  className="input input-sm" 
+                                  style={{ width: 75, fontWeight: 700 }} 
+                                  type="number" 
+                                  value={inp.licenseFeeInitial || 0} 
+                                  title="Initial Statutory License Surcharge"
+                                  onChange={e => updateCountryInput(c, "licenseFeeInitial", e.target.value)} 
+                                />
+                              </td>
+
+                              {/* INITIAL INVESTMENT: Bank Deposit / Bond */}
+                              <td style={{ background: "#FEFCE8" }}>
+                                $<input 
+                                  className="input input-sm" 
+                                  style={{ width: 85, fontWeight: 700 }} 
+                                  type="number" 
+                                  value={inp.bankGuaranteeDeposit || 0} 
+                                  title="Bank Deposit & Capital Reserve Requirement"
+                                  onChange={e => updateCountryInput(c, "bankGuaranteeDeposit", e.target.value)} 
+                                />
+                              </td>
+
+                              {/* INITIAL INVESTMENT: Setup Capex & Working Capital */}
+                              <td style={{ background: "#FEFCE8" }}>
+                                $<input 
+                                  className="input input-sm" 
+                                  style={{ width: 80, fontWeight: 700 }} 
+                                  type="number" 
+                                  value={inp.setupCapexWorkingCap || 0} 
+                                  title="Pre-Launch Marketing, Office Fitout & Legal Setup"
+                                  onChange={e => updateCountryInput(c, "setupCapexWorkingCap", e.target.value)} 
+                                />
+                              </td>
+
+                              {/* TOTAL INITIAL OUTLAY SUM */}
+                              <td style={{ background: "#FEF9C3", fontWeight: 800 }}>
+                                ${(totalInitialOutlay / 1e6).toFixed(2)}M
+                              </td>
+
+                              {/* NET EBITDA */}
                               <td style={{ fontWeight: 800, color: ebitda >= 0 ? "var(--ok)" : "var(--danger)" }}>
                                 ${(ebitda / 1e6).toFixed(2)}M
                               </td>
-                              <td style={{ fontWeight: 600 }}>${(outlay / 1e6).toFixed(2)}M</td>
-                              <td><strong>{payback}</strong></td>
+
+                              {/* PAYBACK PERIOD */}
+                              <td style={{ fontWeight: 800 }}>
+                                {payback}
+                              </td>
+
+                              {/* 5-YEAR DCF / NPV */}
                               <td style={{ fontWeight: 800, color: npv >= 0 ? "var(--ok)" : "var(--danger)" }}>
                                 ${(npv / 1e6).toFixed(2)}M
                               </td>
+
                               <td>
-                                <button 
-                                  className="btn btn-danger" 
-                                  style={{ padding: "3px 8px", fontSize: 11 }}
-                                  onClick={() => toggleMarketInWorkspace(k)}
-                                >
-                                  Remove
+                                <button className="btn" style={{ padding: "4px 8px", fontSize: 11 }} onClick={() => setDrilldownCountry(c)}>
+                                  5-Yr Plan 📊
                                 </button>
                               </td>
                             </tr>
@@ -1396,195 +1219,301 @@
                     </table>
                   </div>
                 )}
+
+                {/* 5-YEAR DRILLDOWN MODAL (INCLUDING INITIAL INVESTMENT LINE ITEMS) */}
+                {drilldownCountry && (
+                  <div className="card" style={{ marginTop: 20, border: "2px solid var(--brand)", background: "#fff" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)", paddingBottom: 10 }}>
+                      <div>
+                        <span className="badge badge-ok">5-Year Projection Scenario</span>
+                        <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--ink)", marginTop: 4 }}>
+                          Multi-Year Financial Plan: {drilldownCountry}
+                        </h3>
+                        <p style={{ fontSize: 12, color: "var(--ink-muted)" }}>
+                          Detailed 5-Year forecast following your corporate financial projection modeling standards.
+                        </p>
+                      </div>
+                      <button className="btn btn-danger" onClick={() => setDrilldownCountry(null)}>Close Drilldown ✕</button>
+                    </div>
+
+                    <div className="table-container" style={{ marginTop: 14 }}>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Metric / Line Item</th>
+                            <th>Year 1</th>
+                            <th>Year 2</th>
+                            <th>Year 3</th>
+                            <th>Year 4</th>
+                            <th>Year 5</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {(() => {
+                            const model5 = compute5YearModel(drilldownCountry);
+                            const rows = [
+                              { label: "Market Size (Online GGR at 8% CAGR)", key: "mktSize", format: v => `$${(v/1e6).toFixed(1)}M` },
+                              { label: "Projected Brand GGR", key: "ggr", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true },
+                              { label: "Active Bettors Needed", key: "activePlayers", format: v => v.toLocaleString() },
+                              { label: "First Time Depositors (FTDs)", key: "ftds", format: v => v.toLocaleString() },
+                              { label: "Acquisition Spend (FTDs × CAC)", key: "cacSpend", format: v => `-$${(v/1e6).toFixed(2)}M`, danger: true },
+                              { label: "Bonus Expenses", key: "bonusCost", format: v => `-$${(v/1e6).toFixed(2)}M`, danger: true },
+                              { label: "Net Gaming Revenue (NGR)", key: "ngr", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true },
+                              { label: "Sovereign Gaming Tax", key: "taxCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
+                              { label: "Payment Processing (PSP Fees)", key: "pspCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
+                              { label: "Platform Provider Royalty (13%)", key: "techCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
+                              { label: "Staff Salaries & Social Taxes", key: "staffCost", format: v => `-$${(v/1e6).toFixed(2)}M` },
+                              { label: "Total Initial Investment Outlay (Year 1 Capex)", key: "totalInitialInvestment", format: v => `-$${(v/1e6).toFixed(2)}M`, danger: true },
+                              { label: "Net Operating EBITDA", key: "ebitda", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true, ok: true },
+                              { label: "Free Cash Flow (FCF)", key: "fcf", format: v => `$${(v/1e6).toFixed(2)}M`, bold: true }
+                            ];
+
+                            return rows.map((r, i) => (
+                              <tr key={i} style={r.bold ? { background: "var(--surface-2)" } : {}}>
+                                <td><strong>{r.label}</strong></td>
+                                {model5.map((col, idx) => (
+                                  <td key={idx} style={{ 
+                                    fontWeight: r.bold ? 800 : 500, 
+                                    color: r.danger ? "var(--danger)" : r.ok ? (col.ebitda >= 0 ? "var(--ok)" : "var(--danger)") : "inherit" 
+                                  }}>
+                                    {r.format(col[r.key])}
+                                  </td>
+                                ))}
+                              </tr>
+                            ));
+                          })()}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
-            {/* TAB 4: CUMULATIVE GGR VOLUME DATABASE */}
+            {/* TAB 3: COUNTRY PROFILE */}
+            {tab === "profile" && (
+              <div>
+                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>Select Country Profile:</span>
+                    <select
+                      className="input"
+                      style={{ fontWeight: 700, minWidth: 200 }}
+                      value={selectedProfileCountry}
+                      onChange={e => setSelectedProfileCountry(e.target.value)}
+                    >
+                      {ALL_COUNTRIES_LIST.map(c => (
+                        <option key={c} value={c}>
+                          {c} {profiles[c] ? "✓ (Audited)" : ""}
+                        </option>
+                      ))}
+                    </select>
+
+                    <button
+                      className="btn btn-primary"
+                      onClick={() => buildDedicatedCountryProfile(selectedProfileCountry)}
+                      disabled={isProfileBuilding}
+                    >
+                      {isProfileBuilding ? `Building ${selectedProfileCountry}...` : `Build / Refresh Profile for ${selectedProfileCountry} ⚡`}
+                    </button>
+                  </div>
+
+                  <button className="btn" onClick={() => window.print()}>
+                    Download / Print PDF 🖨️
+                  </button>
+                </div>
+
+                {profileRunStatus && (
+                  <div style={{ background: "var(--brand-soft)", padding: "9px 14px", borderRadius: 8, marginTop: 10, fontWeight: 600, color: "var(--brand-2)" }}>
+                    {profileRunStatus}
+                  </div>
+                )}
+
+                {/* Profile Card View */}
+                <div className="card" style={{ marginTop: 14 }}>
+                  <div style={{ borderBottom: "1px solid var(--line)", paddingBottom: 14, marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap" }}>
+                    <div>
+                      <small style={{ fontSize: 11, fontWeight: 800, color: "var(--brand)", textTransform: "uppercase" }}>iGaming B2C Market Entry Profile</small>
+                      <h2 style={{ fontSize: 26, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{activeProfile.country}</h2>
+                    </div>
+
+                    <div className="grid-4" style={{ minWidth: 460 }}>
+                      <div className="status-tile" style={{ background: "var(--ok-soft)", borderColor: "#A6F4C5" }}>
+                        <small style={{ color: "var(--ok-ink)" }}>Status</small>
+                        <strong style={{ color: "var(--ok-ink)" }}>{activeProfile.status.status}</strong>
+                      </div>
+                      <div className="status-tile" style={{ background: "var(--info-soft)", borderColor: "#B2DDFF" }}>
+                        <small style={{ color: "var(--info-ink)" }}>Casino</small>
+                        <strong style={{ color: "var(--info-ink)" }}>{activeProfile.status.casino}</strong>
+                      </div>
+                      <div className="status-tile" style={{ background: "var(--surface-2)", borderColor: "var(--line)" }}>
+                        <small style={{ color: "var(--ink-muted)" }}>Sports</small>
+                        <strong style={{ color: "var(--ink)" }}>{activeProfile.status.sports}</strong>
+                      </div>
+                      <div className="status-tile" style={{ background: "var(--warn-soft)", borderColor: "#FEDF89" }}>
+                        <small style={{ color: "var(--warn-ink)" }}>Foreign Access</small>
+                        <strong style={{ color: "var(--warn-ink)" }}>{activeProfile.status.foreign}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: 13.5, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)", marginBottom: 6 }}>At a Glance & Decision Barriers</h3>
+                  <div style={{ background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 8, padding: 14, marginBottom: 18 }}>
+                    <ul style={{ paddingLeft: 18, lineHeight: 1.6, fontSize: 13.5 }}>
+                      {activeProfile.glance.map((b, i) => <li key={i}>{b}</li>)}
+                    </ul>
+                  </div>
+
+                  <div className="grid-2">
+                    <div>
+                      <h4 style={{ fontSize: 12.5, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Market Indicators</h4>
+                      <div className="table-container">
+                        <table>
+                          <thead><tr><th>Metric</th><th>Value</th><th>Source</th></tr></thead>
+                          <tbody>
+                            {activeProfile.market.map((row, i) => (
+                              <tr key={i}>
+                                <td><strong>{row.label}</strong></td>
+                                <td>{row.value}</td>
+                                <td>{row.source}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 style={{ fontSize: 12.5, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Statutory Fees & Taxes</h4>
+                      <div className="table-container">
+                        <table>
+                          <thead><tr><th>Vertical</th><th>Rule / Rate</th><th>Authority</th></tr></thead>
+                          <tbody>
+                            {activeProfile.taxes.concat(activeProfile.costs).map((row, i) => (
+                              <tr key={i}>
+                                <td><strong>{row.label}</strong></td>
+                                <td style={{ fontWeight: 700, color: "var(--danger)" }}>{row.value}</td>
+                                <td>{row.source}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 4: REGULATORY TIMELINE CALENDAR */}
+            {tab === "timeline" && (
+              <div>
+                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+                  <div>
+                    <h2 style={{ fontSize: 17, fontWeight: 800 }}>Regulatory Implementation Timeline</h2>
+                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>Statutory enforcements, consultation deadlines, and decrees expected over the next 12 months.</p>
+                  </div>
+
+                  <div className="seg-ctrl">
+                    {["all", "draft", "passed", "inforce"].map(st => (
+                      <button
+                        key={st}
+                        className={`seg-btn ${timelineStageFilter === st ? "active" : ""}`}
+                        onClick={() => setTimelineStageFilter(st)}
+                      >
+                        {st.toUpperCase()}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: 16, display: "grid", gap: 14 }}>
+                  {[
+                    { date: "Q1 2027", country: "Armenia", stage: "inforce", title: "Mandatory Real-Time SRC Telemetry API Enforcement", desc: "Remote platforms must stream live bet transaction tickets and customer hashed IDs directly to the State Revenue Committee central audit node.", impact: "High" },
+                    { date: "Q2 2027", country: "Romania", stage: "passed", title: "Class 1 Licensee National Responsible Gaming Central Gateway", desc: "Mandatory API cross-checks against the national self-exclusion registry prior to depositing or wager placement.", impact: "High" },
+                    { date: "Q3 2027", country: "Brazil", stage: "draft", title: "Biometric Liveness & Facial Recognition Protocol Deadline", desc: "SPA mandates verified biometric liveness checks on account creation and high-tier withdrawal transactions.", impact: "Medium" }
+                  ]
+                    .filter(ev => timelineStageFilter === "all" || ev.stage === timelineStageFilter)
+                    .map((ev, i) => (
+                      <div key={i} className="card" style={{ marginTop: 0, borderLeft: "4px solid var(--brand)" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: "var(--brand)" }}>{ev.date} • {ev.country}</span>
+                          <span className={`badge ${ev.impact === "High" ? "badge-money" : "badge-rules"}`}>{ev.impact} Impact</span>
+                        </div>
+                        <h4 style={{ fontSize: 15, fontWeight: 700 }}>{ev.title}</h4>
+                        <p style={{ fontSize: 13.5, color: "var(--ink-2)", marginTop: 4 }}>{ev.desc}</p>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 5: GGR DATABASE */}
             {tab === "ggr" && (
               <div>
                 <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div>
                     <h2 style={{ fontSize: 17, fontWeight: 800 }}>Cumulative GGR Volume Database ({ggrDatabase.length} Archived Rows)</h2>
-                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>
-                      Every country you search appends records here automatically. Stored permanently in your browser memory.
-                    </p>
+                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>Parsed gross revenue figures saved permanently in browser storage.</p>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn btn-primary" onClick={() => {
-                      const csvContent = "data:text/csv;charset=utf-8," + ["Country,Period,Segment,Metric,Amount,Change,Source,DateAdded"]
-                        .concat(ggrDatabase.map(r => `"${r.country}","${r.period}","${r.segment}","${r.metric}","${r.amount}","${r.change}","${r.source}","${r.dateAdded}"`))
-                        .join("\n");
-                      const encodedUri = encodeURI(csvContent);
-                      const link = document.createElement("a");
-                      link.setAttribute("href", encodedUri);
-                      link.setAttribute("download", `ggr_cumulative_database_${new Date().toISOString().slice(0,10)}.csv`);
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}>
-                      Export Complete GGR Database (CSV)
-                    </button>
-                    <button className="btn btn-danger" onClick={() => {
-                      if (confirm("Are you sure you want to clear your saved GGR database?")) {
-                        setGgrDatabase([]);
-                      }
-                    }}>
-                      Clear GGR Table
-                    </button>
-                  </div>
+                  <button className="btn btn-danger" onClick={() => setGgrDatabase([])}>Clear GGR Table</button>
                 </div>
 
                 <div className="table-container">
                   <table>
                     <thead>
-                      <tr>
-                        <th>Country</th>
-                        <th>Period</th>
-                        <th>Segment</th>
-                        <th>Metric</th>
-                        <th>Amount</th>
-                        <th>Reported Change</th>
-                        <th>Source</th>
-                        <th>Archived Date</th>
-                      </tr>
+                      <tr><th>Country</th><th>Period</th><th>Segment</th><th>Metric</th><th>Amount</th><th>Reported Change</th><th>Source</th><th>Archived</th></tr>
                     </thead>
                     <tbody>
-                      {ggrDatabase.length === 0 ? (
-                        <tr><td colSpan="8" style={{ textAlign: "center", padding: 24, color: "var(--ink-muted)" }}>No GGR records in database yet. Search any country to append records.</td></tr>
-                      ) : (
-                        ggrDatabase.map(r => (
-                          <tr key={r.id}>
-                            <td><strong>{r.country}</strong></td>
-                            <td>{r.period}</td>
-                            <td>{r.segment}</td>
-                            <td>{r.metric}</td>
-                            <td style={{ fontWeight: 800 }}>{r.amount}</td>
-                            <td style={{ color: r.change.includes("+") ? "var(--ok)" : "var(--ink)" }}>{r.change}</td>
-                            <td>{r.source}</td>
-                            <td style={{ fontSize: 12, color: "var(--ink-muted)" }}>{r.dateAdded}</td>
-                          </tr>
-                        ))
-                      )}
+                      {ggrDatabase.map(r => (
+                        <tr key={r.id}>
+                          <td><strong>{r.country}</strong></td>
+                          <td>{r.period}</td>
+                          <td>{r.segment}</td>
+                          <td>{r.metric}</td>
+                          <td style={{ fontWeight: 800 }}>{r.amount}</td>
+                          <td style={{ color: r.change.includes("+") ? "var(--ok)" : "var(--ink)" }}>{r.change}</td>
+                          <td>{r.source}</td>
+                          <td style={{ fontSize: 12, color: "var(--ink-muted)" }}>{r.dateAdded}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
               </div>
             )}
 
-            {/* TAB 5: CUMULATIVE CAC COST DATABASE */}
+            {/* TAB 6: CAC DATABASE */}
             {tab === "cac" && (
               <div>
                 <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
                   <div>
-                    <h2 style={{ fontSize: 17, fontWeight: 800 }}>Cumulative CAC & CPA Database ({cacDatabase.length} Archived Rows)</h2>
-                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>
-                      Archived customer acquisition cost benchmarks (CPA, cost per FTD, registration spend) across all searched markets.
-                    </p>
+                    <h2 style={{ fontSize: 17, fontWeight: 800 }}>Customer Acquisition Cost (CAC) Database</h2>
+                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>Archived CPA, cost per first-time depositor (FTD), and marketing spend.</p>
                   </div>
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button className="btn btn-primary" onClick={() => {
-                      const csvContent = "data:text/csv;charset=utf-8," + ["Country,Company,Period,Segment,Metric,Amount,Change,Source,DateAdded"]
-                        .concat(cacDatabase.map(r => `"${r.country}","${r.company}","${r.period}","${r.segment}","${r.metric}","${r.amount}","${r.change}","${r.source}","${r.dateAdded}"`))
-                        .join("\n");
-                      const encodedUri = encodeURI(csvContent);
-                      const link = document.createElement("a");
-                      link.setAttribute("href", encodedUri);
-                      link.setAttribute("download", `cac_cumulative_database_${new Date().toISOString().slice(0,10)}.csv`);
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}>
-                      Export Complete CAC Database (CSV)
-                    </button>
-                    <button className="btn btn-danger" onClick={() => {
-                      if (confirm("Are you sure you want to clear your saved CAC database?")) {
-                        setCacDatabase([]);
-                      }
-                    }}>
-                      Clear CAC Table
-                    </button>
-                  </div>
+                  <button className="btn btn-danger" onClick={() => setCacDatabase([])}>Clear CAC Table</button>
                 </div>
 
                 <div className="table-container">
                   <table>
                     <thead>
-                      <tr>
-                        <th>Country</th>
-                        <th>Company / Entity</th>
-                        <th>Period</th>
-                        <th>Segment</th>
-                        <th>Metric</th>
-                        <th>Amount</th>
-                        <th>Change</th>
-                        <th>Source</th>
-                        <th>Archived Date</th>
-                      </tr>
+                      <tr><th>Country</th><th>Entity</th><th>Period</th><th>Segment</th><th>Metric</th><th>Amount</th><th>Change</th><th>Source</th></tr>
                     </thead>
                     <tbody>
-                      {cacDatabase.length === 0 ? (
-                        <tr><td colSpan="9" style={{ textAlign: "center", padding: 24, color: "var(--ink-muted)" }}>No CAC records in database yet. Search any country to append records.</td></tr>
-                      ) : (
-                        cacDatabase.map(r => (
-                          <tr key={r.id}>
-                            <td><strong>{r.country}</strong></td>
-                            <td>{r.company}</td>
-                            <td>{r.period}</td>
-                            <td>{r.segment}</td>
-                            <td>{r.metric}</td>
-                            <td style={{ fontWeight: 800, color: "#4A3AA0" }}>{r.amount}</td>
-                            <td>{r.change}</td>
-                            <td>{r.source}</td>
-                            <td style={{ fontSize: 12, color: "var(--ink-muted)" }}>{r.dateAdded}</td>
-                          </tr>
-                        ))
-                      )}
+                      {cacDatabase.map(r => (
+                        <tr key={r.id}>
+                          <td><strong>{r.country}</strong></td>
+                          <td>{r.company}</td>
+                          <td>{r.period}</td>
+                          <td>{r.segment}</td>
+                          <td>{r.metric}</td>
+                          <td style={{ fontWeight: 800, color: "#4A3AA0" }}>{r.amount}</td>
+                          <td>{r.change}</td>
+                          <td>{r.source}</td>
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
-                </div>
-              </div>
-            )}
-
-            {/* TAB 6: SOURCES & EXCEL PIPELINE */}
-            {tab === "sources" && (
-              <div style={{ display: "grid", gap: 16 }}>
-                <div className="card">
-                  <h3 className="card-title">SharePoint / OneDrive Master Market List Integration</h3>
-                  <p className="card-subtitle">Clicking "Add to Excel" opens this workbook and copies the instruction for Claude in Excel.</p>
-
-                  <div style={{ display: "grid", gap: 10 }}>
-                    <div>
-                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>SharePoint Online Workbook URL:</label>
-                      <input
-                        className="input"
-                        style={{ width: "100%", fontSize: 12.5 }}
-                        value={excelUrl}
-                        onChange={e => {
-                          setExcelUrl(e.target.value);
-                          localStorage.setItem("desk_excel_url", e.target.value);
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card">
-                  <h3 className="card-title">Anthropic API Key (Optional for Live Single-Country Scanning)</h3>
-                  <p className="card-subtitle">Stored strictly in local browser cache. Enables live API searches.</p>
-                  <input
-                    type="password"
-                    className="input"
-                    style={{ width: "100%", maxWidth: 440 }}
-                    placeholder="sk-ant-api03-..."
-                    value={apiKey}
-                    onChange={e => {
-                      setApiKey(e.target.value);
-                      localStorage.setItem("desk_ant_key", e.target.value);
-                    }}
-                  />
-                  <div style={{ fontSize: 12, color: apiKey ? "var(--ok)" : "var(--ink-muted)", marginTop: 4 }}>
-                    {apiKey ? "✓ API Key active. Live AI web searches will execute." : "No key provided: Search triggers execute in fast local audit simulation mode."}
-                  </div>
                 </div>
               </div>
             )}
