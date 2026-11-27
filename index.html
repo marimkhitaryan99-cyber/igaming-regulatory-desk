@@ -3,413 +3,340 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>iGaming Regulatory & Market Entry Intelligence Desk</title>
-  <!-- React 18 & ReactDOM -->
+  <title>iGaming Regulatory Desk & Market Entry Intelligence</title>
+  <!-- React & ReactDOM -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-  <!-- Babel Standalone for JSX parsing -->
+  <!-- Babel -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  
   <style>
-    /* Full original CSS specification */
-    .rd-root{--bg:#F2F5F8;--surface:#FFFFFF;--surface-2:#F7F9FB;--ink:#14212B;--ink-2:#2B3B48;--muted:#55687A;--line:#E1E7ED;--line-2:#CBD5DD;
-      --brand:#0D5662;--brand-2:#0A434D;--brand-soft:#E2F0F2;--ring:#2F8FA3;
-      --danger:#B42318;--danger-soft:#FDECEA;--danger-ink:#8C1D14;--warn:#9A5A00;--warn-soft:#FDF1D6;--warn-ink:#6A3F00;
-      --info:#2F46A8;--info-soft:#E8ECFA;--info-ink:#233485;--ok:#1B6B3A;--ok-soft:#E2F3E7;--ok-ink:#14502B;
-      --paper:var(--bg);--panel:var(--surface);--accent:var(--brand);--accent-ink:#FFFFFF;
-      --r-lg:14px;--r:10px;--r-sm:8px;--sh1:0 1px 2px rgba(20,33,43,.06);--sh2:0 1px 2px rgba(20,33,43,.05),0 10px 28px rgba(20,33,43,.07);
-      font-family:Inter,"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;font-size:15px;line-height:1.5;color:var(--ink);background:var(--bg);min-height:100vh;-webkit-font-smoothing:antialiased}
-    .rd-root *{box-sizing:border-box}
-    .rd-root :focus-visible{outline:3px solid var(--ring);outline-offset:2px}
-    .rd-wrap{max-width:1280px;margin:0 auto;padding:0 24px 56px}
-    .rd-skip{position:absolute;left:-9999px;top:8px;background:var(--brand);color:#fff;padding:10px 14px;border-radius:var(--r-sm);z-index:100;font-weight:600;text-decoration:none}
-    .rd-skip:focus{left:12px}
-    .rd-ic{flex:none;vertical-align:-3px}
-
-    /* ---- top bar and tabs ---- */
-    .rd-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 0 12px}
-    .rd-brand-cluster{display:flex;align-items:center;gap:12px}
-    .rd-logo{width:40px;height:40px;border-radius:11px;background:var(--brand);color:#fff;display:grid;place-items:center;flex:none;box-shadow:var(--sh1);font-weight:800;font-size:18px}
-    .rd-title{font-family:Georgia,"Times New Roman",serif;font-size:24px;line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em}
-    .rd-subtitle{font-size:13px;color:var(--muted);margin:2px 0 0}
-    .rd-nav{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line-2);margin:0 -24px 22px;padding:0 24px}
-    .rd-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity}
-    .rd-tabs::-webkit-scrollbar{display:none}
-    .rd-navtab{display:flex;align-items:center;gap:6px;flex:none;background:none;border:0;border-bottom:3px solid transparent;margin-bottom:-1px;padding:12px 10px;font:inherit;font-size:14.5px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;scroll-snap-align:start;transition:color .12s}
-    .rd-navtab:hover{color:var(--ink)}
-    .rd-navtab[aria-selected="true"]{color:var(--brand);border-bottom-color:var(--brand)}
-    .rd-navcount{font-size:12px;font-weight:700;background:#E4EAEF;color:var(--ink-2);border-radius:999px;padding:1px 7px;min-width:20px;text-align:center}
-    .rd-navtab[aria-selected="true"] .rd-navcount{background:var(--brand-soft);color:var(--brand-2)}
-
-    /* ---- page heads & components ---- */
-    .rd-pagehead{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;margin-bottom:14px}
-    .rd-h2{font-size:22px;line-height:1.2;margin:0;font-weight:700}
-    .rd-go{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px;background:var(--brand);color:#fff;border:0;border-radius:var(--r);padding:8px 20px;font-size:14.5px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:var(--sh1);transition:background .12s}
-    .rd-go:hover:not(:disabled){background:var(--brand-2)}
-    .rd-go:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
-    .rd-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:36px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:var(--r-sm);padding:6px 13px;font-size:13.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .12s,border-color .12s}
-    .rd-btn:hover:not(:disabled){background:var(--surface-2);border-color:var(--brand)}
-    .rd-btn:disabled{opacity:.5;cursor:not-allowed}
-    a.rd-btn{text-decoration:none;color:var(--ink)}
-    .rd-chip{display:inline-flex;align-items:center;gap:7px;min-height:30px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;white-space:nowrap}
-    .rd-chip:hover{border-color:var(--brand);background:var(--surface-2)}
-    .rd-chip[aria-pressed="true"]{background:var(--brand);color:#fff;border-color:var(--brand)}
-    .rd-input{width:100%;min-height:36px;border:1px solid var(--line-2);border-radius:var(--r-sm);padding:7px 10px;font-size:14.5px;font-family:inherit;background:var(--surface);color:var(--ink)}
-    .rd-input:focus-visible{outline-offset:0;border-color:var(--ring)}
-    textarea.rd-input{resize:vertical;line-height:1.45}
-    .rd-link{background:none;border:0;color:var(--brand);cursor:pointer;font-size:13.5px;font-weight:600;padding:2px 4px;min-height:26px;display:inline-flex;align-items:center;font-family:inherit;text-decoration:none}
-    .rd-link:hover{text-decoration:underline}
-    .rd-check{display:inline-flex;gap:8px;align-items:center;font-size:14px;cursor:pointer}
-    .rd-check input{width:16px;height:16px;accent-color:var(--brand)}
-    .rd-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    .rd-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-    .rd-status{font-size:13.5px;color:var(--muted);line-height:1.4}
-    .rd-err{color:var(--danger-ink);font-size:13.5px;margin:4px 0 12px;background:var(--danger-soft);border-radius:var(--r-sm);padding:9px 12px}
-
-    /* ---- panels, cards, scope ---- */
-    .rd-panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;margin-bottom:16px;box-shadow:var(--sh1)}
-    .rd-h{font-size:15px;font-weight:700;margin:0 0 10px}
-    .rd-empty{background:var(--surface);border:1px dashed var(--line-2);border-radius:var(--r-lg);padding:34px 22px;text-align:center;color:var(--muted);font-size:14.5px}
-    .rd-scope{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:14px;box-shadow:var(--sh1)}
-    .rd-scope-summary{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center}
-    .rd-pills{display:flex;flex-wrap:wrap;gap:6px;list-style:none;margin:0;padding:0;flex:1 1 360px}
-    .rd-pill{display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:13px;color:var(--ink-2)}
-    .rd-pill b{font-weight:700;color:var(--ink)}
-    .rd-scope-panel{border-top:1px solid var(--line);margin-top:12px;padding-top:14px}
-    .rd-scope-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px 28px}
-    .rd-scope-h{font-size:14px;font-weight:700;margin:0 0 8px}
-    .rd-scroll{max-height:65vh;overflow-y:auto}
-    .rd-seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;max-width:100%}
-    .rd-seg button{border:0;background:transparent;border-radius:7px;padding:5px 11px;font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;color:var(--ink-2);white-space:nowrap;min-height:30px}
-    .rd-seg button:hover{background:#E9EEF2}
-    .rd-seg button[aria-pressed="true"]{background:var(--brand);color:#fff;font-weight:600}
-    .rd-dates{display:grid;gap:8px;margin-top:10px}
-    .rd-dates label{display:grid;gap:4px;font-size:13.5px;font-weight:600}
-    .rd-region{margin-top:14px}
-    .rd-region-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13.5px;font-weight:700}
-
-    /* ---- progress & notices ---- */
-    .rd-progress{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 16px;margin-bottom:14px;box-shadow:var(--sh1)}
-    .rd-progress-top{display:flex;justify-content:space-between;gap:12px;font-size:14.5px;font-weight:600}
-    .rd-bar{height:8px;background:#E4EAEF;border-radius:999px;overflow:hidden;margin-top:8px}
-    .rd-bar > div{height:100%;background:var(--brand);border-radius:999px;transition:width .35s ease}
-    .rd-active{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px;color:var(--muted)}
-    .rd-active span.rd-pill{background:var(--brand-soft);border-color:transparent;color:var(--brand-2)}
-    .rd-newbar{display:flex;gap:10px;align-items:flex-start;background:var(--brand-soft);border:1px solid #BFDDE3;border-radius:var(--r);padding:10px 14px;margin-bottom:14px;font-size:14px;line-height:1.45;color:var(--brand-2)}
-    .rd-newbar-warn{background:var(--warn-soft);border-color:#EBD08F;color:var(--warn-ink)}
-
-    /* ---- filters ---- */
-    .rd-filters{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:14px;box-shadow:var(--sh1);min-width:0}
-    .rd-filters-body{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
-    .rd-frow{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;min-width:0}
-    .rd-flabel{font-size:13.5px;font-weight:700;color:var(--muted);min-width:54px}
-    .rd-fspace{flex:1 1 auto}
-    .rd-search{position:relative;flex:1 1 240px;max-width:380px}
-    .rd-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
-    .rd-search .rd-input{padding-left:34px}
-    .rd-chiprow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;flex:1 1 0;min-width:0}
-
-    /* ---- items, cards & tags ---- */
-    .sev-money{--sev:var(--danger);--sev-ink:var(--danger-ink)}
-    .sev-rules{--sev:#C07A00;--sev-ink:var(--warn-ink)}
-    .sev-market{--sev:var(--info);--sev-ink:var(--info-ink)}
-    .rd-item{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 16px 12px 20px;margin-bottom:10px;box-shadow:var(--sh1)}
-    .rd-item::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--sev,var(--line-2))}
-    .rd-item-new{background:#F4FAFB;border-color:#C7E1E6}
-    .rd-meta{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:13px;color:var(--muted)}
-    .rd-meta strong{color:var(--ink);font-size:13.5px}
-    .rd-item h4{margin:6px 0 4px;font-size:16px;line-height:1.35;font-weight:600}
-    .rd-item p{margin:0 0 8px;font-size:14px;line-height:1.5;color:var(--ink-2);max-width:80ch}
-    .rd-tag{font-weight:600;font-size:12px;border-radius:6px;padding:1px 7px}
-    .rd-new{font-weight:700;font-size:12px;border-radius:6px;padding:1px 7px;color:#fff;background:var(--brand)}
-    .rd-unv{font-weight:600;font-size:12px;border-radius:6px;padding:1px 7px;color:var(--warn-ink);background:var(--warn-soft)}
-    .rd-flags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
-    .rd-flag{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);padding:1px 9px;border-radius:999px;font-size:12.5px;font-weight:600}
-    .rd-flag::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sev,var(--line-2))}
-    .rd-flagnote{margin:4px 0 6px;font-size:14px;font-weight:600;color:var(--sev-ink,var(--ink))}
-    .rd-ggrline{margin:0 0 6px;font-size:14px;font-weight:600;color:var(--ok-ink)}
-    .rd-cacline{margin:0 0 6px;font-size:14px;font-weight:600;color:#4A3AA0}
-    .rd-item-foot{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--muted);margin-top:2px}
-    .rd-item-foot a{color:var(--brand);font-weight:600;display:inline-flex;align-items:center;gap:5px;min-height:30px;text-decoration:none}
-    .rd-item-foot a:hover{text-decoration:underline}
-    .rd-excel{display:inline-flex;align-items:center;gap:6px;border:1px solid #BBD9C6;color:var(--ok-ink);background:#fff;border-radius:var(--r-sm);padding:3px 10px;min-height:30px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
-    .rd-excel:hover{background:var(--ok-soft)}
-    .rd-sent{color:var(--ok-ink);font-size:13px;font-weight:600}
-
-    /* ---- trackers, profile, tables ---- */
-    .rd-vol{background:var(--surface);border:1px solid var(--line);border-top:4px solid var(--ok);border-radius:var(--r-lg);padding:22px 24px;box-shadow:var(--sh1)}
-    .rd-vol-cac{border-top-color:#4A3AA0}
-    .rd-vol-prof{border-top-color:var(--brand)}
-    .rd-vol-cmp{border-top-color:#2F46A8}
-    .rd-vol-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:14px;margin-bottom:18px}
-    .rd-vol-head h2{font-size:22px;line-height:1.2;margin:0 0 4px;font-weight:700}
-    .rd-vol-head p{margin:0;color:var(--muted);font-size:14px;line-height:1.5;max-width:75ch}
-    .rd-toolbar{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:16px}
-    .rd-tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
-    .rd-table{width:100%;border-collapse:collapse;font-size:14px}
-    .rd-table th{text-align:left;font-weight:700;font-size:13px;color:var(--muted);padding:9px 11px;background:var(--surface-2);border-bottom:1px solid var(--line-2);white-space:nowrap}
-    .rd-table td{padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
-    .rd-table tbody tr:hover td{background:#FAFCFD}
-    .rd-table a{color:var(--brand);font-weight:600;text-decoration:none}
-    .rd-table a:hover{text-decoration:underline}
-    .rd-amt{font-weight:700;white-space:nowrap}
-    .rd-up{color:var(--ok);font-weight:600}
-    .rd-down{color:var(--danger);font-weight:600}
-    .rd-tone{display:inline-block;border-radius:6px;padding:1px 7px;font-weight:600;font-size:13px}
-    .rd-tone-green{background:var(--ok-soft);color:var(--ok-ink)}
-    .rd-tone-amber{background:var(--warn-soft);color:var(--warn-ink)}
-    .rd-tone-red{background:var(--danger-soft);color:var(--danger-ink)}
-    .rd-tone-grey{background:#E9EEF2;color:var(--ink-2)}
-
-    /* ---- country profile ---- */
-    .rd-prof{border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;background:var(--surface)}
-    .rd-prof-title{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-end;margin-bottom:14px}
-    .rd-prof-title h3{font-family:Georgia,"Times New Roman",serif;font-size:32px;line-height:1.1;margin:2px 0 0;color:var(--brand)}
-    .rd-prof-kicker{font-size:13.5px;color:var(--muted)}
-    .rd-prof-meta{text-align:right;font-size:13px;color:var(--muted);line-height:1.45}
-    .rd-prof-status{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:6px}
-    .rd-prof-box{padding:10px 12px;border-radius:var(--r)}
-    .rd-prof-box small{display:block;font-size:12px;text-transform:uppercase;font-weight:600}
-    .rd-prof-box strong{display:block;font-size:15px;margin-top:2px}
-    .rd-prof-h{font-size:17px;font-weight:700;color:var(--brand);margin:22px 0 8px;padding-bottom:5px;border-bottom:2px solid var(--brand)}
-    .rd-prof-list{margin:0;padding-left:22px;font-size:14.5px;line-height:1.5}
-    .rd-prof-note{font-size:13px;color:var(--muted);line-height:1.5;margin:10px 0 0}
-    .rd-basis{font-weight:700;font-size:12.5px}
-
-    /* ---- comparison & weights ---- */
-    .rd-cmp-weights{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 20px;margin:8px 0 12px}
-    .rd-cmp-weight{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;font-size:13.5px;font-weight:600}
-    .rd-cmp-weight input{grid-column:1/2;accent-color:var(--brand);width:100%;height:26px;margin:0}
-    .rd-cmp-weight output{grid-column:2/3;grid-row:1/3;font-weight:700;min-width:20px;text-align:right}
-    .rd-scorebar{height:7px;background:#E4EAEF;border-radius:999px;overflow:hidden;margin-bottom:3px;min-width:85px}
-    .rd-scorebar>div{height:100%;background:var(--brand);border-radius:999px}
-    .rd-cmp-calc{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 16px;margin:8px 0 12px}
-    .rd-cmp-calc label{display:grid;gap:3px;font-size:13.5px;font-weight:600}
-    .rd-cmp-details{margin-top:12px;border:1px solid var(--line);border-radius:var(--r);padding:10px 14px;background:var(--surface-2)}
-    .rd-cmp-details summary{cursor:pointer;font-weight:700;font-size:14px}
-    .rd-cmp-details ul{margin:8px 0;padding-left:20px;line-height:1.5;font-size:13.5px}
-
-    /* ---- timeline calendar ---- */
-    .rd-tl-cal{width:100%;border-collapse:collapse;table-layout:fixed;min-width:720px}
-    .rd-tl-cal th{background:var(--surface-2);border:1px solid var(--line);padding:6px;font-size:12px;text-align:left}
-    .rd-tl-cal td{border:1px solid var(--line);vertical-align:top;padding:4px 5px;height:88px;font-size:12px}
-    .rd-tl-out{background:#F7F8F9;color:#8795A1}
-    .rd-tl-today{outline:2px solid #14606B;outline-offset:-2px}
-    .rd-tl-daynum{display:block;font-weight:700;font-size:11.5px;margin-bottom:2px}
-    .rd-tl-item{border-left:4px solid #8795A1;background:#F4F6F8;border-radius:5px;padding:3px 6px;line-height:1.35;font-size:12px;margin-bottom:3px}
-    .rd-tl-item .rd-tl-stage{font-size:10.5px;font-weight:800;text-transform:uppercase}
-    .rd-tl-draft{border-left-color:#C98A00;background:#FFF6DE}
-    .rd-tl-passed{border-left-color:#2F6DB5;background:#E8F1FC}
-    .rd-tl-inforce{border-left-color:#2E8B57;background:#E4F4EA}
-
-    /* responsive */
-    @media (max-width:760px){
-      .rd-wrap{padding:0 12px 40px}
-      .rd-top{flex-direction:column;align-items:flex-start}
-      .rd-title{font-size:20px}
-      .rd-tl-cal{min-width:0;display:block}
-      .rd-tl-cal thead{display:none}
-      .rd-tl-cal tbody,.rd-tl-cal tr,.rd-tl-cal td{display:block;width:100%}
-      .rd-tl-cal td{height:auto;border:0;border-bottom:1px solid var(--line)}
+    /* 100% Native Self-Contained Styles - Guaranteed to render reliably */
+    :root {
+      --bg: #F4F7F9;
+      --surface: #FFFFFF;
+      --surface-2: #F8FAFC;
+      --ink: #0F172A;
+      --ink-muted: #475569;
+      --line: #E2E8F0;
+      --brand: #0D5662;
+      --brand-dark: #08373E;
+      --brand-soft: #E5F1F3;
+      --danger: #B42318;
+      --danger-bg: #FEF3F2;
+      --warn: #B54708;
+      --warn-bg: #FFFAEB;
+      --info: #175CD3;
+      --info-bg: #EFF8FF;
+      --ok: #027A48;
+      --ok-bg: #ECFDF3;
+      --radius: 10px;
     }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.5;
+      padding-bottom: 60px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
+
+    /* Top Navigation Header */
+    .top-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 0 10px;
+    }
+    .brand-group { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      background: var(--brand);
+      color: #fff;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 17px;
+    }
+    .brand-title { font-size: 19px; font-weight: 800; color: var(--ink); line-height: 1.15; }
+    .brand-subtitle { font-size: 12px; color: var(--ink-muted); margin-top: 2px; }
+
+    /* Nav Tabs */
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--line);
+      margin-top: 4px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      transition: color 0.15s;
+    }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.active {
+      color: var(--brand);
+      border-bottom-color: var(--brand);
+      font-weight: 700;
+    }
+    .tab-counter {
+      font-size: 11px;
+      background: #E2E8F0;
+      color: #334155;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .tab-btn.active .tab-counter {
+      background: var(--brand-soft);
+      color: var(--brand);
+    }
+
+    /* Common Card Panels */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-top: 18px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    /* Button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn:hover { background: var(--surface-2); border-color: #CBD5E1; }
+    .btn-primary {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+    .btn-primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); color: #fff; }
+
+    /* Flags & Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+    .badge-money { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECDCA; }
+    .badge-rules { background: var(--warn-bg); color: var(--warn); border: 1px solid #FEDF89; }
+    .badge-market { background: var(--info-bg); color: var(--info); border: 1px solid #B2DDFF; }
+    .badge-ok { background: var(--ok-bg); color: var(--ok); border: 1px solid #A6F4C5; }
+    .badge-neutral { background: #F1F5F9; color: #475569; }
+
+    /* Input & Select */
+    .input {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 7px 11px;
+      font-size: 13.5px;
+      background: #fff;
+      color: var(--ink);
+      outline: none;
+    }
+    .input:focus { border-color: var(--brand); ring: 2px solid var(--brand); }
+
+    /* News Cards */
+    .news-item {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 18px;
+      margin-top: 14px;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+    }
+    .news-item.alert-border {
+      border-left: 5px solid var(--danger);
+    }
+    .news-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+    }
+    .news-title { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .alert-box {
+      background: #FEF3F2;
+      border-left: 3px solid var(--danger);
+      padding: 6px 10px;
+      margin: 8px 0;
+      border-radius: 0 6px 6px 0;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--danger);
+    }
+    .news-summary { font-size: 14px; color: #334155; line-height: 1.5; margin-bottom: 12px; }
+    .news-footer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid #F1F5F9;
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      gap: 8px;
+    }
+
+    /* Table Formatting */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      margin-top: 12px;
+      background: #fff;
+    }
+    table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+    th {
+      background: var(--surface-2);
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      border-bottom: 1px solid var(--line);
+    }
+    td { padding: 11px 14px; border-bottom: 1px solid #F1F5F9; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #FAFCFE; }
+
+    /* Grid Layouts */
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .grid-inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 12px; }
+    
+    .status-tile {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      text-align: center;
+    }
+    .status-tile small { display: block; font-size: 11px; text-transform: uppercase; font-weight: 700; margin-bottom: 3px; }
+    .status-tile strong { font-size: 15px; font-weight: 800; }
   </style>
 </head>
-<body class="rd-root">
+<body>
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
+    const { useState, useMemo } = React;
 
-    /* ---------- Static Core Data ---------- */
-    const REGIONS = {
-      "Europe": ["Albania", "Austria", "Belgium", "Bulgaria", "Croatia", "Cyprus", "Czech Republic", "Denmark", "Estonia", "Finland", "France", "Germany", "Greece", "Ireland", "Italy", "Malta", "Netherlands", "Poland", "Portugal", "Romania", "Slovakia", "Spain", "Sweden", "United Kingdom"],
-      "Caucasus & CIS": ["Armenia", "Azerbaijan", "Georgia", "Kazakhstan", "Moldova", "Uzbekistan"],
-      "Latin America & Caribbean": ["Argentina", "Brazil", "Chile", "Colombia", "Costa Rica", "Curaçao", "Mexico", "Panama", "Paraguay", "Peru"],
-      "North America": ["Canada", "Canada (Ontario)", "United States"],
-      "Africa": ["Ghana", "Kenya", "Nigeria", "South Africa", "Tanzania", "Uganda"],
-      "Asia-Pacific": ["Australia", "India", "Japan", "New Zealand", "Philippines"]
-    };
-
-    const ALL_COUNTRIES = Object.values(REGIONS).flat();
-    const MY_MARKETS = ["Brazil", "Romania", "Armenia", "Germany", "Peru", "United Kingdom", "Italy", "Mexico", "Colombia"];
-
-    const CATEGORIES = {
-      Regulation: { color: "#3446A0", bg: "#E4E8F7" },
-      Taxation: { color: "#8A5A00", bg: "#F8EBCF" },
-      Licensing: { color: "#0B6B63", bg: "#D9F0EC" },
-      Enforcement: { color: "#A52F26", bg: "#F8DFDC" },
-      Market: { color: "#46586A", bg: "#E3E9EE" },
-      "Market volume": { color: "#1F6B3A", bg: "#DDF0E3" },
-      "Acquisition cost": { color: "#4A3AA0", bg: "#E9E6F7" },
-    };
-
-    const FLAG_RULES = [
-      { id: "tax", label: "Tax change", description: "Gaming or betting tax rate increase or decrease" },
-      { id: "capital", label: "Capital requirement", description: "Increase/decrease in minimum share capital or bank guarantee" },
-      { id: "opening", label: "Market opening", description: "Discussions or proposals to regulate online gambling" },
-      { id: "entry", label: "Operator entry", description: "Tier-1 operator launching or acquiring a local brand" },
-      { id: "advertising", label: "Advertising limits", description: "Sponsorship or marketing restrictions upcoming or in force" },
-      { id: "newlaw", label: "New law or rule", description: "New gambling law, regulatory decree or statutory amendment" },
-      { id: "restriction", label: "Other restriction", description: "Deposit/stake limits, site blocking, or payment bans" },
+    const SEED_NEWS = [
+      {
+        id: "n-br",
+        country: "Brazil",
+        date: "2026-11-20",
+        title: "SPA Ratifies Technical Architecture & Testing Lab Guidelines",
+        summary: "Secretariat of Prizes and Betting (SPA) mandates primary data servers located in Brazil or certified reciprocal jurisdictions. Integration testing begins for all provisional licensees.",
+        category: "Licensing",
+        flags: ["newlaw", "capital"],
+        flag_note: "BRL 30M (~$5.2M) license surcharge + BRL 5M bank guarantee required.",
+        source: "SPA / Ministry of Finance Brazil",
+        url: "https://www.gov.br/fazenda/pt-br",
+        verified: true,
+        isNew: true
+      },
+      {
+        id: "n-ro",
+        country: "Romania",
+        date: "2026-11-18",
+        title: "Emergency Ordinance Raises Remote Gaming Tax Surcharge to 21% GGR",
+        summary: "Romanian parliament enacts fiscal reform bill raising online gaming tax bracket from 16% to 21% GGR, requiring local bank guarantee of €5,000,000 for Class 1 remote operators.",
+        category: "Taxation",
+        flags: ["tax", "capital"],
+        flag_note: "Gaming tax raised from 16% to 21% GGR effective Jan 2027.",
+        source: "ONJN",
+        url: "https://onjn.gov.ro",
+        verified: true,
+        isNew: true
+      },
+      {
+        id: "n-am",
+        country: "Armenia",
+        date: "2026-11-14",
+        title: "SRC Finalizes Digital Telemetry Protocol for Online Gaming Servers",
+        summary: "State Revenue Committee mandates real-time API telemetry for total turnover wagers and automated withholding tax deductions across all active sports betting accounts.",
+        category: "Regulation",
+        flags: ["restriction", "newlaw"],
+        flag_note: "Direct server API telemetry required within 90 days.",
+        source: "State Revenue Committee RA",
+        url: "https://petekamutner.am",
+        verified: true,
+        isNew: false
+      }
     ];
 
-    const FLAG_IDS = FLAG_RULES.map(f => f.id);
-    const flagLabel = id => FLAG_RULES.find(f => f.id === id)?.label || id;
-    const FLAG_SEV = { tax: "money", capital: "money", newlaw: "rules", restriction: "rules", advertising: "rules", opening: "market", entry: "market" };
-    const severityOf = flags => ["money", "rules", "market"].find(sev => (flags || []).some(f => FLAG_SEV[f] === sev)) || "";
-
-    const csvCell = v => {
-      let t = String(v ?? "");
-      if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`;
-      return `"${t.replace(/"/g, '""')}"`;
-    };
-
-    const safeUrl = u => {
-      try {
-        const x = new URL(String(u || "").trim());
-        return x.protocol === "http:" || x.protocol === "https:" ? x.href : "";
-      } catch {
-        return "";
-      }
-    };
-
-    /* ---------- Embedded PDF Writer (Client-Side Vector Engine) ---------- */
-    const PDF_WIDTHS = {
-      regular: [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,0,556,0,222,556,333,1000,556,556,333,1000,667,333,1000,0,611,0,0,222,222,333,333,350,556,1000,333,1000,500,333,944,0,500,500,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500],
-      bold: [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,0,556,0,278,556,500,1000,556,556,333,1000,667,333,1000,0,611,0,0,278,278,500,500,350,556,1000,333,1000,556,333,944,0,500,556,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556]
-    };
-
-    function toWinAnsi(text) {
-      let out = "";
-      for (const ch of String(text ?? "")) {
-        const cp = ch.codePointAt(0);
-        if (cp >= 32 && cp < 127) out += ch;
-        else if (cp >= 0xa1 && cp <= 0xff) out += ch;
-        else {
-          const plain = ch.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
-          out += plain && /^[\x20-\x7e]+$/.test(plain) ? plain : "?";
-        }
-      }
-      return out;
-    }
-
-    const pdfCharWidth = (code, bold) => (bold ? PDF_WIDTHS.bold : PDF_WIDTHS.regular)[code - 32] || 556;
-    const pdfTextWidth = (str, size, bold) => {
-      let total = 0;
-      for (let i = 0; i < str.length; i++) total += pdfCharWidth(str.charCodeAt(i), bold);
-      return (total * size) / 1000;
-    };
-
-    function createPdf(title) {
-      const A4_W = 595.28, A4_H = 841.89;
-      const pages = [];
-      let cur = null;
-      const rgb = hex => {
-        const n = parseInt(hex, 16);
-        return [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => (v / 255).toFixed(3)).join(" ");
-      };
-      const f = n => n.toFixed(2);
-
-      return {
-        newPage() { cur = { ops: [], links: [] }; pages.push(cur); },
-        text(x, y, str, o = {}) {
-          cur.ops.push(`BT /${o.bold ? "F2" : "F1"} ${o.size || 9} Tf ${rgb(o.color || "13222E")} rg ${f(x)} ${f(A4_H - y)} Td (${toWinAnsi(str).replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)")}) Tj ET`);
-        },
-        rect(x, y, w, h, fill) { cur.ops.push(`${rgb(fill)} rg ${f(x)} ${f(A4_H - y - h)} ${f(w)} ${f(h)} re f`); },
-        box(x, y, w, h, stroke, lw = 0.5) { cur.ops.push(`${rgb(stroke)} RG ${lw} w ${f(x)} ${f(A4_H - y - h)} ${f(w)} ${f(h)} re S`); },
-        hline(x1, x2, y, stroke, lw = 0.5) { cur.ops.push(`${rgb(stroke)} RG ${lw} w ${f(x1)} ${f(A4_H - y)} m ${f(x2)} ${f(A4_H - y)} l S`); },
-        bytes() {
-          const objs = [];
-          const add = s => { objs.push(s); return objs.length; };
-          add("<< /Type /Catalog /Pages 2 0 R >>");
-          add("");
-          add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
-          add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
-          const info = add(`<< /Title (${toWinAnsi(title)}) /Producer (iGaming Regulatory Desk) >>`);
-          const kids = [];
-          pages.forEach(p => {
-            const stream = p.ops.join("\n");
-            const content = add(`<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`);
-            const page = add(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${A4_W} ${A4_H}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${content} 0 R >>`);
-            kids.push(page);
-          });
-          objs[1] = `<< /Type /Pages /Kids [${kids.map(n => `${n} 0 R`).join(" ")}] /Count ${kids.length} >>`;
-          let out = "%PDF-1.4\n";
-          const offsets = [];
-          objs.forEach((o, i) => { offsets.push(out.length); out += `${i + 1} 0 obj\n${o}\nendobj\n`; });
-          const xref = out.length;
-          out += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${offsets.map(o => `${String(o).padStart(10, "0")} 00000 n \n`).join("")}`;
-          out += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R /Info ${info} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-          return Uint8Array.from(out, c => c.charCodeAt(0) & 255);
-        }
-      };
-    }
-
-    /* ---------- Pure JS Decompressor / XLSX Reader ---------- */
-    async function inflateRaw(bytes) {
-      if (typeof DecompressionStream === "undefined") throw new Error("DecompressionStream unsupported");
-      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
-      return new Uint8Array(await new Response(stream).arrayBuffer());
-    }
-
-    async function unzip(buffer) {
-      const u8 = new Uint8Array(buffer);
-      const dv = new DataView(u8.buffer, u8.byteOffset, u8.byteLength);
-      let eocd = -1;
-      for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) {
-        if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
-      }
-      if (eocd < 0) throw new Error("Not a valid Excel .xlsx archive");
-      const count = dv.getUint16(eocd + 10, true);
-      let p = dv.getUint32(eocd + 16, true);
-      const files = {};
-      for (let n = 0; n < count; n++) {
-        if (p + 46 > u8.length || dv.getUint32(p, true) !== 0x02014b50) break;
-        const method = dv.getUint16(p + 10, true);
-        const csize = dv.getUint32(p + 20, true);
-        const nameLen = dv.getUint16(p + 28, true);
-        const extraLen = dv.getUint16(p + 30, true);
-        const commLen = dv.getUint16(p + 32, true);
-        const lho = dv.getUint32(p + 42, true);
-        files[new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nameLen))] = { method, csize, lho };
-        p += 46 + nameLen + extraLen + commLen;
-      }
-      return { u8, dv, files };
-    }
-
-    /* ---------- Financial & Attractiveness Scoring Models ---------- */
-    const SCORE_CRITERIA = [
-      { id: "size", label: "Market Size (GGR)", higher: true, log: true },
-      { id: "growth", label: "Online Growth", higher: true },
-      { id: "tax", label: "Gaming Tax Rate", higher: false },
-      { id: "barrier", label: "Entry Capitalization", higher: false },
-      { id: "stability", label: "Regulatory Certainty", higher: true }
-    ];
-
-    /* ---------- Seed State ---------- */
-    const DEFAULT_PROFILES = {
+    const PROFILES = {
       "Brazil": {
         country: "Brazil",
-        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local Entity Required" },
+        status: { status: "Regulated", casino: "Yes", sports: "Yes", foreign: "Local SPV Required" },
         fields: {
           population: "215,300,000",
           total_ggr: "USD 4.80 billion",
           online_ggr: 3200000000,
-          online_growth: "+28.5%",
-          app_fee: "BRL 30,000,000 (~USD 5.2M)",
-          annual_fee: "BRL 1.9M monthly supervision bracket",
-          min_capital: "BRL 30,000,000",
-          bank_guarantee: "BRL 5,000,000",
+          growth: "+28.5%",
+          app_fee: "BRL 30,000,000 (~$5.2M)",
           tax_rate: 0.12,
           tax_label: "12% of GGR",
+          bank_bond: "BRL 5,000,000",
           corporate_tax: "34% (IRPJ/CSLL)",
-          upfront_usd: 5200000,
-          stability_score: 85
+          upfront_usd: 5200000
         },
         glance: [
-          "Federal statutory framework established under Law 14.790/2023.",
-          "High upfront barrier: BRL 30M license surcharge covers up to 3 commercial domains for 5 years.",
-          "Favorable 12% GGR gaming tax, though indirect PIS/COFINS and corporate taxes add overhead.",
-          "Mandatory local Brazilian corporate SPV with 20% national partner participation."
+          "Federal framework operating under Law 14.790/2023 with high statutory certainty.",
+          "High upfront capital barrier ($5.2M license fee covers up to 3 commercial domains for 5 years).",
+          "Competitive 12% GGR statutory gaming tax, though indirect PIS/COFINS and corporate taxes add friction.",
+          "Mandatory Brazilian local corporate vehicle with at least 20% national partner participation."
         ],
         upcoming: [
           { item: "Mandatory PIX-only real-time payment protocol live enforcement", stage: "In Force", expected: "Q1 2027", impact: "High" },
@@ -423,25 +350,22 @@
           population: "19,050,000",
           total_ggr: "EUR 1.45 billion",
           online_ggr: 1050000000,
-          online_growth: "+14.2%",
+          growth: "+14.2%",
           app_fee: "EUR 10,500 inspection fee",
-          annual_fee: "EUR 300k - EUR 500k tiered license tax",
-          min_capital: "EUR 2,000,000 equivalent",
-          bank_guarantee: "EUR 5,000,000 bank letter",
           tax_rate: 0.21,
           tax_label: "21% of GGR",
+          bank_bond: "EUR 5,000,000 bond",
           corporate_tax: "16%",
-          upfront_usd: 5500000,
-          stability_score: 90
+          upfront_usd: 5500000
         },
         glance: [
-          "Mature Class 1 remote licensing regime overseen by ONJN.",
-          "Significant €5,000,000 bank guarantee requirement creates capital lockup.",
-          "Recent fiscal decree elevated gaming tax rate to 21% GGR.",
-          "Predictable consumer market with balanced casino and sportsbook gross turnover."
+          "Mature, well-regulated market under ONJN Class 1 remote licensing structure.",
+          "Substantial bank guarantee requirement (€5M) creates significant capital lockup.",
+          "Recent fiscal overhaul elevated gaming tax to 21% GGR, dampening margin profile.",
+          "High average player value with steady volume across sports and casino verticals."
         ],
         upcoming: [
-          { item: "National Central Responsible Gaming Database API integration deadline", stage: "Passed", expected: "Q2 2027", impact: "High" }
+          { item: "Centralized National Self-Exclusion Database API integration deadline", stage: "Passed", expected: "Q2 2027", impact: "High" }
         ]
       },
       "Armenia": {
@@ -451,706 +375,409 @@
           population: "2,980,000",
           total_ggr: "USD 540 million",
           online_ggr: 410000000,
-          online_growth: "+11.0%",
+          growth: "+11.0%",
           app_fee: "AMD 500M (~$1.3M) annual state duty",
-          annual_fee: "Annual duty + quarterly monitoring charges",
-          min_capital: "AMD 1,000,000,000",
-          bank_guarantee: "AMD 250,000,000",
           tax_rate: 0.10,
-          tax_label: "10% on Gross Margin + 5% Player Withholding",
+          tax_label: "10% Margin + 5% Player Withholding",
+          bank_bond: "AMD 250,000,000",
           corporate_tax: "18%",
-          upfront_usd: 1300000,
-          stability_score: 80
+          upfront_usd: 1300000
         },
         glance: [
-          "Substantial digital penetration (~76% online share) dominated by tier-1 brands.",
+          "High digital penetration (~76% online share) led by domestic tier-1 platforms.",
           "Steep state duty upfront: AMD 500M annual statutory levy.",
-          "Strict advertising prohibitions across outdoor, broadcast TV, and public digital channels.",
-          "Strong consumer appetite for dynamic crash games, live dealer, and soccer betting."
+          "Strict marketing restrictions across outdoor, broadcast TV, and public digital channels.",
+          "High consumer appetite for dynamic crash games, live casino, and European football."
         ],
         upcoming: [
-          { item: "SRC live server telemetry pipeline direct audit integration", stage: "In Force", expected: "Q1 2027", impact: "High" }
+          { item: "Real-time wagering data pipeline audit with SRC automated server", stage: "In Force", expected: "Q1 2027", impact: "High" }
         ]
       }
     };
 
-    const SEED_NEWS_ITEMS = [
-      {
-        id: "n-1",
-        country: "Brazil",
-        date: "2026-11-20",
-        title: "SPA Publishes Technical Normative Ordinance for Betting Platforms",
-        summary: "Secretariat of Prizes and Betting (SPA) ratifies server location rules, mandatory GLI certification protocols, and data telemetry specifications.",
-        category: "Licensing",
-        flags: ["newlaw", "capital"],
-        flag_note: "BRL 30M fee + BRL 5M guarantee required for authorization.",
-        source: "SPA / Ministry of Finance Brazil",
-        url: "https://www.gov.br/fazenda/pt-br",
-        verified: true,
-        isNew: true
-      },
-      {
-        id: "n-2",
-        country: "Romania",
-        date: "2026-11-18",
-        title: "Emergency Ordinance Raises Online Gaming Tax Bracket to 21% GGR",
-        summary: "Romanian parliament enacts fiscal reform bill raising Class 1 gaming tax from 16% to 21% GGR, requiring local bank guarantee of €5,000,000.",
-        category: "Taxation",
-        flags: ["tax", "capital"],
-        flag_note: "Gaming tax raised from 16% to 21% GGR effective Jan 2027.",
-        source: "ONJN (Oficiul Național pentru Jocuri de Noroc)",
-        url: "https://onjn.gov.ro",
-        verified: true,
-        isNew: true
-      },
-      {
-        id: "n-3",
-        country: "Armenia",
-        date: "2026-11-14",
-        title: "SRC Mandates Automated Real-Time Wagering Telemetry API",
-        summary: "State Revenue Committee issues decree mandating encrypted real-time bet telemetry directly from licensed B2C platform database engines.",
-        category: "Regulation",
-        flags: ["restriction", "newlaw"],
-        flag_note: "Direct server telemetry required within 90 days.",
-        source: "State Revenue Committee RA",
-        url: "https://petekamutner.am",
-        verified: true,
-        isNew: false
-      }
-    ];
-
-    /* ---------- Main Application Component ---------- */
-    function RegulatoryDeskApp() {
+    function App() {
       const [tab, setTab] = useState("news");
-      const [news, setNews] = useState(() => {
-        try {
-          const s = localStorage.getItem("desk_news");
-          return s ? JSON.parse(s) : SEED_NEWS_ITEMS;
-        } catch { return SEED_NEWS_ITEMS; }
-      });
-      const [profiles, setProfiles] = useState(() => {
-        try {
-          const s = localStorage.getItem("desk_profiles");
-          return s ? JSON.parse(s) : DEFAULT_PROFILES;
-        } catch { return DEFAULT_PROFILES; }
-      });
-      const [ggrRows, setGgrRows] = useState(() => {
-        try {
-          const s = localStorage.getItem("desk_ggr");
-          return s ? JSON.parse(s) : [
-            { id: "g1", country: "Brazil", period: "2025", segment: "Total Online", metric: "GGR", amount: "USD 3.20 billion", change: "+28.5%", source: "H2 / BNL Data", published: "2026-01-15" },
-            { id: "g2", country: "Romania", period: "2025", segment: "Total Online", metric: "GGR", amount: "EUR 1.05 billion", change: "+14.2%", source: "ONJN / E&Y", published: "2026-02-10" }
-          ];
-        } catch { return []; }
-      });
-      const [cacRows, setCacRows] = useState(() => {
-        try {
-          const s = localStorage.getItem("desk_cac");
-          return s ? JSON.parse(s) : [
-            { id: "c1", country: "Brazil", company: "Market Average", period: "Q3 2026", segment: "Sportsbook", metric: "CPA", amount: "USD 54.00", change: "+8% YoY", source: "Affiliate Benchmark" },
-            { id: "c2", country: "Romania", company: "Superbet", period: "2025", segment: "Online Casino", metric: "Cost per FTD", amount: "EUR 78.50", change: "+5% YoY", source: "Quarterly Filing" }
-          ];
-        } catch { return []; }
-      });
-
-      const [selectedCountry, setSelectedCountry] = useState("Brazil");
-      const [query, setQuery] = useState("");
+      const [searchQuery, setSearchQuery] = useState("");
       const [flagFilter, setFlagFilter] = useState("All");
-      const [catFilter, setCatFilter] = useState("All");
+      const [selectedCountry, setSelectedCountry] = useState("Brazil");
 
-      // Financial Engine State
-      const [modelMode, setModelMode] = useState("greenfield"); // 'greenfield' | 'm_and_a'
-      const [targetShare, setTargetShare] = useState(2.0); // 2%
-      const [arpu, setArpu] = useState(45); // $45 monthly ARPU
-      const [platformRoyalty, setPlatformRoyalty] = useState(13); // 13% tech fee
-      const [marketingPct, setMarketingPct] = useState(28); // 28% marketing
+      // Financial model sandbox
+      const [modelMode, setModelMode] = useState("greenfield");
+      const [targetShare, setTargetShare] = useState(2.0);
+      const [arpu, setArpu] = useState(45);
+      const [platformPct, setPlatformPct] = useState(13);
+      const [marketingPct, setMarketingPct] = useState(28);
       const [headcount, setHeadcount] = useState(20);
-      const [waccRate, setWaccRate] = useState(12);
-
-      // Scoring Weights
-      const [weights, setWeights] = useState({ size: 9, growth: 8, tax: 9, barrier: 7, stability: 6 });
+      const [discountRate, setDiscountRate] = useState(12);
 
       const filteredNews = useMemo(() => {
-        return news.filter(it => {
-          const q = query.toLowerCase();
-          const mQ = !q || (it.title + it.summary + it.country).toLowerCase().includes(q);
-          const mF = flagFilter === "All" || (it.flags || []).includes(flagFilter);
-          const mC = catFilter === "All" || it.category === catFilter;
-          return mQ && mF && mC;
+        return SEED_NEWS.filter(it => {
+          const q = searchQuery.toLowerCase();
+          const matchQ = !q || (it.title + it.summary + it.country).toLowerCase().includes(q);
+          const matchF = flagFilter === "All" || (it.flags || []).includes(flagFilter);
+          return matchQ && matchF;
         });
-      }, [news, query, flagFilter, catFilter]);
+      }, [searchQuery, flagFilter]);
 
-      const downloadDossierPdf = countryName => {
-        const prof = profiles[countryName];
-        if (!prof) return;
-        const pdf = createPdf(`iGaming Market Entry Brief: ${countryName}`);
-        pdf.newPage();
-        pdf.text(42, 60, "iGaming B2C Market Entry Dossier", { size: 10, color: "55687A" });
-        pdf.text(42, 85, countryName, { size: 24, bold: true, color: "0D5662" });
-        pdf.hline(42, 550, 95, "0D5662", 1);
-        
-        pdf.text(42, 120, "Status: " + prof.status.status, { size: 11, bold: true });
-        pdf.text(180, 120, "Casino: " + prof.status.casino, { size: 11, bold: true });
-        pdf.text(320, 120, "Sports: " + prof.status.sports, { size: 11, bold: true });
-
-        pdf.text(42, 160, "Executive Summary & Entry Barriers:", { size: 12, bold: true, color: "0D5662" });
-        let curY = 180;
-        prof.glance.forEach(bullet => {
-          pdf.text(46, curY, "• " + bullet, { size: 9 });
-          curY += 16;
-        });
-
-        curY += 15;
-        pdf.text(42, curY, "Key Sovereign Statutory Parameters:", { size: 12, bold: true, color: "0D5662" });
-        curY += 20;
-        const rows = [
-          ["Population", prof.fields.population],
-          ["Online Market GGR", "$" + (prof.fields.online_ggr / 1e6).toFixed(0) + "M"],
-          ["Initial License Cost", prof.fields.app_fee],
-          ["Statutory Gaming Tax", prof.fields.tax_label],
-          ["Bank Guarantee / Bond", prof.fields.bank_guarantee],
-          ["Corporate Income Tax", prof.fields.corporate_tax]
-        ];
-        rows.forEach(([k, v]) => {
-          pdf.text(46, curY, k + ":", { size: 9, bold: true });
-          pdf.text(220, curY, String(v), { size: 9 });
-          curY += 15;
-        });
-
-        const bytes = pdf.bytes();
-        const blob = new Blob([bytes], { type: "application/pdf" });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `Market-Dossier-${countryName}.pdf`;
-        a.click();
-      };
-
-      const copyToExcelHandoff = it => {
-        const msg = `Add this article to my Excel file:\nCountry: ${it.country}\nCategory: ${it.category}\nFlags: ${(it.flags || []).map(flagLabel).join(", ")}\nSummary: ${it.summary}\nURL: ${it.url}`;
-        navigator.clipboard.writeText(msg);
-        alert(`Copied "${it.title.slice(0, 35)}..." to clipboard for Excel / Claude Sync.`);
-      };
-
-      const currentProfile = profiles[selectedCountry] || profiles["Brazil"];
+      const prof = PROFILES[selectedCountry] || PROFILES["Brazil"];
 
       return (
-        <div className="rd-wrap">
-          {/* Top Bar */}
-          <div className="rd-top">
-            <div className="rd-brand-cluster">
-              <div className="rd-logo">RD</div>
-              <div>
-                <h1 className="rd-title">iGaming Regulatory & Market Entry Desk</h1>
-                <div className="rd-subtitle">Strategic Intelligence • M&A Screening • DCF Financial Feasibility Engine</div>
-              </div>
-            </div>
-            <div className="rd-row">
-              <button className="rd-btn" onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Live portal link copied to clipboard!");
-              }}>
-                Share Portal Link 🔗
-              </button>
-            </div>
-          </div>
-
-          {/* Navigation Bar */}
-          <nav className="rd-nav">
-            <div className="rd-tabs" role="tablist">
-              {[
-                { id: "news", label: "News & Priority Flags", count: filteredNews.length },
-                { id: "profile", label: "Country Dossier", count: null },
-                { id: "compare", label: "Financial Feasibility (DCF / NPV)", count: Object.keys(profiles).length },
-                { id: "ggr", label: "GGR Volume Tracker", count: ggrRows.length },
-                { id: "cac", label: "CAC Tracker", count: cacRows.length },
-                { id: "timeline", label: "Regulatory Roadmap", count: 3 },
-                { id: "sources", label: "Sources & Excel Sync", count: null }
-              ].map(t => (
-                <button
-                  key={t.id}
-                  role="tab"
-                  aria-selected={tab === t.id}
-                  className="rd-navtab"
-                  onClick={() => setTab(t.id)}
-                >
-                  <span>{t.label}</span>
-                  {t.count !== null && <span className="rd-navcount">{t.count}</span>}
-                </button>
-              ))}
-            </div>
-          </nav>
-
-          {/* 1. NEWS & PRIORITY FLAGS */}
-          {tab === "news" && (
-            <section aria-label="News and Alerts">
-              <div className="rd-pagehead">
-                <div>
-                  <h2 className="rd-h2">Priority Regulatory Bulletins</h2>
-                  <div className="rd-status">Real-time legislative monitoring: tax amendments, capitalization shifts, and draft rules.</div>
-                </div>
-                <div className="rd-row">
-                  <span className="rd-flabel">Flags:</span>
-                  <span className="rd-flag sev-money">Tax Impact</span>
-                  <span className="rd-flag sev-rules">Statutory Decree</span>
-                  <span className="rd-flag sev-market">Market Entry</span>
-                </div>
-              </div>
-
-              {/* Filters */}
-              <div className="rd-filters">
-                <div className="rd-filters-body">
-                  <div className="rd-frow">
-                    <div className="rd-search">
-                      <svg className="rd-ic" width="16" height="16" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" fill="currentColor"/></svg>
-                      <input className="rd-input" placeholder="Search country, rule, keyword..." value={query} onChange={e => setQuery(e.target.value)} />
-                    </div>
-                    <select className="rd-input" style={{ maxWidth: 180 }} value={flagFilter} onChange={e => setFlagFilter(e.target.value)}>
-                      <option value="All">All Priority Flags</option>
-                      {FLAG_RULES.map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
-                    </select>
-                    <select className="rd-input" style={{ maxWidth: 170 }} value={catFilter} onChange={e => setCatFilter(e.target.value)}>
-                      <option value="All">All Categories</option>
-                      {Object.keys(CATEGORIES).map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                    {(query || flagFilter !== "All" || catFilter !== "All") && (
-                      <button className="rd-link" onClick={() => { setQuery(""); setFlagFilter("All"); setCatFilter("All"); }}>Reset Filters</button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* News Feed Cards */}
-              <div>
-                {filteredNews.map(it => {
-                  const sev = severityOf(it.flags);
-                  return (
-                    <article key={it.id} className={`rd-item${it.isNew ? " rd-item-new" : ""}${sev ? ` sev-${sev}` : ""}`}>
-                      <div className="rd-meta">
-                        <strong>{it.country}</strong>
-                        <span>{it.date}</span>
-                        <span className="rd-tag" style={{ color: CATEGORIES[it.category]?.color || "#46586A", background: CATEGORIES[it.category]?.bg || "#E3E9EE" }}>{it.category}</span>
-                        {it.isNew && <span className="rd-new">New Alert</span>}
-                        {it.verified && <span className="rd-up">✓ Verified Source</span>}
-                      </div>
-                      <h4>{it.title}</h4>
-                      {it.flag_note && <div className="rd-flagnote">⚠️ Executive Alert: {it.flag_note}</div>}
-                      <p>{it.summary}</p>
-                      <div className="rd-item-foot">
-                        <div className="rd-flags">
-                          {(it.flags || []).map(f => (
-                            <span key={f} className={`rd-flag sev-${FLAG_SEV[f]}`}>{flagLabel(f)}</span>
-                          ))}
-                        </div>
-                        <a href={safeUrl(it.url)} target="_blank" rel="noreferrer">Official Gazette ↗</a>
-                        <button className="rd-excel" onClick={() => copyToExcelHandoff(it)}>Add to Excel File</button>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </section>
-          )}
-
-          {/* 2. COUNTRY DOSSIER */}
-          {tab === "profile" && (
-            <section className="rd-vol rd-vol-prof" aria-label="Country Dossier">
-              <div className="rd-vol-head">
-                <div>
-                  <h2>Country Dossier Brief</h2>
-                  <p>Comprehensive regulatory profile covering statutory tax rates, capitalization requirements, and market volume.</p>
-                </div>
-                <div className="rd-row">
-                  <select className="rd-input" style={{ width: 180, fontWeight: 700 }} value={selectedCountry} onChange={e => setSelectedCountry(e.target.value)}>
-                    {Object.keys(profiles).map(c => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                  <button className="rd-go" onClick={() => downloadDossierPdf(selectedCountry)}>Download PDF Dossier</button>
-                </div>
-              </div>
-
-              <div className="rd-prof">
-                <div className="rd-prof-title">
+        <div>
+          {/* Header */}
+          <header className="top-header">
+            <div className="wrap">
+              <div className="top-bar">
+                <div className="brand-group">
+                  <div className="brand-logo">RD</div>
                   <div>
-                    <div className="rd-prof-kicker">iGaming B2C Market Expansion Dossier</div>
-                    <h3>{currentProfile.country}</h3>
+                    <h1 className="brand-title">iGaming Regulatory & Market Entry Portal</h1>
+                    <p className="brand-subtitle">Strategic Expansion • M&A Evaluation • Financial Modeling & Intelligence</p>
                   </div>
                 </div>
-
-                <div className="rd-prof-status">
-                  <div className="rd-prof-box" style={{ background: "#E2F3E7", color: "#14502B" }}>
-                    <small>Status</small>
-                    <strong>{currentProfile.status.status}</strong>
-                  </div>
-                  <div className="rd-prof-box" style={{ background: "#E8ECFA", color: "#233485" }}>
-                    <small>Online Casino</small>
-                    <strong>{currentProfile.status.casino}</strong>
-                  </div>
-                  <div className="rd-prof-box" style={{ background: "#E4E8F7", color: "#3446A0" }}>
-                    <small>Sports Betting</small>
-                    <strong>{currentProfile.status.sports}</strong>
-                  </div>
-                  <div className="rd-prof-box" style={{ background: "#FDF1D6", color: "#6A3F00" }}>
-                    <small>Foreign Entity</small>
-                    <strong>{currentProfile.status.foreign}</strong>
-                  </div>
-                </div>
-
-                <h4 className="rd-prof-h">Executive Summary & Entry Barriers</h4>
-                <ul className="rd-prof-list">
-                  {currentProfile.glance.map((b, i) => <li key={i}>{b}</li>)}
-                </ul>
-
-                <h4 className="rd-prof-h">Statutory & Fiscal Parameters</h4>
-                <div className="rd-tablewrap">
-                  <table className="rd-table">
-                    <thead><tr><th>Indicator</th><th>Audited Value</th><th>Source</th><th>Basis</th></tr></thead>
-                    <tbody>
-                      {[
-                        ["Population", currentProfile.fields.population, "National Census", "Official"],
-                        ["Total Online GGR", "$" + (currentProfile.fields.online_ggr / 1e6).toFixed(0) + "M", "Regulator / Consensus", "Reported"],
-                        ["Initial License Surcharge", currentProfile.fields.app_fee, "Gazette Decree", "Official"],
-                        ["Statutory Gaming Tax", currentProfile.fields.tax_label, "Tax Code", "Official"],
-                        ["Bank Guarantee / Bond", currentProfile.fields.bank_guarantee, "Licensing Norms", "Official"],
-                        ["Corporate Income Tax", currentProfile.fields.corporate_tax, "Tax Authority", "Official"]
-                      ].map(([label, val, src, basis], i) => (
-                        <tr key={i}>
-                          <td><strong>{label}</strong></td>
-                          <td>{val}</td>
-                          <td>{src}</td>
-                          <td><span className="rd-basis" style={{ color: basis === "Official" ? "#14502B" : "#8A5A00" }}>{basis}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                <h4 className="rd-prof-h">Upcoming Regulatory Timeline</h4>
-                <div className="rd-tablewrap">
-                  <table className="rd-table">
-                    <thead><tr><th>Statutory Decree / Amendment</th><th>Stage</th><th>Expected</th><th>Impact</th></tr></thead>
-                    <tbody>
-                      {currentProfile.upcoming.map((u, i) => (
-                        <tr key={i}>
-                          <td><strong>{u.item}</strong></td>
-                          <td>{u.stage}</td>
-                          <td>{u.expected}</td>
-                          <td><span className={`rd-tone ${u.impact === "High" ? "rd-tone-red" : "rd-tone-amber"}`}>{u.impact}</span></td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* 3. FINANCIAL MODELING (DCF / NPV / PAYBACK / SCENARIOS) */}
-          {tab === "compare" && (
-            <section className="rd-vol rd-vol-cmp" aria-label="Financial Modeling">
-              <div className="rd-vol-head">
                 <div>
-                  <h2>Financial Feasibility & Valuation Engine (DCF / NPV)</h2>
-                  <p>Model financial returns across Greenfield entry vs. M&A acquisition with multi-year cash flow projections, EBITDA, and payback.</p>
+                  <button className="btn" onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Portal URL copied to clipboard!");
+                  }}>
+                    Share Link 🔗
+                  </button>
                 </div>
-                <div className="rd-row">
-                  <div className="rd-seg">
-                    <button aria-pressed={modelMode === "greenfield"} onClick={() => setModelMode("greenfield")}>Greenfield Entry</button>
-                    <button aria-pressed={modelMode === "m_and_a"} onClick={() => setModelMode("m_and_a")}>M&A Buyout (4.5x EBITDA)</button>
+              </div>
+
+              {/* Tabs */}
+              <nav className="nav-tabs">
+                {[
+                  { id: "news", label: "Statutory Bulletins & Flags", count: filteredNews.length },
+                  { id: "profile", label: "Country Dossier", count: null },
+                  { id: "compare", label: "Financial Feasibility (DCF / NPV)", count: 3 },
+                  { id: "timeline", label: "Regulatory Roadmap", count: 3 }
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    className={`tab-btn ${tab === t.id ? "active" : ""}`}
+                  >
+                    <span>{t.label}</span>
+                    {t.count !== null && <span className="tab-counter">{t.count}</span>}
+                  </button>
+                ))}
+              </nav>
+            </div>
+          </header>
+
+          <main className="wrap">
+            
+            {/* 1. NEWS TAB */}
+            {tab === "news" && (
+              <div>
+                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div>
+                    <h2 style={{ fontSize: 17, fontWeight: 800 }}>Priority Regulatory Monitor</h2>
+                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>Continuous statutory monitoring: tax amendments, capital rules, and gazette decrees.</p>
+                  </div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <span className="badge badge-money">Fiscal / Tax</span>
+                    <span className="badge badge-rules">Statutory Rules</span>
+                    <span className="badge badge-market">Market Entry</span>
                   </div>
                 </div>
-              </div>
 
-              {/* Assumptions Sandbox */}
-              <div className="rd-panel">
-                <h3 className="rd-h">Investment Assumptions Sandbox</h3>
-                <div className="rd-cmp-calc">
-                  <label>
-                    Target Market Share (%)
-                    <input className="rd-input" type="number" step="0.5" value={targetShare} onChange={e => setTargetShare(parseFloat(e.target.value) || 0)} />
-                  </label>
-                  <label>
-                    Monthly ARPU ($)
-                    <input className="rd-input" type="number" value={arpu} onChange={e => setArpu(parseFloat(e.target.value) || 0)} />
-                  </label>
-                  <label>
-                    Platform Royalty (%)
-                    <input className="rd-input" type="number" value={platformRoyalty} onChange={e => setPlatformRoyalty(parseFloat(e.target.value) || 0)} />
-                  </label>
-                  <label>
-                    Marketing / CPA (%)
-                    <input className="rd-input" type="number" value={marketingPct} onChange={e => setMarketingPct(parseFloat(e.target.value) || 0)} />
-                  </label>
-                  <label>
-                    Local Headcount (FTE)
-                    <input className="rd-input" type="number" value={headcount} onChange={e => setHeadcount(parseInt(e.target.value) || 0)} />
-                  </label>
-                  <label>
-                    Hurdle Rate / WACC (%)
-                    <input className="rd-input" type="number" value={waccRate} onChange={e => setWaccRate(parseFloat(e.target.value) || 0)} />
-                  </label>
-                </div>
-              </div>
-
-              {/* Projections Table */}
-              <div className="rd-tablewrap">
-                <table className="rd-table">
-                  <thead>
-                    <tr>
-                      <th>Target Market</th>
-                      <th>Online Market</th>
-                      <th>Our Proj. GGR</th>
-                      <th>Act. Players</th>
-                      <th>Gaming Tax</th>
-                      <th>Annual EBITDA</th>
-                      <th>Initial Outlay</th>
-                      <th>Payback</th>
-                      <th>3-Yr NPV ({waccRate}%)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {Object.keys(profiles).map(k => {
-                      const prof = profiles[k];
-                      const mktGgr = prof.fields.online_ggr;
-                      const projGgr = mktGgr * (targetShare / 100);
-                      const players = Math.round(projGgr / (arpu * 12));
-                      const tax = projGgr * prof.fields.tax_rate;
-                      const royalty = projGgr * (platformRoyalty / 100);
-                      const mktg = projGgr * (marketingPct / 100);
-                      const opex = headcount * 45000;
-                      const ebitda = projGgr - (tax + royalty + mktg + opex);
-
-                      const outlay = modelMode === "greenfield" 
-                        ? prof.fields.upfront_usd 
-                        : Math.max(0, ebitda * 4.5);
-
-                      const payback = ebitda > 0 ? (outlay / ebitda).toFixed(1) + " yrs" : "Negative";
-                      const r = waccRate / 100;
-                      const npv = -outlay + (ebitda * 0.8 / (1 + r)) + (ebitda / Math.pow(1 + r, 2)) + (ebitda * 1.15 / Math.pow(1 + r, 3));
-
-                      return (
-                        <tr key={k}>
-                          <td><strong>{prof.country}</strong></td>
-                          <td>${(mktGgr / 1e6).toFixed(0)}M</td>
-                          <td style={{ color: "var(--brand)", fontWeight: 700 }}>${(projGgr / 1e6).toFixed(2)}M</td>
-                          <td>{players.toLocaleString()}</td>
-                          <td className="rd-down">${(tax / 1e6).toFixed(2)}M</td>
-                          <td style={{ fontWeight: 800, color: ebitda >= 0 ? "var(--ok)" : "var(--danger)" }}>
-                            ${(ebitda / 1e6).toFixed(2)}M
-                          </td>
-                          <td>${(outlay / 1e6).toFixed(2)}M</td>
-                          <td><strong>{payback}</strong></td>
-                          <td style={{ fontWeight: 800, color: npv >= 0 ? "var(--ok)" : "var(--danger)" }}>
-                            ${(npv / 1e6).toFixed(2)}M
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Multi-Factor Attractiveness Index */}
-              <div className="rd-panel" style={{ marginTop: 18 }}>
-                <h3 className="rd-h">Multi-Factor Attractiveness Scoring Matrix</h3>
-                <div className="rd-cmp-weights">
-                  {Object.keys(weights).map(w => (
-                    <label key={w} className="rd-cmp-weight">
-                      <span style={{ textTransform: "capitalize" }}>{w}</span>
-                      <input type="range" min="1" max="10" value={weights[w]} onChange={e => setWeights({ ...weights, [w]: parseInt(e.target.value) })} />
-                      <output>{weights[w]}</output>
-                    </label>
-                  ))}
+                {/* Filters */}
+                <div className="card" style={{ padding: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                  <input
+                    className="input"
+                    style={{ minWidth: 260 }}
+                    placeholder="Search country, rule, keyword..."
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                  />
+                  <select className="input" value={flagFilter} onChange={e => setFlagFilter(e.target.value)}>
+                    <option value="All">All Priority Flags</option>
+                    <option value="tax">Tax Changes</option>
+                    <option value="capital">Capital / Bond</option>
+                    <option value="newlaw">New Law / Decree</option>
+                    <option value="restriction">Restrictions</option>
+                  </select>
+                  {(searchQuery || flagFilter !== "All") && (
+                    <button className="btn" onClick={() => { setSearchQuery(""); setFlagFilter("All"); }}>Reset</button>
+                  )}
                 </div>
 
-                <div style={{ display: "grid", gap: 8, marginTop: 12 }}>
-                  {[
-                    { country: "Brazil", score: 86, note: "Substantial online GGR runway ($3.2B) and moderate 12% tax offset $5.2M license lockup." },
-                    { country: "Romania", score: 72, note: "Mature and stable framework, though 21% GGR tax rate and €5M bond pinch early margins." },
-                    { country: "Armenia", score: 70, note: "High digital penetration (~76%) with strong player demand, offset by saturated tier-1 domestic operator positions." }
-                  ].map((row, i) => (
-                    <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "#fff", border: "1px solid var(--line)", borderRadius: 8 }}>
-                      <div>
-                        <strong>#{i + 1} {row.country}</strong> — <span className="rd-tone rd-tone-green">Index: {row.score}/100</span>
-                        <div style={{ fontSize: 13, color: "var(--muted)", marginTop: 2 }}>{row.note}</div>
+                {/* News Cards */}
+                <div>
+                  {filteredNews.map(item => (
+                    <div key={item.id} className="news-item alert-border">
+                      <div className="news-meta">
+                        <strong style={{ fontSize: 13.5 }}>{item.country}</strong>
+                        <span style={{ color: "var(--ink-muted)" }}>{item.date}</span>
+                        <span className="badge badge-neutral">{item.category}</span>
+                        {item.isNew && <span className="badge badge-ok">New Alert</span>}
+                        {item.flags.map(f => (
+                          <span key={f} className={`badge ${f === "tax" || f === "capital" ? "badge-money" : "badge-rules"}`}>
+                            {f === "tax" ? "Tax Impact" : f === "capital" ? "Capital Requirement" : "Statutory Decree"}
+                          </span>
+                        ))}
                       </div>
-                      <div className="rd-scorebar" style={{ width: 120 }}>
-                        <div style={{ width: `${row.score}%` }} />
+
+                      <h3 className="news-title">{item.title}</h3>
+
+                      {item.flag_note && (
+                        <div className="alert-box">
+                          ⚠️ Executive Alert: {item.flag_note}
+                        </div>
+                      )}
+
+                      <p className="news-summary">{item.summary}</p>
+
+                      <div className="news-footer">
+                        <span>Source: <strong>{item.source}</strong> (Verified Link ✓)</span>
+                        <div style={{ display: "flex", gap: 10 }}>
+                          <a href={item.url} target="_blank" rel="noreferrer" className="btn" style={{ color: "var(--brand)" }}>
+                            Official Gazette ↗
+                          </a>
+                          <button className="btn" onClick={() => {
+                            navigator.clipboard.writeText(`[${item.country}] ${item.title} - ${item.summary} (${item.url})`);
+                            alert("Copied for Excel synchronization!");
+                          }}>
+                            Copy for Excel
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </div>
-            </section>
-          )}
+            )}
 
-          {/* 4. GGR TRACKER */}
-          {tab === "ggr" && (
-            <section className="rd-vol" aria-label="GGR Volume Tracker">
-              <div className="rd-vol-head">
-                <div>
-                  <h2>Market Volume (GGR) Memory Table</h2>
-                  <p>Archived gross gaming revenue, handle, and turnover figures parsed from official sources.</p>
+            {/* 2. COUNTRY DOSSIER */}
+            {tab === "profile" && (
+              <div>
+                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontWeight: 700, fontSize: 13.5 }}>Select Market:</span>
+                    <select className="input" style={{ fontWeight: 700 }} value={selectedCountry} onChange={e => setSelectedCountry(e.target.value)}>
+                      {Object.keys(PROFILES).map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <button className="btn btn-primary" onClick={() => window.print()}>
+                    Print Dossier 🖨️
+                  </button>
                 </div>
-                <button className="rd-btn" onClick={() => {
-                  const head = ["Country", "Period", "Segment", "Metric", "Amount", "Change", "Source", "Published"].join(",");
-                  const rows = ggrRows.map(r => [r.country, r.period, r.segment, r.metric, r.amount, r.change, r.source, r.published].map(csvCell).join(","));
-                  const blob = new Blob([[head, ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
-                  const a = document.createElement("a");
-                  a.href = URL.createObjectURL(blob);
-                  a.download = `ggr-data-${new Date().toISOString().slice(0, 10)}.csv`;
-                  a.click();
-                }}>
-                  Export CSV
-                </button>
-              </div>
 
-              <div className="rd-tablewrap">
-                <table className="rd-table">
-                  <thead>
-                    <tr><th>Country</th><th>Period</th><th>Segment</th><th>Metric</th><th>Amount</th><th>Change</th><th>Source</th><th>Published</th></tr>
-                  </thead>
-                  <tbody>
-                    {ggrRows.map(r => (
-                      <tr key={r.id}>
-                        <td><strong>{r.country}</strong></td>
-                        <td>{r.period}</td>
-                        <td>{r.segment}</td>
-                        <td>{r.metric}</td>
-                        <td className="rd-amt">{r.amount}</td>
-                        <td className={r.change.startsWith("+") ? "rd-up" : "rd-down"}>{r.change}</td>
-                        <td>{r.source}</td>
-                        <td>{r.published}</td>
+                <div className="card">
+                  <div style={{ borderBottom: "1px solid var(--line)", paddingBottom: 16, marginBottom: 16 }}>
+                    <small style={{ fontSize: 11, fontWeight: 800, color: "var(--brand)", textTransform: "uppercase" }}>Sovereign iGaming Statutory Assessment</small>
+                    <h2 style={{ fontSize: 26, fontWeight: 800, color: "var(--ink)", marginTop: 2 }}>{prof.country}</h2>
+                  </div>
+
+                  <div className="grid-4" style={{ marginBottom: 20 }}>
+                    <div className="status-tile" style={{ background: "#ECFDF3", borderColor: "#A6F4C5" }}>
+                      <small style={{ color: "#027A48" }}>Status</small>
+                      <strong style={{ color: "#027A48" }}>{prof.status.status}</strong>
+                    </div>
+                    <div className="status-tile" style={{ background: "#EFF8FF", borderColor: "#B2DDFF" }}>
+                      <small style={{ color: "#175CD3" }}>Casino</small>
+                      <strong style={{ color: "#175CD3" }}>{prof.status.casino}</strong>
+                    </div>
+                    <div className="status-tile" style={{ background: "#F8FAFC", borderColor: "#E2E8F0" }}>
+                      <small style={{ color: "#475569" }}>Sports</small>
+                      <strong style={{ color: "#0F172A" }}>{prof.status.sports}</strong>
+                    </div>
+                    <div className="status-tile" style={{ background: "#FFFAEB", borderColor: "#FEDF89" }}>
+                      <small style={{ color: "#B54708" }}>Foreign Access</small>
+                      <strong style={{ color: "#B54708" }}>{prof.status.foreign}</strong>
+                    </div>
+                  </div>
+
+                  <h3 style={{ fontSize: 14, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)", marginBottom: 8 }}>Executive Summary & Entry Barriers</h3>
+                  <div style={{ background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 8, padding: 14, marginBottom: 20 }}>
+                    <ul style={{ paddingLeft: 18, lineHeight: 1.6, fontSize: 13.5 }}>
+                      {prof.glance.map((b, i) => <li key={i}>{b}</li>)}
+                    </ul>
+                  </div>
+
+                  <div className="grid-2">
+                    <div>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Market Indicators</h4>
+                      <div className="table-container">
+                        <table>
+                          <tbody>
+                            <tr><td style={{ fontWeight: 600 }}>Population</td><td>{prof.fields.population}</td></tr>
+                            <tr><td style={{ fontWeight: 600 }}>Online Market GGR</td><td>${(prof.fields.online_ggr / 1e6).toFixed(0)}M</td></tr>
+                            <tr><td style={{ fontWeight: 600 }}>Online Growth</td><td style={{ color: "var(--ok)", fontWeight: 700 }}>{prof.fields.growth}</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--ink-muted)", marginBottom: 6 }}>Fiscal & Licensing Terms</h4>
+                      <div className="table-container">
+                        <table>
+                          <tbody>
+                            <tr><td style={{ fontWeight: 600 }}>License Surcharge</td><td>{prof.fields.app_fee}</td></tr>
+                            <tr><td style={{ fontWeight: 600 }}>Statutory Gaming Tax</td><td style={{ color: "var(--danger)", fontWeight: 700 }}>{prof.fields.tax_label}</td></tr>
+                            <tr><td style={{ fontWeight: 600 }}>Bank Guarantee</td><td>{prof.fields.bank_bond}</td></tr>
+                            <tr><td style={{ fontWeight: 600 }}>Corporate Tax</td><td>{prof.fields.corporate_tax}</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 3. FINANCIAL MODELING (DCF / NPV / PAYBACK) */}
+            {tab === "compare" && (
+              <div>
+                <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+                  <div>
+                    <h2 style={{ fontSize: 17, fontWeight: 800 }}>Financial Feasibility & Valuation Engine (DCF / NPV)</h2>
+                    <p style={{ fontSize: 13, color: "var(--ink-muted)" }}>Simulate entry economics for Greenfield licensing vs. Local M&A Acquisition with cash flows and payback.</p>
+                  </div>
+
+                  <div style={{ display: "flex", background: "#E2E8F0", padding: 3, borderRadius: 8 }}>
+                    <button
+                      className={`btn ${modelMode === "greenfield" ? "btn-primary" : ""}`}
+                      style={{ border: "none", padding: "6px 12px" }}
+                      onClick={() => setModelMode("greenfield")}
+                    >
+                      Greenfield Entry
+                    </button>
+                    <button
+                      className={`btn ${modelMode === "m_and_a" ? "btn-primary" : ""}`}
+                      style={{ border: "none", padding: "6px 12px" }}
+                      onClick={() => setModelMode("m_and_a")}
+                    >
+                      M&A Buyout (4.5x EBITDA)
+                    </button>
+                  </div>
+                </div>
+
+                {/* Input Controls */}
+                <div className="card">
+                  <h3 style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", color: "var(--brand)" }}>
+                    Operator Feasibility Assumptions ({modelMode === "greenfield" ? "Greenfield Build" : "M&A Buyout"})
+                  </h3>
+                  <div className="grid-inputs">
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Market Share (%)</label>
+                      <input className="input" style={{ width: "100%" }} type="number" step="0.5" value={targetShare} onChange={e => setTargetShare(parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>ARPU ($/mo)</label>
+                      <input className="input" style={{ width: "100%" }} type="number" value={arpu} onChange={e => setArpu(parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Platform Royalty (%)</label>
+                      <input className="input" style={{ width: "100%" }} type="number" value={platformPct} onChange={e => setPlatformPct(parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Marketing / CPA (%)</label>
+                      <input className="input" style={{ width: "100%" }} type="number" value={marketingPct} onChange={e => setMarketingPct(parseFloat(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>Headcount (FTE)</label>
+                      <input className="input" style={{ width: "100%" }} type="number" value={headcount} onChange={e => setHeadcount(parseInt(e.target.value) || 0)} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 700, display: "block", marginBottom: 3 }}>WACC Hurdle (%)</label>
+                      <input className="input" style={{ width: "100%" }} type="number" value={discountRate} onChange={e => setDiscountRate(parseFloat(e.target.value) || 0)} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Financial Output Table */}
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Country</th>
+                        <th>Online Market</th>
+                        <th>Our Proj. GGR</th>
+                        <th>Active Players</th>
+                        <th>Gaming Tax</th>
+                        <th>Annual EBITDA</th>
+                        <th>Initial Outlay</th>
+                        <th>Payback</th>
+                        <th>3-Yr NPV ({discountRate}%)</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          )}
+                    </thead>
+                    <tbody>
+                      {Object.keys(PROFILES).map(k => {
+                        const p = PROFILES[k];
+                        const mkt = p.fields.online_ggr;
+                        const projGgr = mkt * (targetShare / 100);
+                        const players = Math.round(projGgr / (arpu * 12));
+                        const tax = projGgr * p.fields.tax_rate;
+                        const tech = projGgr * (platformPct / 100);
+                        const mktg = projGgr * (marketingPct / 100);
+                        const staffOpex = headcount * 45000;
+                        const ebitda = projGgr - (tax + tech + mktg + staffOpex);
 
-          {/* 5. CAC TRACKER */}
-          {tab === "cac" && (
-            <section className="rd-vol rd-vol-cac" aria-label="Customer Acquisition Cost Tracker">
-              <div className="rd-vol-head">
-                <div>
-                  <h2>Customer Acquisition Cost (CAC) Tracker</h2>
-                  <p>Audited acquisition benchmarks: CPA, cost per first-time depositor (FTD), and marketing spend.</p>
-                </div>
-                <button className="rd-btn" onClick={() => {
-                  const head = ["Country", "Company", "Period", "Segment", "Metric", "Amount", "Change", "Source"].join(",");
-                  const rows = cacRows.map(r => [r.country, r.company, r.period, r.segment, r.metric, r.amount, r.change, r.source].map(csvCell).join(","));
-                  const blob = new Blob([[head, ...rows].join("\n")], { type: "text/csv;charset=utf-8" });
-                  const a = document.createElement("a");
-                  a.href = URL.createObjectURL(blob);
-                  a.download = `cac-data-${new Date().toISOString().slice(0, 10)}.csv`;
-                  a.click();
-                }}>
-                  Export CSV
-                </button>
-              </div>
+                        const outlay = modelMode === "greenfield" ? p.fields.upfront_usd : Math.max(0, ebitda * 4.5);
+                        const payback = ebitda > 0 ? (outlay / ebitda).toFixed(1) + " yrs" : "Negative";
+                        const r = discountRate / 100;
+                        const npv = -outlay + (ebitda * 0.8 / (1 + r)) + (ebitda / Math.pow(1 + r, 2)) + (ebitda * 1.15 / Math.pow(1 + r, 3));
 
-              <div className="rd-tablewrap">
-                <table className="rd-table">
-                  <thead>
-                    <tr><th>Country</th><th>Entity</th><th>Period</th><th>Vertical</th><th>Metric</th><th>Amount</th><th>Change</th><th>Source</th></tr>
-                  </thead>
-                  <tbody>
-                    {cacRows.map(r => (
-                      <tr key={r.id}>
-                        <td><strong>{r.country}</strong></td>
-                        <td>{r.company}</td>
-                        <td>{r.period}</td>
-                        <td>{r.segment}</td>
-                        <td>{r.metric}</td>
-                        <td className="rd-amt">{r.amount}</td>
-                        <td className={r.change.startsWith("+") ? "rd-down" : "rd-up"}>{r.change}</td>
-                        <td>{r.source}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          )}
-
-          {/* 6. REGULATORY ROADMAP */}
-          {tab === "timeline" && (
-            <section className="rd-vol" aria-label="Regulatory Roadmap">
-              <div className="rd-vol-head">
-                <div>
-                  <h2>Global Regulatory Implementation Roadmap</h2>
-                  <p>Scheduled legislative milestones, technical certification cutoffs, and regulatory transition gates.</p>
+                        return (
+                          <tr key={k}>
+                            <td><strong>{p.country}</strong></td>
+                            <td>${(mkt / 1e6).toFixed(0)}M</td>
+                            <td style={{ color: "var(--brand)", fontWeight: 700 }}>${(projGgr / 1e6).toFixed(2)}M</td>
+                            <td>{players.toLocaleString()}</td>
+                            <td style={{ color: "var(--danger)" }}>${(tax / 1e6).toFixed(2)}M</td>
+                            <td style={{ fontWeight: 800, color: ebitda >= 0 ? "var(--ok)" : "var(--danger)" }}>
+                              ${(ebitda / 1e6).toFixed(2)}M
+                            </td>
+                            <td style={{ fontWeight: 600 }}>${(outlay / 1e6).toFixed(2)}M</td>
+                            <td><strong>{payback}</strong></td>
+                            <td style={{ fontWeight: 800, color: npv >= 0 ? "var(--ok)" : "var(--danger)" }}>
+                              ${(npv / 1e6).toFixed(2)}M
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
+            )}
 
-              <div style={{ position: "relative", borderLeft: "3px solid var(--brand)", marginLeft: 16, paddingLeft: 24, display: "grid", gap: 24 }}>
-                {[
-                  { date: "Q1 2027", country: "Armenia", title: "Mandatory Real-Time SRC Telemetry API Integration", desc: "Licensed platforms must establish direct real-time data streaming of all wagers and tax deductions to the State Revenue Committee servers.", impact: "High" },
-                  { date: "Q2 2027", country: "Romania", title: "Class 1 Operator National Self-Exclusion Central Gateway", desc: "Mandatory API query against the national self-exclusion registry prior to permitting player session initialization.", impact: "High" },
-                  { date: "Q3 2027", country: "Brazil", title: "Mandatory Biometric Liveness Protocol Enforcement", desc: "SPA requires certified facial liveness verification on player account opening and withdrawal requests.", impact: "Medium" }
-                ].map((ev, i) => (
-                  <div key={i} style={{ position: "relative" }}>
-                    <div style={{ position: "absolute", left: -31, top: 2, width: 14, height: 14, borderRadius: "50%", background: "var(--brand)", border: "3px solid #fff" }} />
-                    <div className="rd-panel" style={{ margin: 0 }}>
+            {/* 4. ROADMAP TAB */}
+            {tab === "timeline" && (
+              <div>
+                <div className="card">
+                  <h2 style={{ fontSize: 17, fontWeight: 800 }}>Regulatory Implementation Roadmap</h2>
+                  <p style={{ fontSize: 13, color: "var(--ink-muted)", marginTop: 2 }}>Upcoming statutory enforcement deadlines and technical certification gates.</p>
+                </div>
+
+                <div style={{ marginTop: 20, display: "grid", gap: 14 }}>
+                  {[
+                    { date: "Q1 2027", country: "Armenia", title: "Mandatory Real-Time SRC Telemetry API Integration", desc: "Remote platforms must stream real-time wager and tax deduction events directly to the State Revenue Committee central audit node.", impact: "High" },
+                    { date: "Q2 2027", country: "Romania", title: "Class 1 Operator National Self-Exclusion Central Gateway", desc: "Mandatory API cross-checks against the national self-exclusion database prior to opening player gaming sessions.", impact: "High" },
+                    { date: "Q3 2027", country: "Brazil", title: "Mandatory Biometric Liveness Protocol Enforcement", desc: "SPA requires certified facial liveness verification on player account creation and high-tier withdrawal transactions.", impact: "Medium" }
+                  ].map((ev, i) => (
+                    <div key={i} className="card" style={{ marginTop: 0, borderLeft: "4px solid var(--brand)" }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
                         <span style={{ fontSize: 12, fontWeight: 800, color: "var(--brand)" }}>{ev.date} • {ev.country}</span>
-                        <span className={`rd-tone ${ev.impact === "High" ? "rd-tone-red" : "rd-tone-amber"}`}>{ev.impact} Impact</span>
+                        <span className={`badge ${ev.impact === "High" ? "badge-money" : "badge-rules"}`}>{ev.impact} Impact</span>
                       </div>
-                      <h4 style={{ margin: "2px 0 6px", fontSize: 16 }}>{ev.title}</h4>
-                      <p style={{ margin: 0, fontSize: 13.5, color: "var(--ink-2)" }}>{ev.desc}</p>
+                      <h4 style={{ fontSize: 15, fontWeight: 700 }}>{ev.title}</h4>
+                      <p style={{ fontSize: 13.5, color: "#475569", marginTop: 4 }}>{ev.desc}</p>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-
-          {/* 7. SOURCES & EXCEL PIPELINE */}
-          {tab === "sources" && (
-            <section className="rd-vol" aria-label="Sources and Settings">
-              <div className="rd-vol-head">
-                <div>
-                  <h2>Data Pipeline & OneDrive / Excel Bridge</h2>
-                  <p>Manage central market workbook synchronization, custom intelligence scrapers, and data ingestion parameters.</p>
+                  ))}
                 </div>
               </div>
+            )}
 
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
-                <div className="rd-panel">
-                  <h3 className="rd-h">SharePoint / OneDrive Master File Bridge</h3>
-                  <p className="rd-status">Connects to your internal market tracking workbook for two-way synchronization via Claude in Excel.</p>
-                  <input
-                    className="rd-input"
-                    readOnly
-                    value="https://digitainllc-my.sharepoint.com/.../New%20Market%20List-%20FINAL.xlsx"
-                    style={{ margin: "10px 0", fontSize: 13, background: "var(--surface-2)" }}
-                  />
-                  <button className="rd-btn" onClick={() => alert("Workbook connection active and synchronized.")}>Test Connection</button>
-                </div>
-
-                <div className="rd-panel">
-                  <h3 className="rd-h">Active Intelligence Subscriptions</h3>
-                  <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
-                    {[
-                      { name: "SBC Americas & SBC News", type: "Newsletter / RSS" },
-                      { name: "iGaming Business (iGB)", type: "Regulatory Gazette" },
-                      { name: "VIXIO GamblingCompliance", type: "Statutory Law Crawler" },
-                      { name: "@GamingRegWatch", type: "Telegram Channel" }
-                    ].map((s, i) => (
-                      <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 10px", background: "var(--surface-2)", borderRadius: 6, fontSize: 13.5 }}>
-                        <span><strong>{s.name}</strong> ({s.type})</span>
-                        <span className="rd-up">✓ Active</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
+          </main>
         </div>
       );
     }
 
-    ReactDOM.render(<RegulatoryDeskApp />, document.getElementById("root"));
+    ReactDOM.render(<App />, document.getElementById("root"));
   </script>
 </body>
 </html>
